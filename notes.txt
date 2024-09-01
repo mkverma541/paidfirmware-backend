@@ -1,0 +1,8 @@
+1. Check If user is logged in - Client Side validation
+2. If user is logged in and have no valid package
+3. If user is active valid package and used daily limits 
+4. check user total bandwidth 
+
+Fair usages limit cound ->
+    count downloads each daily
+
