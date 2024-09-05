@@ -252,13 +252,12 @@ async function addFile(req, res) {
     // Execute the SQL query to insert the file data into the database
     const query = `
       INSERT INTO res_files 
-      (folder_id, folder_title, title, description, body, thumbnail, image, size, price, url, url_type, is_active, is_new, is_featured, tags)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (folder_id, title, description, body, thumbnail, image, size, price, url, url_type, is_active, is_new, is_featured, tags)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     await pool.execute(query, [
       folder_id,
-      folder_title,
       title,
       description,
       body,
