@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 const allowedOrigins = [
   "http://localhost:3001",
   "https://mathematicalpathshala.in",
-  "http://localhost:4200",
+  "http://localhost:3002",
   "http://localhost:3000",
 ];
 

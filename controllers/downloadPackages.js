@@ -33,8 +33,24 @@ async function getPackageDetails(req, res) {
   }
 }
 
+async function getPackages(req, res) {
+  try {
+   
+    const query = "SELECT * FROM res_download_packages";
+    const [rows] = await pool.execute(query);
 
-// Route to get all files in a particular folder
+    return res.status(200).json({
+      status: "success",
+      response: {
+        data: rows
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
 
 async function getAllFolders(req, res) {
   try {
@@ -76,4 +92,4 @@ async function getAllFiles(req, res) {
 }
 
 
-module.exports = { getPackageDetails };
+module.exports = { getPackageDetails, getPackages };
