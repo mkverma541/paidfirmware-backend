@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 // Define allowed origins for CORS
 const allowedOrigins = [
   "http://localhost:3001",
-  "https://mathematicalpathshala.in",
+  "https://admin.paidfirmware.com",
   "http://localhost:3002",
   "http://localhost:3000",
 ];
@@ -36,14 +36,13 @@ app.set("view engine", "jade");
 
 // Import routes
 
-const usersRouter = require("./routes/users");
+//const usersRouter = require("./routes/users");
 const partiesRouter = require("./routes/parties");
 const invoicesRouter = require("./routes/invoice");
 const filesRouter = require("./routes/files");
 const applicationFormRouter = require("./routes/applicationForm");
 const TwilloWARouter = require("./routes/twilloWhatsappMessaging");
 const packagesRouter = require("./routes/downloadPackages");
-const ordersRouter = require("./routes/orders");
 const transactionsRouter = require("./routes/transactions");
 const transfersRouter = require("./routes/transfers");
 const utilsRouter = require("./routes/utils");
@@ -52,7 +51,8 @@ const paymentRouterStripe = require("./routes/payment-gateway/stripe.js");
 const emailerRouter = require("./routes/emailer");
 const adminRoutes = require("./routes/admin/datatables");
 const adminAuthRouter = require("./routes/admin/auth");
-const adminUsersRouter = require("./routes/admin/users.js");
+const userAuthRouter = require("./routes/auth.js");
+const cartRouter = require("./routes/cart");
 
 // social login
 
@@ -64,24 +64,24 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Use appropriate route prefixes
-app.use("/api/v1/auth", usersRouter);
+//app.use("/api/v1", usersRouter);
 app.use("/api/v1/parties", partiesRouter);
 app.use("/api/v1/invoices/sale", invoicesRouter);
 app.use("/api/v1", filesRouter);
 app.use("/api/v1", applicationFormRouter);
 app.use("/api/v1", TwilloWARouter, packagesRouter);
 app.use("/api/utils", utilsRouter);
-app.use("/api/v1/admin", adminRoutes,  adminAuthRouter, adminUsersRouter);
+app.use("/api/v1/admin", adminRoutes,  adminAuthRouter);
+app.use("/api/v1/auth/user", userAuthRouter);
+app.use("/api/v1", cartRouter);
 
 app.use(
   "/api/v1",
   packagesRouter,
-  usersRouter,
-  ordersRouter,
   invoicesRouter,
   transactionsRouter,
   transfersRouter,
-  emailerRouter
+  emailerRouter,
 );
 
 app.use("/api/v1/payment", paymentRouter, paymentRouterStripe);

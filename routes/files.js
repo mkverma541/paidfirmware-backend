@@ -21,6 +21,8 @@ router.post('/admin/file/add', digitalFilesController.addFile);
 router.put('/admin/file/update/:fileId', digitalFilesController.updateFile);
 router.get('/admin/folder/file/:fileId', digitalFilesController.getFileByFileId);
 router.get('/files/recent', digitalFilesController.recentFiles);
+router.post('/admin/file/move', digitalFilesController.cutAndCopyFile);
+
 
 router.get('/files', digitalFilesController.getList);
 

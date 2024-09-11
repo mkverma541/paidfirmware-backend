@@ -36,7 +36,7 @@ async function getPackageDetails(req, res) {
 async function getPackages(req, res) {
   try {
    
-    const query = "SELECT * FROM res_download_packages";
+    const query = "SELECT * FROM res_download_packages where is_public = 1";
     const [rows] = await pool.execute(query);
 
     return res.status(200).json({

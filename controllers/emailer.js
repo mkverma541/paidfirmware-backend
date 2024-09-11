@@ -9,41 +9,37 @@ const emailTemplate = fs.readFileSync(emailTemplatePath, 'utf-8');
 
 // Create a transporter object with your email service provider's SMTP settings
 const transporter = nodemailer.createTransport({
-  host: 'server209.web-hosting.com',
+  host: 'premium119.web-hosting.com',
   port: 587,
-  secure: true, // Use true when port is 465
+  secure: false, // Use true when port is 465
   auth: {
-    user: 'contact@mathematicalpathshala.in',
-    pass: 'Talbros@1994',
+    user: 'info@mathematicalpathshala.in',
+    pass: 'Y0(2o@9n=U$B',
   },
   tls: {
     rejectUnauthorized: false, // Allow self-signed certificates
   },
 });
 
-async function sendEmail(req, res) {
-  const { to, subject, username } = req.body;
 
-  // Replace template placeholders with actual data
-  const html = emailTemplate.replace('{{username}}', username);
-
-  // Setup email data
+const sendEmail = async (to, subject, html) => {
   const mailOptions = {
-    from: 'mathematicalpathshala@gmail.com',
-    to,
-    subject,
-    html,
+    from: 'info@mathematicalpathshala.in',
+    to,          // Use the 'to' email argument directly
+    subject,     // Use the 'subject' argument
+    html,        // Use the 'html' content argument
   };
 
-  try {
-    // Send the email
-    await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully to:', to);
-    res.status(200).json({ message: 'Email sent successfully!' });
-  } catch (error) {
-    console.error('Error sending email:', error.message);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-}
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return reject(error);
+      }
+      console.log('Email sent: ', info.response);
+      resolve(info);
+    });
+  });
+};
 
 module.exports = { sendEmail };

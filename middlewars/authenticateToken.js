@@ -1,20 +1,33 @@
-const jwt = require('jsonwebtoken');
-const { secretKey } = require('../config/database');
+const jwt = require("jsonwebtoken");
+const { secretKey } = require("../config/database");
 
 function authenticateToken(req, res, next) {
-  const token = req.headers.authorization;
+  // Retrieve the Authorization header from the request
+  const authHeader = req.headers.authorization;
 
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized: Token not provided' });
+  // Check if the Authorization header is present and starts with "Bearer "
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ error: "Authorization header missing or invalid" });
   }
 
+  // Extract the token from the Authorization header
+  const token = authHeader.split(" ")[1];
+
+  // Verify the token using the secret key
   jwt.verify(token, secretKey, (err, user) => {
     if (err) {
-      return res.status(403).json({ error: 'Forbidden: Invalid token' });
+      // If there's an error verifying the token, respond with a 403 status code
+      return res.status(403).json({ error: "Forbidden: Invalid token" });
     }
 
-    req.user = user; // Attach the user information to the request object
-    console.log(user)
+    console.log("User authenticated:", user);
+
+    // Attach the user information to the request object
+    req.user = user;
+
+    // Proceed to the next middleware or route handler
     next();
   });
 }
