@@ -1,0 +1,11 @@
+{
+    "DB_HOST": "localhost",
+    "DB_USER": "mathekgc_demo",
+    "DB_PASSWORD": "7,LBn6eu0CPv",
+    "DB_DATABASE": "mathekgc_demo",
+    "SECRET_KEY": "your_secret_key",
+    "RAZORPAY_KEY_ID": "rzp_test_pbIjNZqBtFV9ua",
+    "RAZORPAY_KEY_SECRET": "ojBj3i7i5RcURarWqplBIfzD",
+    "STRIPE_SECRET_KEY": "sk_test51OhdpnSEpSkidt63KbWjAT4Tq41H5ZdNKzTsbuqi0rJIupZS3iqK8QOojrZsC9h21LUUjar7bqgmDRaDOtV9a73r00mXQ0DDCr"
+  }
+  

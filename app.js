@@ -13,18 +13,11 @@ const app = express();
 // Body parser middleware
 app.use(bodyParser.json());
 
-// Define allowed origins for CORS
-const allowedOrigins = [
-  "http://localhost:3001",
-  "https://admin.paidfirmware.com",
-  "http://localhost:3002",
-  "http://localhost:3000",
-];
 
 // CORS configuration
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: '*',
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })
