@@ -3,7 +3,7 @@ const router = express.Router();
 
 const StripeController = require('../../controllers/payment-gateway/stripe');
 
-router.post('/stripe/create-session', StripeController.createSession);
-router.get('/stripe/payments/:id',  StripeController.fetchPayment);
+router.post('/create-session', StripeController.createSession);
+router.get('/payments/:id',  StripeController.fetchPayment);
 
 module.exports = router;

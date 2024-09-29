@@ -8,11 +8,13 @@ const createError = require("http-errors");
 
 require("./config/database");
 
+// Crons jobs
+require('./jobs/updateIsNewCron');
+
 const app = express();
 
 // Body parser middleware
 app.use(bodyParser.json());
-
 
 // CORS configuration
 app.use(
@@ -27,27 +29,9 @@ app.use(
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-// Import routes
-
-//const usersRouter = require("./routes/users");
-const partiesRouter = require("./routes/parties");
-const invoicesRouter = require("./routes/invoice");
-const filesRouter = require("./routes/files");
-const applicationFormRouter = require("./routes/applicationForm");
-const TwilloWARouter = require("./routes/twilloWhatsappMessaging");
-const packagesRouter = require("./routes/downloadPackages");
-const transactionsRouter = require("./routes/transactions");
-const transfersRouter = require("./routes/transfers");
-const utilsRouter = require("./routes/utils");
-const paymentRouter = require("./routes/payment-gateway/razorpay");
-const paymentRouterStripe = require("./routes/payment-gateway/stripe.js");
-const emailerRouter = require("./routes/emailer");
-const adminRoutes = require("./routes/admin/datatables");
-const adminAuthRouter = require("./routes/admin/auth");
-const userAuthRouter = require("./routes/auth.js");
-const cartRouter = require("./routes/cart");
-
-// social login
+// Import grouped routes
+const userRoutes = require("./routes/users");
+const adminRoutes = require("./routes/admin");
 
 // Middleware setup
 app.use(logger("dev"));
@@ -56,28 +40,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// Use appropriate route prefixes
-//app.use("/api/v1", usersRouter);
-app.use("/api/v1/parties", partiesRouter);
-app.use("/api/v1/invoices/sale", invoicesRouter);
-app.use("/api/v1", filesRouter);
-app.use("/api/v1", applicationFormRouter);
-app.use("/api/v1", TwilloWARouter, packagesRouter);
-app.use("/api/utils", utilsRouter);
-app.use("/api/v1/admin", adminRoutes,  adminAuthRouter);
-app.use("/api/v1/auth/user", userAuthRouter);
-app.use("/api/v1", cartRouter);
-
-app.use(
-  "/api/v1",
-  packagesRouter,
-  invoicesRouter,
-  transactionsRouter,
-  transfersRouter,
-  emailerRouter,
-);
-
-app.use("/api/v1/payment", paymentRouter, paymentRouterStripe);
+// Use grouped routes
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {

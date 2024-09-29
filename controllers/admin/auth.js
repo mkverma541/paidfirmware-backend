@@ -102,7 +102,10 @@ const adminAuthController = {
         username: rows[0].username,
       };
 
-      const token = jwt.sign(user, secretKey, { expiresIn: "1h" });
+
+      // token expiry in 1 months
+
+      const token = jwt.sign(user, secretKey, { expiresIn: "30d" });
 
       return res.status(200).json({
         status: "success",

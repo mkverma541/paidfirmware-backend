@@ -1,7 +1,7 @@
 require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const { pool } = require("../../config/database");
-const { addPurchasedPackage } = require("../users");
+const { pool } = require("../../../config/database");
+const { addPurchasedPackage } = require("../../admin/users");
 const { addTransaction } = require("../transactions");
 
 async function createSession(req, res) {

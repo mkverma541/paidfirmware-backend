@@ -13,6 +13,8 @@ process.env.SECRET_KEY = config.SECRET_KEY;
 process.env.RAZORPAY_KEY_ID = config.RAZORPAY_KEY_ID;
 process.env.RAZORPAY_KEY_SECRET = config.RAZORPAY_KEY_SECRET;
 process.env.STRIPE_SECRET_KEY = config
+process.env.BINANCE_API_KEY = config.BINANCE_API_KEY;
+process.env.BINANCE_API_SECRET = config.BINANCE_API_SECRET;
 
 
 const pool = mysql.createPool({
