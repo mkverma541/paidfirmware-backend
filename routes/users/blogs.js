@@ -8,8 +8,8 @@ router.get('/featured', BlogsController.getFeaturedBlog);
 router.get('/recent', BlogsController.getRecentBlogs);
 router.get('/top', BlogsController.getTopBlogsByViews);
 router.get('/search', BlogsController.searchBlogs);
-router.get('/related/:blog_id', BlogsController.getRelatedBlogs);
-router.get("/comments/:blog_id", BlogsController.getBlogComments);
+router.post('/related', BlogsController.getRelatedBlogs);
+router.post("/comments", BlogsController.getBlogComments);
 
 router.post('/like', BlogsController.likeBlog);
 router.post('/unlike', BlogsController.unlikeBlog);

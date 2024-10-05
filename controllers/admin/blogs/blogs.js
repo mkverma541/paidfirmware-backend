@@ -13,7 +13,7 @@ async function createBlog(req, res) {
             categories = [],   // Categories as an array
             tags = [],         // Tags as an array
             excerpt, 
-            featuredImage, 
+            featured_image, 
             gallery = [],       // Gallery as an array
             status,
             featured = 0   
@@ -32,7 +32,7 @@ async function createBlog(req, res) {
         const galleryJson = JSON.stringify(gallery);
 
         const [result] = await connection.query(query, [
-            title, content, author, slug, excerpt, featuredImage, galleryJson, status, featured
+            title, content, author, slug, excerpt, featured_image, galleryJson, status, featured
         ]);
 
         const blogId = result.insertId;

@@ -10,6 +10,7 @@ const paymentRouter = require('./payment-gateway/index');
 const agentRouter = require('./users/agents');
 const teamsRouter = require('./users/teams');
 const blogsRouter = require('./users/blogs');
+const videosRouter = require('./users/videos');
 
 
 router.use("/auth", userAuthRouter);
@@ -21,6 +22,7 @@ router.use("/payment", paymentRouter);
 router.use("/agents", agentRouter);
 router.use("/teams", teamsRouter);
 router.use("/blogs", blogsRouter);
+router.use("/videos", videosRouter);
 
 
 module.exports = router;

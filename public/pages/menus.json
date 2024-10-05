@@ -153,7 +153,11 @@
       },
       {
         "title": "Videos",
-        "url": "/our-videos"
+        "url": "/videos"
+      },
+      {
+        "title": "Blogs",
+        "url": "/blogs"
       }
     ]
   }

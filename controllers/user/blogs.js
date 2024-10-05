@@ -130,41 +130,48 @@ async function getBlog(req, res) {
   const { slug } = req.params;
 
   try {
-    const [rows] = await pool.query(
+    // Optimized query with fewer operations
+    const [blogRows] = await pool.query(
       `
       SELECT 
         b.blog_id,
         b.title,
         b.slug,
         b.author,
-          b.likes,
+        b.likes,
         b.content,
         b.featured_image,
-        b.created_at,
-        GROUP_CONCAT(DISTINCT c.name) AS categories
+        b.created_at
       FROM res_blogs b
-      LEFT JOIN res_blogs_categories_relationship bc ON b.blog_id = bc.blog_id
-      LEFT JOIN res_blogs_categories c ON bc.category_id = c.category_id
       WHERE b.slug = ?
-      GROUP BY b.blog_id
-    `,
+      LIMIT 1
+      `,
       [slug]
     );
 
-    if (rows.length === 0) {
+    if (blogRows.length === 0) {
       return res.status(404).json({
         message: "Blog not found",
         status: "error",
       });
     }
 
-    const blog = rows.map(
-      ({ categories, ...blog }) =>
-        ({
-          ...blog,
-          categories: categories ? categories.split(",") : [], // Convert categories string to array
-        }[0])
+    const blog = blogRows[0];
+
+    // Fetch categories separately (this avoids heavy group operations)
+    const [categoryRows] = await pool.query(
+      `
+      SELECT c.name
+      FROM res_blogs_categories c
+      INNER JOIN res_blogs_categories_relationship bc ON c.category_id = bc.category_id
+      WHERE bc.blog_id = ?
+      `,
+      [blog.blog_id]
     );
+
+    // Combine the blog data with categories
+    const categories = categoryRows.map((cat) => cat.name);
+    blog.categories = categories;
 
     res.status(200).json({
       data: blog,
@@ -310,7 +317,7 @@ async function getBlogByCategory(req, res) {
 // get top blogs by views
 
 async function getTopBlogsByViews(req, res) {
-  const { limit = 5 } = req.query;
+  const { limit = 3 } = req.query;
 
   try {
     const [rows] = await pool.query(
@@ -508,11 +515,17 @@ async function replyToComment(req, res) {
 }
 
 // get blog comments with reply, user details
-
 async function getBlogComments(req, res) {
-  const { blog_id } = req.params;
+  const { id } = req.body;
 
   try {
+    if (!id) {
+      return res.status(400).json({
+        message: "Blog id is required",
+        status: "error",
+      });
+    }
+
     const [rows] = await pool.query(
       `
       SELECT 
@@ -527,8 +540,9 @@ async function getBlogComments(req, res) {
       LEFT JOIN res_blog_comment_replies bcr ON bc.comment_id = bcr.comment_id
       WHERE bc.blog_id = ?
       GROUP BY bc.comment_id
+      ORDER BY bc.created_at DESC
     `,
-      [blog_id]
+      [id]
     );
 
     // Directly format the results into the desired structure
@@ -551,9 +565,16 @@ async function getBlogComments(req, res) {
 }
 
 async function getRelatedBlogs(req, res) {
-  const { blog_id } = req.params;
+  const { id } = req.body;
 
   try {
+    if (!id) {
+      return res.status(400).json({
+        message: "Blog id is required",
+        status: "error",
+      });
+    }
+
     const [rows] = await pool.query(
       `
       SELECT 
@@ -571,9 +592,9 @@ async function getRelatedBlogs(req, res) {
       WHERE b.blog_id != ?
       GROUP BY b.blog_id
       ORDER BY b.created_at DESC
-      LIMIT 3
+      LIMIT 4
     `,
-      [blog_id]
+      [id]
     );
 
     // Directly format the results into the desired structure
