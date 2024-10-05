@@ -19,8 +19,14 @@ function logCronJob(status, table, message) {
   fs.readFile(logFilePath, "utf8", (err, data) => {
     let logs = [];
 
+    // Handle empty or invalid JSON file
     if (!err && data) {
-      logs = JSON.parse(data);
+      try {
+        logs = JSON.parse(data);
+      } catch (parseErr) {
+        console.error("Invalid JSON in log file, starting with a fresh log.");
+        logs = [];
+      }
     }
 
     // Append the new log entry
@@ -29,7 +35,7 @@ function logCronJob(status, table, message) {
     // Write back to the log file
     fs.writeFile(logFilePath, JSON.stringify(logs, null, 2), (writeErr) => {
       if (writeErr) {
-      } else {
+        console.error(`Failed to write log: ${writeErr.message}`);
       }
     });
   });
@@ -86,4 +92,3 @@ cron.schedule("* * * * *", async () => {
   await updateIsNewForFolders();
   await updateIsNewForFiles();
 });
-

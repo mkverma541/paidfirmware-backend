@@ -1,6 +1,27 @@
 const express = require("express");
 const router = express.Router();
 
+
+const managePagesRouter = require("./admin/managePages")
+const menuRouter = require("./admin/menu")
+const teamRouter = require("./admin/team")
+const socialPlatForm = require("./admin/socialPlatform");
+const agentRouter = require("./admin/agent");
+const requestFileRouter = require("./admin/requestFile");
+const contactRouter = require("./admin/contact");
+const blogsRouter = require("./admin/blogs");
+const videosRouter = require("./admin/videos");
+
+router.use("/pages", managePagesRouter);
+router.use("/menu", menuRouter);
+router.use("/teams", teamRouter);
+router.use("/social", socialPlatForm);
+router.use("/agents", agentRouter);
+router.use("/request-file", requestFileRouter);
+router.use("/contact", contactRouter);
+router.use("/blogs", blogsRouter);
+router.use("/videos", videosRouter);
+
 // const adminRoutes = require("./admin/datatables");
 // const adminAuthRouter = require("./admin/auth");
 // const usersRouters = require("./admin/users");
@@ -30,6 +51,7 @@ const router = express.Router();
 // // Store-related routes
 // router.use("/parties", partiesRouter);
 // router.use("/invoices/sale", invoicesRouter);
+
 // router.use(filesRouter);
 // router.use(applicationFormRouter);
 // router.use(TwilloWARouter);

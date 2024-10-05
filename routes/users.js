@@ -7,6 +7,9 @@ const downloadPackagesRouter = require("./users/downloadPackages");
 const AccountRouter = require('./users/account');
 const cartRouter = require('./users/cart');
 const paymentRouter = require('./payment-gateway/index');
+const agentRouter = require('./users/agents');
+const teamsRouter = require('./users/teams');
+const blogsRouter = require('./users/blogs');
 
 
 router.use("/auth", userAuthRouter);
@@ -15,6 +18,9 @@ router.use("/download-packages", downloadPackagesRouter);
 router.use("/account", AccountRouter);
 router.use("/cart", cartRouter);
 router.use("/payment", paymentRouter);
+router.use("/agents", agentRouter);
+router.use("/teams", teamsRouter);
+router.use("/blogs", blogsRouter);
 
 
 module.exports = router;

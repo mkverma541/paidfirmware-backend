@@ -1,8 +1,43 @@
 const { pool } = require("../../config/database");
 const { generateDownloadLink } = require("./digitalFiles");
 
-
 async function getPackages(req, res) {
+  const { id } = req.user;
+
+  try {
+    // SQL query to select the necessary fields from both res_upackages and res_download_packages
+    const [packages] = await pool.execute(
+      `
+      SELECT 
+        res_upackages.is_active,
+        res_upackages.date_create,
+        res_upackages.date_expire,
+        res_upackages.is_current,
+        res_download_packages.title
+      FROM res_upackages
+      LEFT JOIN res_download_packages 
+      ON res_upackages.package_id = res_download_packages.package_id
+      WHERE res_upackages.user_id = ?
+      ORDER BY res_upackages.date_create ASC
+      `,
+      [id]
+    );
+
+    // Log packages for debugging
+    console.log("Packages fetched:", packages);
+
+    // Send the response with the package list
+    res.status(200).json({
+      data: packages,
+      status: "success",
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+async function getPackagesDetails(req, res) {
   const { id } = req.user;
 
   try {
@@ -14,12 +49,13 @@ async function getPackages(req, res) {
       LEFT JOIN res_download_packages 
       ON res_upackages.package_id = res_download_packages.package_id
       WHERE res_upackages.user_id = ?
+      ORDER BY res_upackages.date_create DESC
       `,
       [id]
     );
 
     // Log packages for debugging
-    console.log('Packages fetched:', packages);
+    console.log("Packages fetched:", packages);
 
     // Iterate over each package to compute additional values
     const packageData = await Promise.all(
@@ -41,7 +77,10 @@ async function getPackages(req, res) {
         );
 
         // Log bandwidth usage for debugging
-        console.log(`Total bandwidth for upackage_id ${upackageId}:`, totalBandwidth);
+        console.log(
+          `Total bandwidth for upackage_id ${upackageId}:`,
+          totalBandwidth
+        );
 
         // Calculate total downloads in the last 24 hours (for fair usage)
         const [dailyDownloads] = await pool.execute(
@@ -54,13 +93,16 @@ async function getPackages(req, res) {
         );
 
         // Log daily downloads for debugging
-        console.log(`Daily downloads for upackage_id ${upackageId}:`, dailyDownloads);
+        console.log(
+          `Daily downloads for upackage_id ${upackageId}:`,
+          dailyDownloads
+        );
 
         // Attach the calculated values to each package
         return {
           ...pkg,
-          total_bandwidth_used: totalBandwidth[0].total_bandwidth_usage || 0,  // Total bandwidth usage in bytes
-          daily_downloads: dailyDownloads[0].daily_usage || 0,  // Daily usage in terms of number of files downloaded in the last 24 hours
+          total_bandwidth_used: totalBandwidth[0].total_bandwidth_usage || 0, // Total bandwidth usage in bytes
+          daily_downloads: dailyDownloads[0].daily_usage || 0, // Daily usage in terms of number of files downloaded in the last 24 hours
         };
       })
     );
@@ -75,7 +117,6 @@ async function getPackages(req, res) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
-
 
 async function getOrders(req, res) {
   const { id } = req.user;
@@ -99,8 +140,6 @@ async function getOrders(req, res) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
-
-
 
 async function getDownloadsHistory(req, res) {
   const { id } = req.user;
@@ -291,7 +330,6 @@ async function updateCurrentPackage(req, res) {
 async function getOrderDetails(req, res) {
   const { id } = req.user; // User ID from the authenticated user
   const { orderId } = req.params; // Order ID from the request parameters
-  console.log("Order ID:", orderId);
 
   try {
     // Fetch the order details
@@ -330,7 +368,7 @@ async function getOrderDetails(req, res) {
     let response = {
       order: order[0],
       packages: packageBuy.length ? packageBuy : null, // Populate packages if available
-      files: filesBuy.length ? filesBuy : null // Populate files if available
+      files: filesBuy.length ? filesBuy : null, // Populate files if available
     };
 
     res.status(200).json({
@@ -388,7 +426,7 @@ async function getOrderDetailsByPaymentId(req, res) {
     let response = {
       order: order[0],
       packages: packageBuy.length ? packageBuy : null, // Populate packages if available
-      files: filesBuy.length ? filesBuy : null // Populate files if available
+      files: filesBuy.length ? filesBuy : null, // Populate files if available
     };
 
     res.status(200).json({
