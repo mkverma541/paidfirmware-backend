@@ -38,6 +38,7 @@ async function createOrder(req, res) {
       merchantTradeNo: Math.floor(Math.random() * (9825382937292 - 982538)) + 982538, // Random trade number
       orderAmount: 0.0001,
       currency: 'USDT',
+      returnUrl: 'http://localhost:3001/payment?ref=binance',
       goods: {
         goodsType: '01',
         goodsCategory: 'D000',
@@ -46,6 +47,7 @@ async function createOrder(req, res) {
         goodsDetail: 'Greentea ice cream cone',
       },
     };
+    console.log(payload);
 
     const jsonPayload = JSON.stringify(payload);
 
@@ -71,8 +73,9 @@ async function createOrder(req, res) {
 
     // Handle the response
     if (response.data.status === 'SUCCESS') {
-      const paymentUrl = response.data.data.checkoutUrl;
-      res.json({ paymentUrl });
+      console.log(response.data);
+      res.status(200).json({ response: response.data, merchantTradeNo: payload.merchantTradeNo });
+     
     } else {
       res.status(400).json({
         error: 'Failed to create Binance payment order',
@@ -85,6 +88,57 @@ async function createOrder(req, res) {
   }
 }
 
+async function checkPaymentStatus(req, res) {
+  try {
+    // Generate timestamp and nonce
+    const timestamp = Date.now();
+    const nonce = generateNonce();
+
+    // Prepare the payload based on the PHP structure
+    const payload = {
+      merchantTradeNo: req.body.merchantTradeNo,
+    };
+
+    const jsonPayload = JSON.stringify(payload);
+
+    // Create the signature payload
+    const signaturePayload = `${timestamp}\n${nonce}\n${jsonPayload}\n`;
+    const signature = createSignature(signaturePayload);
+
+    // Prepare headers
+    const headers = {
+      'Content-Type': 'application/json',
+      'BinancePay-Timestamp': timestamp,
+      'BinancePay-Nonce': nonce,
+      'BinancePay-Certificate-SN': BINANCE_API_KEY,
+      'BinancePay-Signature': signature,
+    };
+
+    // Send the request to Binance Pay API
+    const response = await axios.post(
+      'https://bpay.binanceapi.com/binancepay/openapi/v2/order/query',
+      payload,
+      { headers }
+    );
+
+    // Handle the response
+    if (response.data.status === 'SUCCESS') {
+      console.log(response.data);
+      res.status(200).json({ response: response.data });
+    } else {
+      res.status(400).json({
+        error: 'Failed to query Binance payment order',
+        details: response.data,
+      });
+    }
+
+  } catch (error) {
+    console.error('Error querying payment order:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 module.exports = {
   createOrder,
+  checkPaymentStatus,
 };
