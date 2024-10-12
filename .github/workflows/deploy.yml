@@ -26,5 +26,14 @@ jobs:
         
         # Upload files using curl
         for file in *; do
-          curl -T "$file" ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_SERVER$FTP_PATH"$file"
+          # Skip directories
+          if [ -d "$file" ]; then
+            continue
+          fi
+
+          # Construct the full FTP URL
+          FTP_URL="ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_SERVER$FTP_PATH$file"
+
+          # Upload the file
+          curl -T "$file" "$FTP_URL"
         done
