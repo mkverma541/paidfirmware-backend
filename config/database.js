@@ -2,7 +2,27 @@ const fs = require('fs');
 
 const mysql = require('mysql2/promise');
 
-const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+// Determine the current environment
+const environment = process.env.NODE_ENV || 'development';
+
+// Set the configuration file based on the environment
+let configFileName;
+
+switch (environment) {
+  case 'production':
+    configFileName = 'config-prod.json';
+    break;
+  case 'development':
+    configFileName = 'config-dev.json';
+    break;
+  case 'local':
+  default:
+    configFileName = 'config.json'; // Default to local config
+    break;
+}
+
+// Load the appropriate config file
+const config = JSON.parse(fs.readFileSync(configFileName, 'utf8'));
 
 // Set environment variables
 process.env.DB_HOST = config.DB_HOST;
