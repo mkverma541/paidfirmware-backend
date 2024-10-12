@@ -14,26 +14,21 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Install lftp
+      run: sudo apt-get install -y lftp
+
     - name: Deploy files via FTP
       env:
-        FTP_SERVER: ftp.mathematicalpathshala.in
-        FTP_USERNAME: mukesh@api.paidfirmware.com
-        FTP_PASSWORD: kPwr~~!(Yi1-
-        FTP_PATH: /
+        FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        FTP_PATH: ${{ secrets.FTP_PATH }}
       run: |
-        # Change to the directory where the files are located
-        cd . 
-        
-        # Upload files using curl
-        for file in *; do
-          # Skip directories
-          if [ -d "$file" ]; then
-            continue
-          fi
-
-          # Construct the full FTP URL
-          FTP_URL="ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_SERVER$FTP_PATH$file"
-
-          # Upload the file
-          curl -T "$file" "$FTP_URL"
-        done
+        lftp -f "
+        set ssl:verify-certificate no
+        open ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_SERVER
+        lcd .
+        cd $FTP_PATH
+        mirror --reverse --delete --verbose ./ .
+        bye
+        "
