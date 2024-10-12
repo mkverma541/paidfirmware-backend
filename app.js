@@ -22,6 +22,7 @@ app.use(
   cors({
     origin: '*',
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Content-Type, Authorization",
     credentials: true,
   })
 );
@@ -33,6 +34,7 @@ app.set("view engine", "jade");
 // Import grouped routes
 const userRoutes = require("./routes/users");
 const adminRoutes = require("./routes/admin");
+
 
 // Middleware setup
 app.use(logger("dev"));

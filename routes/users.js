@@ -11,6 +11,7 @@ const agentRouter = require('./users/agents');
 const teamsRouter = require('./users/teams');
 const blogsRouter = require('./users/blogs');
 const videosRouter = require('./users/videos');
+const miscRouter = require('./users/misc');
 
 
 router.use("/auth", userAuthRouter);
@@ -23,6 +24,7 @@ router.use("/agents", agentRouter);
 router.use("/teams", teamsRouter);
 router.use("/blogs", blogsRouter);
 router.use("/videos", videosRouter);
+router.use("/pages", miscRouter);
 
 
 module.exports = router;
