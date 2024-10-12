@@ -1,41 +1,29 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const upload = require('../../config/fileUpload');
-const authenticateToken = require('../../middlewars/authenticateToken');
 
-const FilesController = require('../controllers/files');
-const digitalFilesController = require('../controllers/digitalFiles');
-const googleDriveFileController = require('../controllers/fileController');
-const authenticate = require('../../middlewars/authenticateToken');
+const authenticateToken = require("../../middlewars/authenticateToken");
 
+const FilesController = require("../../controllers/admin/files");
 
-router.get('/', digitalFilesController.getAllFolders);
-router.get('/files/recent', digitalFilesController.recentFiles);
-router.get('/files', digitalFilesController.getList);
-router.get('/files/:fileId/generate-link',  digitalFilesController.generateDownloadLink);
-router.get('/file/download', digitalFilesController.downloadFile);
-router.get('/file/:fileId', digitalFilesController.getFileByFileId);
+router.get("/folders", FilesController.getAllFolders);
+router.get("/files", FilesController.getList);
+router.get(
+  "/files/:fileId/generate-link",
+  FilesController.generateDownloadLink
+);
+router.get("/file/download", FilesController.downloadFile);
+router.get("/file/:fileId", FilesController.getFileByFileId);
 
-router.get('/download/:fileId', googleDriveFileController.downloadFile);
+router.get("/folders", FilesController.getAllFolders);
 
-router
-    .route('/admin/upload/files')
-    .post(upload.files(FilesController.expectedFiles()), FilesController.uploadFiles)
-
-router.get('/admin/folders', digitalFilesController.getAllFolders);
-
-
-router.post('/admin/folder/add', digitalFilesController.addFolder);
-router.delete('/admin/folder/delete/:folderId', digitalFilesController.deleteFolder);
-router.put('/admin/folder/update/:folderId', digitalFilesController.updateFolder);
-router.get('/admin/folder/files', digitalFilesController.getAllFiles);
-router.delete('/admin/folder/file/delete/:fileId', digitalFilesController.deleteFile);
-router.post('/admin/file/add', digitalFilesController.addFile);
-router.put('/admin/file/update/:fileId', digitalFilesController.updateFile);
-router.get('/admin/folder/file/:fileId', digitalFilesController.getFileByFileId);
-router.post('/admin/file/move', digitalFilesController.cutAndCopyFile);
-
-
-
+router.post("/folder/add", FilesController.addFolder);
+router.delete("/folder/delete/:folderId", FilesController.deleteFolder);
+router.put("/folder/update/:folderId", FilesController.updateFolder);
+router.get("/folder/files", FilesController.getAllFiles);
+router.delete("/folder/file/delete/:fileId", FilesController.deleteFile);
+router.post("/file/add", FilesController.addFile);
+router.put("/file/update/:fileId", FilesController.updateFile);
+router.get("/folder/file/:fileId", FilesController.getFileByFileId);
+router.post("/file/move", FilesController.cutAndCopyFile);
 
 module.exports = router;
