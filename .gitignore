@@ -57,6 +57,13 @@ out/
 
 public/images
 public/uploads
+public/media
+public/pages
+
+
+.git
+
+
 
 # cPanel and FTP related files
 ftp-config.json
