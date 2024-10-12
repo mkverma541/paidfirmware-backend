@@ -208,5 +208,17 @@
     "status": "error",
     "table": "res_folders",
     "message": "Error updating is_new: connect ETIMEDOUT"
+  },
+  {
+    "timestamp": "2024-10-12T06:03:10.906Z",
+    "status": "error",
+    "table": "res_folders",
+    "message": "Error updating is_new: connect ETIMEDOUT"
+  },
+  {
+    "timestamp": "2024-10-12T06:04:10.771Z",
+    "status": "error",
+    "table": "res_folders",
+    "message": "Error updating is_new: connect ETIMEDOUT"
   }
 ]
