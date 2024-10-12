@@ -55,6 +55,8 @@ out/
 # Nuxt.js
 .nuxt/
 
+public/images
+public/uploads
 
 # cPanel and FTP related files
 ftp-config.json

@@ -29,6 +29,6 @@ jobs:
         open ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_SERVER
         lcd .
         cd $FTP_PATH
-        mirror --reverse --delete --verbose --only-newer ./ .
+        mirror --reverse --delete --verbose ./ .
         bye
         "
