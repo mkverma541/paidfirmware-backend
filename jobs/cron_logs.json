@@ -118,5 +118,29 @@
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2024-10-12T04:59:00.666Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2024-10-12T04:59:00.816Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2024-10-12T05:00:00.836Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2024-10-12T05:00:00.973Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
   }
 ]

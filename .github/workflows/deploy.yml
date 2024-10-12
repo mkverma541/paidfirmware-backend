@@ -25,6 +25,7 @@ jobs:
         FTP_PATH: /
       run: |
         lftp -f "
+        set ssl:verify-certificate no
         open ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_SERVER
         lcd .
         cd $FTP_PATH
