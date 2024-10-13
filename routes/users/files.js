@@ -4,17 +4,23 @@ const router = express.Router();
 const digitalFilesController = require("../../controllers/user/digitalFiles");
 const authenticateUser = require('../../middlewars/authenticateToken');
 
+router.get("/folders/path/:folderId", digitalFilesController.getFolderPath);
+router.get("/file/path/:fileId", digitalFilesController.getFolderPathByFile);
+router.get("/folder/description/:folderId", digitalFilesController.getFolderDescription);
+
 router.get("/folders", digitalFilesController.getAllFolders);
-router.get("/files/recent", digitalFilesController.recentFiles);
-router.get("/files/paid", digitalFilesController.paidFiles);
 router.get("/files", digitalFilesController.getList);
+router.get("/file/:fileId",  digitalFilesController.getFileByFileId);
+
 router.get(
-  "/files/:fileId/generate-link",
+  "/file/generate-download-link/:fileId", authenticateUser,
   digitalFilesController.generateDownloadLink
 );
-router.get("/file/download", authenticateUser, digitalFilesController.downloadFile);
-router.get("/file/paid/download/:fileId", digitalFilesController.downloadFile);
-router.get("/file/:fileId",  digitalFilesController.getFileByFileId);
+router.get("/file/download",  digitalFilesController.downloadFile);
+
+router.get("/files/recent", digitalFilesController.recentFiles);
+router.get("/files/paid", digitalFilesController.paidFiles);
+
 
 
 module.exports = router;

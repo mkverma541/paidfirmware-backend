@@ -22,7 +22,9 @@ switch (environment) {
 }
 
 // Load the appropriate config file
-const config = JSON.parse(fs.readFileSync(configFileName, 'utf8'));
+//const config = JSON.parse(fs.readFileSync(configFileName, 'utf8'));
+const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+
 
 // Set environment variables
 process.env.DB_HOST = config.DB_HOST;

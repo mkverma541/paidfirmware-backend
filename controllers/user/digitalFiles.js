@@ -7,12 +7,19 @@ const verifyToken = require("../utils/verifyToken");
 const NodeCache = require('node-cache');
 const fileCache = new NodeCache({ stdTTL: 0 }); // Cache TTL of 1 hour
 
-async function generateDownloadLink(fileId, userId, packageId) {
+async function generateDownloadLink(req, res) {
+  const {id } = req.user;
+  const userId = id;
+  const packageId = 0; // will change it later
+
+  const {fileId} = req.params;
+
   try {
     const [rows] = await pool.execute(
       "SELECT * FROM res_files WHERE file_id = ?",
       [fileId]
     );
+
 
     if (rows.length === 0) {
       throw new Error("File not found");
@@ -26,7 +33,8 @@ async function generateDownloadLink(fileId, userId, packageId) {
 
     // Generate token (you should have your own token generation logic)
     const token = generateToken(tokenData); // Ensure this function exists
-    const url = "http://localhost:3000/api/v1/file/download";
+    
+    const url = "http://localhost:3000/api/v1/user/file/download";
 
     // Save the download record in the database
     await pool.execute(
@@ -36,7 +44,12 @@ async function generateDownloadLink(fileId, userId, packageId) {
     );
 
     // Return the generated download URL with the token
-    return `${url}?token=${token}`;
+    return res.status(200).json({
+      status: "success",
+      download_url: `${url}?token=${token}`,
+      token : token
+    });
+
   } catch (err) {
     console.error(err);
     throw new Error("Internal Server Error");
@@ -46,17 +59,21 @@ async function generateDownloadLink(fileId, userId, packageId) {
 // Function to handle the download request
 
 async function downloadFile(req, res) {
-
+  console.log("Download file");
   try {
+    // Get the token from the query string
+
+    const token = req.query.token;
+    console.log("Token:", token); 
+
     // Verify the token
     const tokenData = verifyToken(token);
+   
 
     const fileId = tokenData.fileId.fileId;
+    console.log("File ID:", fileId);
     const expirationTime = tokenData.fileId.expirationTime;
 
-    console.log("Token data:", tokenData);
-    console.log("File ID:", fileId);
-    console.log("Expiration Time:", expirationTime);
 
     // Check if the link is expired
     const currentTime = Math.floor(Date.now() / 1000);
@@ -66,6 +83,7 @@ async function downloadFile(req, res) {
         .status(403)
         .json({ status: "error", message: "Download link expired" });
     }
+    
 
     // Fetch the file details from the database
     const [rows] = await pool.execute(
@@ -87,8 +105,11 @@ async function downloadFile(req, res) {
 
     console.log("File URL:", fileUrl);
 
-    // Redirect to the actual file URL
-    return res.redirect(fileUrl);
+    return res.status(200).json({
+      status: "success",
+      link: fileUrl,
+    }); 
+
   } catch (error) {
     console.error("Download error:", error);
     return res
@@ -97,53 +118,132 @@ async function downloadFile(req, res) {
   }
 }
 
-async function getFolderPath(folderId) {
-  let path = [];
+async function getFolderPath(req, res) {
+  let folderId = req.params.folderId;
 
-  while (folderId) {
-    const [rows] = await pool.execute(
-      "SELECT folder_id, parent_id, title FROM res_folders WHERE folder_id = ?",
-      [folderId]
+  try {
+    const path = [];
+
+    // Traverse upwards in the folder hierarchy until we reach the root (no parent_id)
+    while (folderId) {
+      const [rows] = await pool.execute(
+        "SELECT folder_id, parent_id, title FROM res_folders WHERE folder_id = ?",
+        [folderId]
+      );
+
+      // If a folder is found, add it to the path and move to its parent
+      if (rows.length > 0) {
+        const folder = rows[0];
+        path.unshift({ folder_id: folder.folder_id, title: folder.title });
+        folderId = folder.parent_id; // Update to the parent ID to move up the hierarchy
+      } else {
+        // If no folder is found for the given folderId, exit the loop
+        break;
+      }
+    }
+
+    res.status(200).json({
+      status: "success",
+      path,
+    });
+  } catch (error) {
+    console.error("Error fetching folder path:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
+  }
+}
+
+async function getFolderPathByFile(req, res) {
+  const fileId = req.params.fileId;
+
+  try {
+    // Step 1: Find the folder_id that contains the given file_id
+    const [fileRows] = await pool.execute(
+      "SELECT folder_id FROM res_files WHERE file_id = ?",
+      [fileId]
     );
 
-    if (rows.length > 0) {
-      const folder = rows[0];
-      path.unshift({ folder_id: folder.folder_id, title: folder.title });
-      folderId = folder.parent_id;
-    } else {
-      break;
-    }
-  }
-
-  return path;
-}
-
-// Utility function to remove specified keys from an object
-function omitKeys(obj, keys) {
-  const result = { ...obj };
-  keys.forEach((key) => delete result[key]);
-  return result;
-}
-
-
-async function getAllFolders(req, res) {
-  try {
-    let id = req.query.folder_id || 0;
-
-    // Check cache for folder data
-    const cachedData = fileCache.get(id);
-    if (cachedData) {
-      console.log('Serving from cache');
-      return res.status(200).json({
-        response: cachedData,
-        status: "success",
+    // If no folder is found for the given file_id, return a 404
+    if (fileRows.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "File not found",
       });
     }
 
-    // Fetch the current path directory
-    const path = await getFolderPath(id);
+    // Extract the folder_id from the file's record
+    let folderId = fileRows[0].folder_id;
 
-    // Fetch folders and files concurrently with all columns of res_files using SELECT *
+    const path = [];
+
+    // Step 2: Traverse upwards in the folder hierarchy until we reach the root (no parent_id)
+    while (folderId) {
+      const [rows] = await pool.execute(
+        "SELECT folder_id, parent_id, title FROM res_folders WHERE folder_id = ?",
+        [folderId]
+      );
+
+      // If a folder is found, add it to the path and move to its parent
+      if (rows.length > 0) {
+        const folder = rows[0];
+        path.unshift({ folder_id: folder.folder_id, title: folder.title });
+        folderId = folder.parent_id; // Update to the parent ID to move up the hierarchy
+      } else {
+        // If no folder is found for the given folderId, exit the loop
+        break;
+      }
+    }
+
+    res.status(200).json({
+      status: "success",
+      path,
+    });
+  } catch (error) {
+    console.error("Error fetching folder path:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
+  }
+}
+
+async function getFolderDescription(req, res) {
+  const folderId = req.params.folderId;
+  try {
+    const [rows] = await pool.execute(
+      "SELECT title, description FROM res_folders WHERE folder_id = ?",
+      [folderId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "Folder not found",
+      });
+    }
+
+    const folder = rows[0];
+    res.status(200).json({
+      status: "success",
+      data: folder,
+    });
+  }
+  catch (error) {
+    console.error("Error fetching folder title and description:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
+  }
+}
+
+async function getAllFolders(req, res) {
+  try {
+    const id = req.query.folder_id || 0;
+
+    // Fetch folders and files concurrently
     const [folders, files] = await Promise.all([
       pool.execute(
         "SELECT folder_id, parent_id, title, description, thumbnail, is_active, is_new " +
@@ -151,29 +251,31 @@ async function getAllFolders(req, res) {
         [id]
       ),
       pool.execute(
-        "SELECT * FROM res_files WHERE folder_id = ? ORDER BY title ASC",
+        "SELECT title, folder_id, folder_title, file_id, description, thumbnail, is_active, is_featured, is_new, price, rating_count, rating_points, size, date_create " +
+        "FROM res_files WHERE folder_id = ? ORDER BY title ASC",
         [id]
-      )
+      ),
     ]);
 
     // Prepare response
     const response = {
-      path, // Path to the current folder
       folders: folders[0], // Folders within the current directory
       files: files[0], // Files with all keys from res_files
     };
 
-    // Store the result in the cache with no expiry
+    // Store the result in the cache with no expiry (assuming fileCache is a valid cache instance)
     fileCache.set(id, response);
 
+    // Send the response
     res.status(200).json({
       response,
       status: "success",
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching folders and files:", err);
     res.status(500).json({
-      error: "Internal Server Error",
+      status: "error",
+      message: "Internal Server Error",
     });
   }
 }
@@ -210,7 +312,7 @@ async function getAllFiles(req, res) {
 async function recentFiles(req, res) {
   try {
     const [rows] = await pool.execute(
-      "SELECT * FROM res_files ORDER BY file_id DESC LIMIT 100"
+      "SELECT * FROM res_files ORDER BY file_id DESC LIMIT 20"
     );
 
     res.status(200).json({
@@ -293,4 +395,7 @@ module.exports = {
   generateDownloadLink,
   downloadFile,
   paidFiles,
+  getFolderPath,
+  getFolderPathByFile,
+  getFolderDescription
 };

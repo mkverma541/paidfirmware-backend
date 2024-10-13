@@ -34,6 +34,8 @@ function verifyToken(token) {
   if (currentTime > tokenData.expirationTime) {
     throw new Error("Token has expired");
   }
+  
+  console.log("Token Data:", tokenData);
 
   // Return the decoded token data
   return tokenData;
