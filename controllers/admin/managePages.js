@@ -4,20 +4,46 @@ const path = require('path');
 
 async function getPages(req, res) {
   try {
-    const [rows] = await pool.query("SELECT * FROM res_pages");
+    // Extract `page` and `limit` from query parameters, with default values.
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
 
-    res.status(200).json({
+    // Calculate the `offset` for pagination.
+    const offset = (page - 1) * limit;
+
+    // Fetch the paginated results.
+    const [rows] = await pool.query(
+      "SELECT * FROM res_pages LIMIT ? OFFSET ?",
+      [limit, offset]
+    );
+
+    // Get the total number of records for pagination metadata.
+    const [[{ total }]] = await pool.query(
+      "SELECT COUNT(*) AS total FROM res_pages"
+    );
+
+    let response = {
       data: rows,
+      status: "success",
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    }
+    // Send the paginated results along with metadata.
+    res.status(200).json({
+      response: response,
       status: "success",
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({
       message: "Internal server error",
       status: "error",
     });
   }
 }
+
 
 async function getPage(req, res) {
   try {
@@ -64,7 +90,7 @@ async function updatePage(req, res) {
 
 async function createPage(req, res) {
   try {
-    const { slug, title, description, body, layout, is_active } = req.body;
+    const { slug, title, description, layout = 1, body, is_active } = req.body;
 
     // Check if page with the same slug already exists
 
@@ -84,7 +110,6 @@ async function createPage(req, res) {
       [slug, title, description, body, layout, is_active]
     );
 
-    await generateJsonFile(slug);
 
     res.status(200).json({
       message: "Page created successfully",

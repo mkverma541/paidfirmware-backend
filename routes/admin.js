@@ -16,6 +16,10 @@ const ordersRouter = require("./admin/orders");
 const usersRouter = require("./admin/users");
 const dashboardRouter = require("./admin/dashboard");
 const downloadPackagerRouter = require('./admin/downloadPackages');
+const taxesRouter = require("./admin/taxes");
+const siteOptionsRouter = require("./admin/siteOptions");
+const filesUploadRouter = require("./admin/files-upload");
+
 
 router.use("/", filesRouter);
 router.use("/auth", adminAuthRouter);
@@ -32,5 +36,8 @@ router.use("/orders", ordersRouter);
 router.use("/users", usersRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/download-packages", downloadPackagerRouter);
+router.use("/taxes", taxesRouter);
+router.use("/settings/options", siteOptionsRouter);
+router.use("/files", filesUploadRouter);
 
 module.exports = router;

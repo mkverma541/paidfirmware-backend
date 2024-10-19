@@ -7,6 +7,7 @@ function verifyToken(token) {
   // Split the token into base64-encoded data and the signature
   const [encodedData, signature] = token.split(".");
 
+  console.log("Encoded Data:", encodedData);
   // Decode the base64-encoded data back to the original token string
   const tokenDataString = Buffer.from(encodedData, "base64").toString();
 

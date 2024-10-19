@@ -4,7 +4,7 @@ const axios = require("axios");
 const crypto = require("crypto");
 const generateToken = require("../utils/generateToken");
 const verifyToken = require("../utils/verifyToken");
-const NodeCache = require('node-cache');
+const NodeCache = require("node-cache");
 const fileCache = new NodeCache({ stdTTL: 0 }); // Cache TTL of 1 hour
 
 async function generateDownloadLink(fileId, userId, packageId) {
@@ -46,7 +46,6 @@ async function generateDownloadLink(fileId, userId, packageId) {
 // Function to handle the download request
 
 async function downloadFile(req, res) {
-
   try {
     // Verify the token
     const tokenData = verifyToken(token);
@@ -125,20 +124,9 @@ function omitKeys(obj, keys) {
   return result;
 }
 
-
 async function getAllFolders(req, res) {
   try {
     let id = req.query.folder_id || 0;
-
-    // Check cache for folder data
-    const cachedData = fileCache.get(id);
-    if (cachedData) {
-      console.log('Serving from cache');
-      return res.status(200).json({
-        response: cachedData,
-        status: "success",
-      });
-    }
 
     // Fetch the current path directory
     const path = await getFolderPath(id);
@@ -147,13 +135,13 @@ async function getAllFolders(req, res) {
     const [folders, files] = await Promise.all([
       pool.execute(
         "SELECT folder_id, parent_id, title, description, thumbnail, is_active, is_new " +
-        "FROM res_folders WHERE parent_id = ? ORDER BY title ASC",
+          "FROM res_folders WHERE parent_id = ? ORDER BY title ASC",
         [id]
       ),
       pool.execute(
         "SELECT * FROM res_files WHERE folder_id = ? ORDER BY title ASC",
         [id]
-      )
+      ),
     ]);
 
     // Prepare response
@@ -162,9 +150,6 @@ async function getAllFolders(req, res) {
       folders: folders[0], // Folders within the current directory
       files: files[0], // Files with all keys from res_files
     };
-
-    // Store the result in the cache with no expiry
-    fileCache.set(id, response);
 
     res.status(200).json({
       response,
@@ -180,8 +165,23 @@ async function getAllFolders(req, res) {
 
 async function addFolder(req, res) {
   try {
-    const { title, parent_id, description, thumbnail, is_active, is_new } =
-      req.body;
+    const {
+      title,
+      parent_id,
+      description = null,
+      thumbnail = null,
+      is_active = 1,
+      is_new = 1,
+    } = req.body;
+
+    // check if title is empty
+
+    if (!title) {
+      return res.status(400).json({
+        status: "error",
+        message: "Please provide a title for the folder.",
+      });
+    }
 
     // Check if a folder with the same title and parent_id already exists
     const checkQuery = `
@@ -353,7 +353,7 @@ async function addFile(req, res) {
       thumbnail = null,
       image = null,
       size,
-      price,
+      price = 0.000, // Ensure price defaults to 0.000 if not provided
       url,
       url_type,
       is_active,
@@ -361,6 +361,14 @@ async function addFile(req, res) {
       is_featured,
       tags = [],
     } = req.body;
+
+    // Validation: Ensure that both 'is_featured' and 'price' are not set simultaneously
+    if (is_featured && price > 0) {
+      return res.status(400).json({
+        status: "error",
+        message: "You cannot select both 'featured file' and 'paid files'. Please choose only one.",
+      });
+    }
 
     // Serialize tags to JSON string
     const jsonTags = JSON.stringify(tags);
@@ -396,7 +404,7 @@ async function addFile(req, res) {
       thumbnail || null,
       image || null,
       size,
-      price,
+      price, // Ensure price is never null here
       url || null,
       url_type || null,
       is_active || 0,
@@ -420,6 +428,7 @@ async function addFile(req, res) {
     });
   }
 }
+
 
 async function cutAndCopyFile(req, res) {
   try {
@@ -592,8 +601,8 @@ async function updateFile(req, res) {
 
     // Filter out undefined values and build the update query
     const updates = Object.keys(fieldsToUpdate)
-      .filter(key => fieldsToUpdate[key] !== undefined)
-      .map(key => `${key} = ?`);
+      .filter((key) => fieldsToUpdate[key] !== undefined)
+      .map((key) => `${key} = ?`);
 
     // If no fields to update, return early
     if (updates.length === 0) {
@@ -604,8 +613,13 @@ async function updateFile(req, res) {
     }
 
     // Build the query and values array
-    const query = `UPDATE res_files SET ${updates.join(", ")} WHERE file_id = ?`;
-    const values = [...Object.values(fieldsToUpdate).filter(value => value !== undefined), fileId];
+    const query = `UPDATE res_files SET ${updates.join(
+      ", "
+    )} WHERE file_id = ?`;
+    const values = [
+      ...Object.values(fieldsToUpdate).filter((value) => value !== undefined),
+      fileId,
+    ];
 
     // Execute the SQL query
     const [result] = await pool.execute(query, values);
@@ -632,8 +646,6 @@ async function updateFile(req, res) {
     });
   }
 }
-
-
 
 async function deleteFile(req, res) {
   try {

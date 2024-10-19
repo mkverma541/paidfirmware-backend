@@ -28,36 +28,61 @@ async function createTeamMember(req, res) {
     }
 }
 
-// Get all team members
+// Get all team members with pagination
 async function getTeamMembers(req, res) {
     try {
-        const [rows] = await pool.query("SELECT * FROM res_team");
+        // Extract `page` and `limit` from query parameters, with default values.
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
 
-        // Map through the rows and format social_links as an array
+        // Calculate the `offset` for pagination.
+        const offset = (page - 1) * limit;
+
+        // Fetch the paginated team members.
+        const [rows] = await pool.query(
+            "SELECT * FROM res_team LIMIT ? OFFSET ?",
+            [limit, offset]
+        );
+
+        // Get the total number of records for pagination metadata.
+        const [[{ total }]] = await pool.query(
+            "SELECT COUNT(*) AS total FROM res_team"
+        );
+
+        // Map through the rows and format `social_links` as an array.
         const teamMembers = rows.map(member => {
-            // Convert social_links JSON string to an object
+            // Convert `social_links` JSON string to an object.
             const socialLinksObj = JSON.parse(member.social_links);
 
-            // Convert the social links object into an array
+            // Convert the social links object into an array.
             const socialLinksArray = Object.keys(socialLinksObj).map(key => ({
                 platform: key,
                 url: socialLinksObj[key]
             }));
 
             return {
+                team_id: member.team_id,
                 name: member.name,
                 role: member.role,
                 photo: member.photo,
                 video: member.video,
                 social_links: socialLinksArray,
                 position: member.position,
-            
             };
         });
 
-        res.status(200).json({
+        let response = {
             data: teamMembers,
             status: "success",
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        }
+
+        // Send the paginated results along with metadata.
+        res.status(200).json({
+            response: response,
         });
     } catch (err) {
         console.error(err);
@@ -67,6 +92,7 @@ async function getTeamMembers(req, res) {
         });
     }
 }
+
 
 
 // Get a specific team member

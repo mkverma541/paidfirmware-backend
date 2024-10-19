@@ -16,7 +16,7 @@ router.get(
   "/file/generate-download-link/:fileId", authenticateUser,
   digitalFilesController.generateDownloadLink
 );
-router.get("/file/download",  digitalFilesController.downloadFile);
+router.get("/file/download/link",  digitalFilesController.downloadFile);
 
 router.get("/files/recent", digitalFilesController.recentFiles);
 router.get("/files/paid", digitalFilesController.paidFiles);

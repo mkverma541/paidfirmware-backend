@@ -4,22 +4,21 @@ const axios = require("axios");
 const crypto = require("crypto");
 const generateToken = require("../utils/generateToken");
 const verifyToken = require("../utils/verifyToken");
-const NodeCache = require('node-cache');
+const NodeCache = require("node-cache");
 const fileCache = new NodeCache({ stdTTL: 0 }); // Cache TTL of 1 hour
 
 async function generateDownloadLink(req, res) {
-  const {id } = req.user;
+  const { id } = req.user;
   const userId = id;
   const packageId = 0; // will change it later
 
-  const {fileId} = req.params;
+  const { fileId } = req.params;
 
   try {
     const [rows] = await pool.execute(
       "SELECT * FROM res_files WHERE file_id = ?",
       [fileId]
     );
-
 
     if (rows.length === 0) {
       throw new Error("File not found");
@@ -33,8 +32,6 @@ async function generateDownloadLink(req, res) {
 
     // Generate token (you should have your own token generation logic)
     const token = generateToken(tokenData); // Ensure this function exists
-    
-    const url = "http://localhost:3000/api/v1/user/file/download";
 
     // Save the download record in the database
     await pool.execute(
@@ -42,14 +39,13 @@ async function generateDownloadLink(req, res) {
        VALUES (?, ?, ?, ?, FROM_UNIXTIME(?))`,
       [userId, packageId, fileId, token, expirationTime]
     );
+    console.log(token, "token");
 
     // Return the generated download URL with the token
     return res.status(200).json({
       status: "success",
-      download_url: `${url}?token=${token}`,
-      token : token
+      token: token,
     });
-
   } catch (err) {
     console.error(err);
     throw new Error("Internal Server Error");
@@ -59,21 +55,19 @@ async function generateDownloadLink(req, res) {
 // Function to handle the download request
 
 async function downloadFile(req, res) {
-  console.log("Download file");
   try {
     // Get the token from the query string
 
     const token = req.query.token;
-    console.log("Token:", token); 
-
+    
     // Verify the token
     const tokenData = verifyToken(token);
-   
+    
 
     const fileId = tokenData.fileId.fileId;
-    console.log("File ID:", fileId);
-    const expirationTime = tokenData.fileId.expirationTime;
+    console.log(fileId);
 
+    const expirationTime = tokenData.fileId.expirationTime;
 
     // Check if the link is expired
     const currentTime = Math.floor(Date.now() / 1000);
@@ -83,7 +77,6 @@ async function downloadFile(req, res) {
         .status(403)
         .json({ status: "error", message: "Download link expired" });
     }
-    
 
     // Fetch the file details from the database
     const [rows] = await pool.execute(
@@ -99,17 +92,13 @@ async function downloadFile(req, res) {
     }
 
     const file = rows[0];
-    console.log("File:", file);
 
     const fileUrl = file.url;
-
-    console.log("File URL:", fileUrl);
 
     return res.status(200).json({
       status: "success",
       link: fileUrl,
-    }); 
-
+    });
   } catch (error) {
     console.error("Download error:", error);
     return res
@@ -229,8 +218,7 @@ async function getFolderDescription(req, res) {
       status: "success",
       data: folder,
     });
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error fetching folder title and description:", error);
     res.status(500).json({
       status: "error",
@@ -247,12 +235,12 @@ async function getAllFolders(req, res) {
     const [folders, files] = await Promise.all([
       pool.execute(
         "SELECT folder_id, parent_id, title, description, thumbnail, is_active, is_new " +
-        "FROM res_folders WHERE parent_id = ? ORDER BY title ASC",
+          "FROM res_folders WHERE parent_id = ? ORDER BY title ASC",
         [id]
       ),
       pool.execute(
-        "SELECT title, folder_id, folder_title, file_id, description, thumbnail, is_active, is_featured, is_new, price, rating_count, rating_points, size, date_create " +
-        "FROM res_files WHERE folder_id = ? ORDER BY title ASC",
+        "SELECT title, folder_id,  file_id, description, thumbnail, is_active, is_featured, is_new, price, rating_count, rating_points, size, date_create " +
+          "FROM res_files WHERE folder_id = ? ORDER BY title ASC",
         [id]
       ),
     ]);
@@ -397,5 +385,5 @@ module.exports = {
   paidFiles,
   getFolderPath,
   getFolderPathByFile,
-  getFolderDescription
+  getFolderDescription,
 };

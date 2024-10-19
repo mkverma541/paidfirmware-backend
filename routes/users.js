@@ -12,6 +12,10 @@ const teamsRouter = require('./users/teams');
 const blogsRouter = require('./users/blogs');
 const videosRouter = require('./users/videos');
 const miscRouter = require('./users/misc');
+const currencyRouter = require('./users/currencies');
+
+// shared
+const orderRouter = require("./shared/order");
 
 
 router.use("/auth", userAuthRouter);
@@ -25,6 +29,8 @@ router.use("/teams", teamsRouter);
 router.use("/blogs", blogsRouter);
 router.use("/videos", videosRouter);
 router.use("/pages", miscRouter);
+router.use("/currencies", currencyRouter);
+router.use("/order", orderRouter);
 
 
 module.exports = router;

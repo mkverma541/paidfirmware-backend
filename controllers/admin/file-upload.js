@@ -10,7 +10,10 @@ class FilesController {
             'avatar',
             'documents',    
             'image',
-            'photo'
+            'photo',
+            'folders',
+            'files',
+            'blogs'
         ]
     }
 

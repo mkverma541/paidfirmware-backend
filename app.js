@@ -34,6 +34,7 @@ app.set("view engine", "jade");
 // Import grouped routes
 const userRoutes = require("./routes/users");
 const adminRoutes = require("./routes/admin");
+const apiRoutes = require("./routes/api");
 
 
 // Middleware setup
@@ -46,6 +47,8 @@ app.use(express.static(path.join(__dirname, "public")));
 // Use grouped routes
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/user", apiRoutes);
+
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {

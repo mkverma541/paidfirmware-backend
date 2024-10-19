@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 const authenticateToken = require("../../middlewars/authenticateToken");
-
 const FilesController = require("../../controllers/admin/files");
 
 router.get("/folders", FilesController.getAllFolders);
@@ -14,7 +13,6 @@ router.get(
 router.get("/file/download", FilesController.downloadFile);
 router.get("/file/:fileId", FilesController.getFileByFileId);
 
-router.get("/folders", FilesController.getAllFolders);
 
 router.post("/folder/add", FilesController.addFolder);
 router.delete("/folder/delete/:folderId", FilesController.deleteFolder);
