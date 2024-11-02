@@ -13,6 +13,9 @@ const blogsRouter = require('./users/blogs');
 const videosRouter = require('./users/videos');
 const miscRouter = require('./users/misc');
 const currencyRouter = require('./users/currencies');
+const searchRouter = require('./users/search');
+const menuRouter = require('./users/menu');
+const couponRouter = require('./users/coupons');
 
 // shared
 const orderRouter = require("./shared/order");
@@ -31,6 +34,8 @@ router.use("/videos", videosRouter);
 router.use("/pages", miscRouter);
 router.use("/currencies", currencyRouter);
 router.use("/order", orderRouter);
-
+router.use("/search", searchRouter);
+router.use("/menu", menuRouter);
+router.use("/coupons", couponRouter);
 
 module.exports = router;

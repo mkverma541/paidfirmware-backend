@@ -5,5 +5,7 @@ const OrderController = require('../../controllers/shared/order');
 const authenticate = require('../../middlewars/authenticateToken');
 
 router.post('/check-discount', authenticate,  OrderController.checkDiscount);
+router.post('/check-discount-coupon', authenticate,  OrderController.checkDiscountCoupon);
+
 
 module.exports = router;

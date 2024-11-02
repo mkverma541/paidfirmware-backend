@@ -6,6 +6,7 @@ const authenticateToken = require('../../middlewars/authenticateToken');
 
 router.post('/add', TaxController.addTax);
 router.get('/', TaxController.getTaxes);
+router.put('/update/:id', TaxController.updateTax);
 
 module.exports = router;
  

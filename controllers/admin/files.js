@@ -7,6 +7,130 @@ const verifyToken = require("../utils/verifyToken");
 const NodeCache = require("node-cache");
 const fileCache = new NodeCache({ stdTTL: 0 }); // Cache TTL of 1 hour
 
+async function searchFilesFolders(req, res) {
+  try {
+    const { query } = req.query;
+
+    let files = [];
+    let folders = [];
+
+    // If there is a query, build the search conditions
+    if (query) {
+      const params = [`%${query}%`];
+
+      // Fetch data for files
+      [files] = await pool.execute(
+        `SELECT file_id, folder_id, title FROM res_files WHERE title LIKE ?`,
+        params
+      );
+
+      // Fetch data for folders
+      [folders] = await pool.execute(
+        `SELECT folder_id, title FROM res_folders WHERE title LIKE ?`,
+        params
+      );
+    } else {
+      // If no query is present, get the top 4 files and folders
+      [files] = await pool.execute(
+        `SELECT file_id, folder_id, title FROM res_files ORDER BY date_create DESC LIMIT 4`
+      );
+      [folders] = await pool.execute(
+        `SELECT folder_id, title FROM res_folders ORDER BY date_create DESC LIMIT 4`
+      );
+    }
+
+    // Send the results to the client
+    res.status(200).json({
+      status: "success",
+      data: { files, folders },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
+  }
+}
+
+async function searchFilesFoldersWithSorting(req, res) {
+  try {
+    const {
+      query,
+      type = "both", // default to "both"
+      is_active,
+      is_new,
+      date_created,
+      is_featured,
+    } = req.query;
+
+    let files = [];
+    let folders = [];
+
+    if (query) {
+      // If there is a query, build the search conditions
+      let fileConditions = "WHERE title LIKE ?";
+      let folderConditions = "WHERE title LIKE ?";
+      const params = [`%${query}%`];
+
+      // Apply filters to files query
+      if (is_active !== undefined) {
+        fileConditions += " AND is_active = ?";
+        folderConditions += " AND is_active = ?";
+        params.push(is_active);
+      }
+      if (is_new !== undefined) {
+        fileConditions += " AND is_new = ?";
+        folderConditions += " AND is_new = ?";
+        params.push(is_new);
+      }
+      if (date_created) {
+        fileConditions += " AND date_created = ?";
+        folderConditions += " AND date_created = ?";
+        params.push(date_created);
+      }
+      if (is_featured !== undefined) {
+        fileConditions += " AND is_featured = ?";
+        folderConditions += " AND is_featured = ?";
+        params.push(is_featured);
+      }
+
+      // Fetch data based on the type
+      if (type === "files" || type === "both") {
+        [files] = await pool.execute(
+          `SELECT *  FROM res_files ${fileConditions}`,
+          params
+        );
+      }
+      if (type === "folders" || type === "both") {
+        [folders] = await pool.execute(
+          `SELECT  * FROM res_folders ${folderConditions}`,
+          params
+        );
+      }
+    } 
+    
+    
+     const response = {
+      folders: folders, // Folders within the current directory
+      files: files, // Files with all keys from res_files
+    };
+
+    res.status(200).json({
+      response,
+      status: "success",
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
+  }
+}
+
+
 async function generateDownloadLink(fileId, userId, packageId) {
   try {
     const [rows] = await pool.execute(
@@ -117,36 +241,41 @@ async function getFolderPath(folderId) {
   return path;
 }
 
-// Utility function to remove specified keys from an object
-function omitKeys(obj, keys) {
-  const result = { ...obj };
-  keys.forEach((key) => delete result[key]);
-  return result;
-}
 
-async function getAllFolders(req, res) {
+async function getAllFoldersFiles(req, res) {
   try {
     let id = req.query.folder_id || 0;
+    let search = req.query.search ? `%${req.query.search}%` : null;
 
     // Fetch the current path directory
     const path = await getFolderPath(id);
 
-    // Fetch folders and files concurrently with all columns of res_files using SELECT *
+    // Build SQL queries
+    const folderQuery =
+      "SELECT folder_id, parent_id, title, description, thumbnail, is_active, is_new, date_create " +
+      "FROM res_folders WHERE parent_id = ?";
+
+    const fileQuery =
+      "SELECT * FROM res_files WHERE folder_id = ?";
+
+    // Add search conditions if search is provided
+    const folderCondition = search ? " AND title LIKE ?" : "";
+    const fileCondition = search ? " AND title LIKE ?" : "";
+
+    // Fetch folders and files concurrently with search conditions
     const [folders, files] = await Promise.all([
       pool.execute(
-        "SELECT folder_id, parent_id, title, description, thumbnail, is_active, is_new " +
-          "FROM res_folders WHERE parent_id = ? ORDER BY title ASC",
-        [id]
+        `${folderQuery}${folderCondition} ORDER BY title ASC`,
+        search ? [id, search] : [id]
       ),
       pool.execute(
-        "SELECT * FROM res_files WHERE folder_id = ? ORDER BY title ASC",
-        [id]
+        `${fileQuery}${fileCondition} ORDER BY title ASC`,
+        search ? [id, search] : [id]
       ),
     ]);
 
     // Prepare response
     const response = {
-      path, // Path to the current folder
       folders: folders[0], // Folders within the current directory
       files: files[0], // Files with all keys from res_files
     };
@@ -163,19 +292,19 @@ async function getAllFolders(req, res) {
   }
 }
 
+
 async function addFolder(req, res) {
   try {
     const {
       title,
       parent_id,
-      description = null,
+      description = '',
       thumbnail = null,
       is_active = 1,
       is_new = 1,
     } = req.body;
 
-    // check if title is empty
-
+    // Check if title is empty
     if (!title) {
       return res.status(400).json({
         status: "error",
@@ -197,7 +326,7 @@ async function addFolder(req, res) {
       });
     }
 
-    // Execute the SQL query to insert the folder data into the database
+    // Insert the new folder into the database
     const insertQuery = `
       INSERT INTO res_folders (title, parent_id, description, thumbnail, is_active, is_new)
       VALUES (?, ?, ?, ?, ?, ?)
@@ -212,13 +341,18 @@ async function addFolder(req, res) {
     ]);
 
     console.log("Folder added successfully");
-
     res.status(200).json({
       status: "success",
       message: "Folder added successfully",
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error adding folder:", err);
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({
+        status: "error",
+        message: "A folder with this title already exists.",
+      });
+    }
     res.status(500).json({
       status: "error",
       message: "Internal Server Error",
@@ -226,33 +360,34 @@ async function addFolder(req, res) {
   }
 }
 
+
 async function updateFolder(req, res) {
   try {
     const { folderId } = req.params; // Get the folder ID from the request parameters
-    const { title, parent_id, description, thumbnail, is_active, is_new } =
-      req.body;
+    const { title, parent_id, description, thumbnail, is_active, is_new } = req.body;
 
-    // check is folder exist
-
+    // Check if folderId is provided
     if (!folderId) {
       return res.status(400).json({
         status: "error",
-        message:
-          "Folder ID is required. Please refresh the page and try again.",
+        message: "Folder ID is required. Please refresh the page and try again.",
       });
     }
 
-    // Check if a folder with the same title exists, but exclude the current folder being updated
+    // Check if a folder with the same title and parent_id exists, excluding the current folder
+    console.log("Folder ID:", folderId);
+    console.log("Title:", title);
+    console.log("Parent ID:", parent_id);
     const checkQuery = `
-    SELECT folder_id FROM res_folders 
-     WHERE title = ? AND folder_id != ?
+      SELECT folder_id FROM res_folders 
+      WHERE title = ? AND parent_id = ? AND folder_id != ?
     `;
-    const [rows] = await pool.execute(checkQuery, [title, folderId]);
+    const [rows] = await pool.execute(checkQuery, [title, parent_id, folderId]);
 
     if (rows.length > 0) {
       return res.status(400).json({
         status: "error",
-        message: "Folder already exists",
+        message: "A folder with the same title already exists under the specified parent.",
       });
     }
 
@@ -561,6 +696,129 @@ async function cutAndCopyFile(req, res) {
   }
 }
 
+
+async function cutAndCopyFolder(req, res) {
+  try {
+    const { folderId, parentId, action } = req.body;
+
+    // Debugging log
+    console.log(req.body);
+    console.log(
+      "folderId:",
+      typeof folderId,
+      "parentId:",
+      typeof parentId,
+      "action:",
+      action
+    );
+
+    // Check if the folderId, parentId, and action are provided
+    if (
+      folderId === undefined ||
+      parentId === undefined ||
+      action === undefined
+    ) {
+      return res.status(400).json({
+        status: "error",
+        message:
+          "Invalid request. Please provide folderId, parentId, and action.",
+      });
+    }
+
+    // Check if the folder exists
+    const [folderResults] = await pool.execute(
+      "SELECT * FROM res_folders WHERE folder_id = ?",
+      [folderId]
+    );
+    const folder = folderResults[0];
+
+    if (!folder) {
+      return res.status(404).json({
+        status: "error",
+        message: "Folder not found.",
+      });
+    }
+
+    // Check if the parent folder exists
+    const [parentResults] = await pool.execute(
+      "SELECT * FROM res_folders WHERE folder_id = ?",
+      [parentId]
+    );
+    const parentFolder = parentResults[0];
+
+    if (!parentFolder) {
+      return res.status(404).json({
+        status: "error",
+        message: "Parent folder not found.",
+      });
+    }
+
+    // Check if the folder is already in the parent folder
+    let [checkResults] = await pool.execute(
+      "SELECT * FROM res_folders WHERE parent_id = ? AND title = ?",
+      [parentId, folder.title]
+    );
+    let folderInParent = checkResults[0];
+
+    // If the folder exists, modify its name
+    let newFolderName = folder.title;
+    if (folderInParent) {
+      // Find a new name by appending a number to the folder name
+      let folderNumber = 1;
+      const folderNameWithoutExtension = folder.title;
+
+      do {
+        newFolderName = `${folderNameWithoutExtension} (${folderNumber++})`;
+        [checkResults] = await pool.execute(
+          "SELECT * FROM res_folders WHERE parent_id = ? AND title = ?",
+          [parentId, newFolderName]
+        );
+        folderInParent = checkResults[0];
+      } while (folderInParent);
+    }
+
+    // Perform the cut, copy, or paste action
+    if (action === "cut" || action === "paste") {
+      // Cut or paste the folder by updating the parent_id
+      await pool.execute(
+        "UPDATE res_folders SET parent_id = ?, title = ? WHERE folder_id = ?",
+        [parentId, newFolderName, folderId]
+      );
+    } else if (action === "copy") {
+      // Copy the folder by inserting a new record with the new parent_id and folder name
+      const query = `
+        INSERT INTO res_folders
+        (parent_id, title, description, thumbnail, is_active, is_new)
+        VALUES (?, ?, ?, ?, ?, ?)`;
+
+      await pool.execute(query, [
+        parentId,
+        newFolderName,
+        folder.description,
+        folder.thumbnail,
+        folder.is_active,
+        folder.is_new,
+      ]);
+    } else {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid action.",
+      });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Folder moved/copied successfully.",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
+  }
+}
+
 async function updateFile(req, res) {
   try {
     const { fileId } = req.params; // Get the file ID from the request parameters
@@ -694,37 +952,6 @@ async function getAllFiles(req, res) {
   }
 }
 
-async function recentFiles(req, res) {
-  try {
-    const [rows] = await pool.execute(
-      "SELECT * FROM res_files ORDER BY file_id DESC LIMIT 100"
-    );
-
-    res.status(200).json({
-      status: "success",
-      data: rows,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
-  }
-}
-
-async function paidFiles(req, res) {
-  try {
-    const [rows] = await pool.execute(
-      "SELECT * FROM res_files WHERE price > 0 ORDER BY file_id DESC LIMIT 100"
-    );
-
-    res.status(200).json({
-      status: "success",
-      data: rows,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
-  }
-}
 
 async function getFileByFileId(req, res) {
   try {
@@ -759,24 +986,50 @@ async function getFileByFileId(req, res) {
   }
 }
 
-async function getList(req, res) {
-  try {
-    const [rows] = await pool.execute("SELECT * FROM res_files");
 
+async function updateSlugsForFolders(req, res) {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    const query = `
+      UPDATE res_folders AS rf
+      SET rf.slug = (
+        SELECT
+          CASE 
+            WHEN COUNT(*) = 0 THEN LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-'))
+            ELSE CONCAT(LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-')), '-', COUNT(*))
+          END
+        FROM res_folders
+        WHERE LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-')) = LOWER(REPLACE(REPLACE(REPLACE(title, '_', '-'), '[', '-'), ']', '-'))
+        AND rf.id <> id  -- Ensure you're comparing the correct identifiers
+        GROUP BY rf.title
+      )
+      WHERE rf.slug IS NULL;
+    `;
+
+    await connection.execute(query);
+    
     return res.status(200).json({
-      data: rows,
+      status: "success",
+      message: "Successfully updated slugs for folders with NULL values",
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
+    
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: `Error updating slugs: ${error.message}`,
+    });
+  } finally {
+    if (connection) connection.release();
   }
 }
+
+
 module.exports = {
-  getAllFolders,
+  getAllFoldersFiles,
   getAllFiles,
-  getList,
   getFileByFileId,
-  recentFiles,
   addFolder,
   deleteFolder,
   updateFolder,
@@ -784,7 +1037,10 @@ module.exports = {
   deleteFile,
   updateFile,
   cutAndCopyFile,
+  cutAndCopyFolder,
   generateDownloadLink,
   downloadFile,
-  paidFiles,
+  searchFilesFolders,
+  searchFilesFoldersWithSorting,
+  updateSlugsForFolders,
 };

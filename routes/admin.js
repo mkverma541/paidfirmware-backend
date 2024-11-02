@@ -14,12 +14,13 @@ const blogsRouter = require("./admin/blogs");
 const videosRouter = require("./admin/videos");
 const ordersRouter = require("./admin/orders");
 const usersRouter = require("./admin/users");
+const userAccountRouter = require("./admin/userAccount");
 const dashboardRouter = require("./admin/dashboard");
 const downloadPackagerRouter = require('./admin/downloadPackages');
 const taxesRouter = require("./admin/taxes");
 const siteOptionsRouter = require("./admin/siteOptions");
 const filesUploadRouter = require("./admin/files-upload");
-
+const couponRouter = require("./admin/coupons");
 
 router.use("/", filesRouter);
 router.use("/auth", adminAuthRouter);
@@ -34,10 +35,14 @@ router.use("/blogs", blogsRouter);
 router.use("/videos", videosRouter);
 router.use("/orders", ordersRouter);
 router.use("/users", usersRouter);
+router.use("/user/account", userAccountRouter);
+
 router.use("/dashboard", dashboardRouter);
 router.use("/download-packages", downloadPackagerRouter);
 router.use("/taxes", taxesRouter);
 router.use("/settings/options", siteOptionsRouter);
 router.use("/files", filesUploadRouter);
+router.use("/coupons", couponRouter);
+
 
 module.exports = router;
