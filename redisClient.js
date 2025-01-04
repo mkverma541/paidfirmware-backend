@@ -1,30 +1,18 @@
-const redis = require('redis');
+import { createClient } from 'redis';
 
-// Create Redis client
-const client = redis.createClient({
-  host: 'localhost',  // or Docker host IP
-  port: 6379,         // default Redis port
+const client = createClient({
+    username: 'default',
+    password: 'BBiuw3VphV0E4ySIQxm7rJKqo6cxJYZX',
+    socket: {
+        host: 'redis-18572.c100.us-east-1-4.ec2.redns.redis-cloud.com',
+        port: 18572
+    }
 });
 
-// Handle connection events
-client.on('connect', () => {
-  console.log('Connected to Redis...');
-});
+client.on('error', err => console.log('Redis Client Error', err));
 
-client.on('error', (err) => {
-  console.error('Redis error:', err);
-});
+client.on('connect', () => console.log('Redis Client Connected'));
 
-// Example usage: set a key
-client.set('key', 'value', (err, reply) => {
-  if (err) console.error(err);
-  console.log(reply); // Should print "OK"
-});
+await client.connect();
 
-// Example usage: get a key
-client.get('key', (err, reply) => {
-  if (err) console.error(err);
-  console.log(reply); // Should print "value"
-});
-
-module.exports = client;
+export default client;

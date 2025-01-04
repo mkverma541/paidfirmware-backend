@@ -22,6 +22,7 @@ router.get(
   digitalFilesController.generateDownloadLink
 );
 router.get("/file/download/link",  digitalFilesController.downloadFile);
+router.get('/clear-cache', digitalFilesController.clearAllCache);
 
 
 

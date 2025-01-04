@@ -1,13 +1,18 @@
+
 {
   "DB_HOST": "localhost",
   "DB_USER": "root",
   "DB_PASSWORD": "",
-  "DB_DATABASE": "filewale",
+  "DB_DATABASE": "mathekgc_paidfirmware",
   "SECRET_KEY": "your_secret_key",
   "RAZORPAY_KEY_ID": "rzp_test_fStvfIrWe60R7s",
   "RAZORPAY_KEY_SECRET": "9nC61yUhM8vr9MiPD2p5RR0S",
   "STRIPE_SECRET_KEY": "sk_test51OhdpnSEpSkidt63KbWjAT4Tq41H5ZdNKzTsbuqi0rJIupZS3iqK8QOojrZsC9h21LUUjar7bqgmDRaDOtV9a73r00mXQ0DDCr",
   "BINANCE_API_KEY": "cv2ymxqghxqoabyjcuory9ew1c30d0jzdsrfhn6gvujwhssyhp9xf8eomazmes3a",
-  "BINANCE_API_SECRET": "juyiifbgsq5tfcuskb3d5edwwhfsvwhkckqxynqsdgubimjvmwvkbjgrwurwnoml"
+  "BINANCE_API_SECRET": "juyiifbgsq5tfcuskb3d5edwwhfsvwhkckqxynqsdgubimjvmwvkbjgrwurwnoml",
+  "APP_BASE_URL": "http://localhost:3000",
+  "APP_PORT": 3000,
+  "MASTER_PASSWORD": "123"
+
+
 }
-	

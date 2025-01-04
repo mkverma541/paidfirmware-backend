@@ -1,76 +1,228 @@
-const { pool } = require("../../config/database");
+const { pool, secretKey } = require("../../config/database");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 async function syncCart(req, res) {
-  try {
-    // Extracting cartItems from req.body and id from req.user
-    const { cartItems } = req.body; 
-    const { id } = req.user; 
-    const user_id = id;
+  let currentHashId = req.body.hashId || null;
 
-    // Check if cartItems is properly defined and is an array
+  try {
+    const cartItems = req.body.cartItems || [];
+
     if (!Array.isArray(cartItems)) {
-      return res.status(400).json({ error: "Invalid cart items" });
+      return res.status(400).json({ message: "Invalid cartItems format." });
     }
 
-    // Delete existing items in the cart for the user
-    await pool.execute("DELETE FROM res_cart WHERE user_id = ?", [user_id]);
+    if (cartItems.length === 0) {
+      return res.status(200).json({
+        message: "Cart is empty.",
+        cart: [],
+        hashId: currentHashId || null,
+      });
+    }
 
-    // Insert each item based on whether it contains file_id or package_id
-    for (const item of cartItems) {
-      const { package_id, file_id, quantity = 1 } = item;
+    const authHeader = req.headers.authorization;
+    let user_id = null;
 
-      if (package_id) {
-        // If package_id is provided, insert package_id
-        await pool.execute(
-          "INSERT INTO res_cart (user_id, package_id, quantity) VALUES (?, ?, ?)",
-          [user_id, package_id, quantity]
-        );
-      } else if (file_id) {
-        // If file_id is provided, insert file_id
-        await pool.execute(
-          "INSERT INTO res_cart (user_id, file_id, quantity) VALUES (?, ?, ?)",
-          [user_id, file_id, quantity]
-        );
+    if (authHeader) {
+      const token = authHeader.split(" ")[1];
+      try {
+        const decodedUser = jwt.verify(token, secretKey);
+        user_id = decodedUser.id;
+      } catch (tokenError) {
+        console.error("Invalid token:", tokenError);
+        return res.status(401).json({ message: "Invalid or expired token." });
       }
     }
 
-    // Fetch the updated cart after syncing (same logic as in getCart)
-    const [updatedCartItems] = await pool.execute(
-      `SELECT c.package_id, c.file_id, c.quantity, p.*, f.*
-         FROM res_cart c
-         LEFT JOIN res_download_packages p ON c.package_id = p.package_id
-         LEFT JOIN res_files f ON c.file_id = f.file_id
-         WHERE c.user_id = ?`,
-      [user_id]
-    );
+    if (user_id) {
+      // **Logged-in User**
+      if (currentHashId) {
+        // Migrate guest cart to user's cart
+        const guestCart = await pool.query(
+          "SELECT * FROM res_cart WHERE cart_hash = ?",
+          [currentHashId]
+        );
 
-    // Return the updated cart as a response
-    res.status(200).json({ message: "Cart synchronized successfully", cartItems: updatedCartItems });
+        if (guestCart[0].length > 0) {
+          // Insert guest cart items into the user's cart (avoid duplicates)
+          const insertGuestCartQuery = `
+            INSERT INTO res_cart (user_id, item_id, item_type, item_name, sale_price, original_price, quantity, stock, media, meta)
+            VALUES ?
+            ON DUPLICATE KEY UPDATE
+              quantity = VALUES(quantity),
+              sale_price = VALUES(sale_price),
+              stock = VALUES(stock),
+              meta = VALUES(meta)
+          `;
+
+          const guestCartValues = guestCart[0].map((item) => [
+            user_id,
+            item.item_id,
+            item.item_type,
+            item.item_name,
+            item.sale_price,
+            item.original_price,
+            item.quantity,
+            item.stock,
+            item.media,
+            item.meta,
+          ]);
+
+          await pool.query(insertGuestCartQuery, [guestCartValues]);
+
+          // Delete guest cart items after migration
+          await pool.execute("DELETE FROM res_cart WHERE cart_hash = ?", [
+            currentHashId,
+          ]);
+        }
+      }
+
+      // Delete existing cart items for the logged-in user
+      await pool.execute("DELETE FROM res_cart WHERE user_id = ?", [user_id]);
+
+      // Insert updated cart items for the user
+      const insertUserCartQuery = `
+        INSERT INTO res_cart 
+        (user_id, item_id, item_type, item_name, sale_price, original_price, quantity, stock, media, meta) 
+        VALUES ?
+        ON DUPLICATE KEY UPDATE
+          quantity = VALUES(quantity),
+          sale_price = VALUES(sale_price),
+          stock = VALUES(stock),
+          meta = VALUES(meta)
+      `;
+
+      const userCartValues = cartItems.map((item) => [
+        user_id,
+        item.item_id,
+        item.item_type,
+        item.item_name,
+        item.sale_price,
+        item.original_price || item.sale_price,
+        item.quantity,
+        item.stock,
+        item.media,
+        item.meta,
+      ]);
+
+      await pool.query(insertUserCartQuery, [userCartValues]);
+
+      // Respond with the synchronized cart for the user
+      return res.status(200).json({
+        message: "Cart synchronized successfully for user.",
+        cart: cartItems,
+      });
+    } else {
+      // **Guest User**
+      if (!currentHashId) {
+        currentHashId = crypto.randomBytes(16).toString("hex");
+      }
+
+      // Delete existing cart items for the hash ID
+      await pool.execute("DELETE FROM res_cart WHERE cart_hash = ?", [
+        currentHashId,
+      ]);
+
+      // Insert new cart items for the guest user
+      const insertGuestCartQuery = `
+        INSERT INTO res_cart 
+        (cart_hash, item_id, item_type, item_name, sale_price, original_price, quantity, stock, media, meta) 
+        VALUES ?
+        ON DUPLICATE KEY UPDATE
+          quantity = VALUES(quantity),
+          sale_price = VALUES(sale_price),
+          stock = VALUES(stock),
+          meta = VALUES(meta)
+      `;
+
+      const guestCartValues = cartItems.map((item) => [
+        currentHashId,
+        item.item_id,
+        item.item_type,
+        item.item_name,
+        item.sale_price,
+        item.original_price || item.sale_price,
+        item.quantity,
+        item.stock,
+        item.media,
+        item.meta,
+      ]);
+
+      await pool.query(insertGuestCartQuery, [guestCartValues]);
+
+      // Respond with updated cart and hash ID
+      return res.status(200).json({
+        message: "Cart synchronized successfully for guest user.",
+        cart: cartItems,
+        hashId: currentHashId,
+      });
+    }
   } catch (error) {
     console.error("Error syncing cart:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({
+      message: "An error occurred while syncing the cart.",
+      error: error.message,
+      hashId: currentHashId || null,
+    });
   }
 }
 
 async function getCart(req, res) {
-  const { id } = req.user;
-
   try {
-    // Fetch all cart items along with package and file details
-    const [cartItems] = await pool.execute(
-      `SELECT c.package_id, c.file_id, c.quantity, p.*, f.*
-         FROM res_cart c
-         LEFT JOIN res_download_packages p ON c.package_id = p.package_id
-         LEFT JOIN res_files f ON c.file_id = f.file_id
-         WHERE c.user_id = ?`,
+    const { id } = req.user; // Extract user ID from the token
+    const { hashId } = req.body; // Accept hashId from the request body
+    console.log("User ID:", id);
+    console.log("Hash ID:", hashId);
+
+    // Fetch the user's cart from the database
+    const [userCart] = await pool.execute(
+      "SELECT * FROM res_cart WHERE user_id = ?",
       [id]
     );
 
-    res.status(200).json({ cartItems });
+    console.log("User Cart:", userCart);
+
+    // Fetch the cart from the hashId if it exists
+    let hashCart = [];
+    if (hashId) {
+      const [hashCartResult] = await pool.execute(
+        "SELECT * FROM res_cart WHERE cart_hash = ?",
+        [hashId]
+      );
+      hashCart = hashCartResult;
+
+      // Update cart_hash items to associate them with the user ID
+      await pool.execute(
+        "UPDATE res_cart SET user_id = ? WHERE cart_hash = ?",
+        [id, hashId]
+      );
+    }
+
+    // Merge the two carts
+    const mergedCart = [...userCart]; // Start with the user's cart
+    hashCart.forEach((hashItem) => {
+      // Check if the hash item exists in the user's cart
+      const itemExists = userCart.some(
+        (userItem) => userItem.item_id === hashItem.item_id
+      );
+
+      if (!itemExists) {
+        mergedCart.push(hashItem); // Add the hash item if not already present
+      }
+    });
+
+    console.log("Merged Cart:", mergedCart);
+
+    // Return the merged cart
+    res.status(200).json({
+      message: "Cart retrieved and merged successfully.",
+      cart: mergedCart,
+    });
   } catch (error) {
-    console.error("Error fetching cart:", error);
+    console.error("Error getting cart:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
 
 module.exports = { syncCart, getCart };

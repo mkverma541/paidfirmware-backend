@@ -499,6 +499,24 @@ async function paidFiles(req, res) {
     res.status(500).send("Internal Server Error");
   }
 }
+async function clearAllCache(req, res) {
+  try {
+    fileCache.flushAll(); // Clears all cached data
+
+    console.log("All cache cleared");
+    return res.status(200).json({
+      status: "success",
+      message: "All cache cleared",
+    });
+  } catch (err) {
+    console.error("Error clearing all cache:", err.stack || err);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
+  }
+}
+
 
 
 module.exports = {
@@ -512,4 +530,5 @@ module.exports = {
   generateDownloadLink,
   downloadFile,
   paidFiles,
+  clearAllCache
 };

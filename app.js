@@ -8,6 +8,9 @@ const createError = require("http-errors");
 
 
 require("./config/database");
+//const redisClient = require('./redisClient');
+
+//require('./controllers/test.js');
 
 // Crons jobs
 require('./jobs/updateIsNewCron');
@@ -26,6 +29,8 @@ app.use(
     credentials: true,
   })
 );
+
+
 
 // View engine setup
 app.set("views", path.join(__dirname, "views"));

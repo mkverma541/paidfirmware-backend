@@ -5,7 +5,7 @@ const VideoController = require('../../controllers/admin/videos');
 const VideoCategoryController = require('../../controllers/admin/videoCategories');
 
 router.post('/create', VideoController.createYouTubeVideo);
-router.get('/', VideoController.getAllYouTubeVideos);
+router.get('/list', VideoController.getAllYouTubeVideos);
 router.put('/update/:videoId', VideoController.updateYouTubeVideo);
 router.delete('/delete/:videoId', VideoController.deleteYouTubeVideo);
 

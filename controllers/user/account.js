@@ -1,6 +1,25 @@
 const { pool } = require("../../config/database");
 const { generateDownloadLink } = require("./digitalFiles");
 
+async function getOverview(req, res) {
+  const { id } = req.user;
+
+  try {
+    const [user] = await pool.execute(
+      `SELECT first_name, username, last_name, email, created_at, last_login_at, balance, ip_address, status FROM res_users WHERE user_id = ?`,
+      [id]
+    );
+
+    res.status(200).json({
+      data: user[0],
+      status: "success",
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 async function getPackages(req, res) {
   const { id } = req.user;
 
@@ -153,28 +172,6 @@ async function getDownloadsHistory(req, res) {
       FROM res_udownloads
       LEFT JOIN res_files 
       ON res_udownloads.file_id = res_files.file_id
-      WHERE user_id = ?
-      `,
-      [id]
-    );
-
-    res.status(200).json({
-      data: rows,
-      status: "success",
-    });
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}
-
-async function getBalanceTransferHistory(req, res) {
-  const { id } = req.user;
-
-  try {
-    const [rows] = await pool.execute(
-      ` 
-      SELECT * FROM res_transfers
       WHERE user_id = ?
       `,
       [id]
@@ -443,9 +440,9 @@ module.exports = {
   getPackages,
   getOrders,
   getDownloadsHistory,
-  getBalanceTransferHistory,
   downloadFile,
   updateCurrentPackage,
   getOrderDetails,
   getOrderDetailsByPaymentId,
+  getOverview,
 };

@@ -1,5 +1,7 @@
-const { pool } = require("../../config/database");
+const { pool, connection } = require("../../config/database");
+
 const NodeCache = require("node-cache");
+
 
 const fileCache = new NodeCache({ stdTTL: 0 }); // No expiration until manual deletion
 

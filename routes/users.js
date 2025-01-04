@@ -16,15 +16,23 @@ const currencyRouter = require('./users/currencies');
 const searchRouter = require('./users/search');
 const menuRouter = require('./users/menu');
 const couponRouter = require('./users/coupons');
+const reviewRouter = require('./users/reviews');
+const requestFileRouter = require('./users/requestFile');
+const contactUsEnquiryRouter = require('./users/contactUsEnquiry');
+const productsRouter = require('./users/products');
+const productRouter = require('./users/product');
+const ordersRouter = require('./users/orders');
+const walletRouter = require('./users/wallet');
+const dashboardRouter = require('./users/dashboard');
 
 // shared
 const orderRouter = require("./shared/order");
-
 
 router.use("/auth", userAuthRouter);
 router.use("/", digitalFilesRouter); // File Manager
 router.use("/download-packages", downloadPackagesRouter);
 router.use("/account", AccountRouter);
+router.use("/account/orders", ordersRouter);
 router.use("/cart", cartRouter);
 router.use("/payment", paymentRouter);
 router.use("/agents", agentRouter);
@@ -37,5 +45,12 @@ router.use("/order", orderRouter);
 router.use("/search", searchRouter);
 router.use("/menu", menuRouter);
 router.use("/coupons", couponRouter);
+router.use("/reviews", reviewRouter);
+router.use("/request-file", requestFileRouter);
+router.use("/leads", contactUsEnquiryRouter);
+router.use("/products", productsRouter);
+router.use("/product", productRouter);
+router.use("/wallet", walletRouter);
+router.use("/dashboard", dashboardRouter);
 
 module.exports = router;

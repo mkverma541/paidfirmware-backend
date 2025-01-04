@@ -108,10 +108,9 @@ async function searchFilesFoldersWithSorting(req, res) {
           params
         );
       }
-    } 
-    
-    
-     const response = {
+    }
+
+    const response = {
       folders: folders, // Folders within the current directory
       files: files, // Files with all keys from res_files
     };
@@ -120,7 +119,6 @@ async function searchFilesFoldersWithSorting(req, res) {
       response,
       status: "success",
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -129,7 +127,6 @@ async function searchFilesFoldersWithSorting(req, res) {
     });
   }
 }
-
 
 async function generateDownloadLink(fileId, userId, packageId) {
   try {
@@ -241,7 +238,6 @@ async function getFolderPath(folderId) {
   return path;
 }
 
-
 async function getAllFoldersFiles(req, res) {
   try {
     let id = req.query.folder_id || 0;
@@ -255,8 +251,7 @@ async function getAllFoldersFiles(req, res) {
       "SELECT folder_id, parent_id, title, description, thumbnail, is_active, is_new, date_create " +
       "FROM res_folders WHERE parent_id = ?";
 
-    const fileQuery =
-      "SELECT * FROM res_files WHERE folder_id = ?";
+    const fileQuery = "SELECT * FROM res_files WHERE folder_id = ?";
 
     // Add search conditions if search is provided
     const folderCondition = search ? " AND title LIKE ?" : "";
@@ -292,13 +287,12 @@ async function getAllFoldersFiles(req, res) {
   }
 }
 
-
 async function addFolder(req, res) {
   try {
     const {
       title,
       parent_id,
-      description = '',
+      description = "",
       thumbnail = null,
       is_active = 1,
       is_new = 1,
@@ -347,7 +341,7 @@ async function addFolder(req, res) {
     });
   } catch (err) {
     console.error("Error adding folder:", err);
-    if (err.code === 'ER_DUP_ENTRY') {
+    if (err.code === "ER_DUP_ENTRY") {
       return res.status(400).json({
         status: "error",
         message: "A folder with this title already exists.",
@@ -360,17 +354,18 @@ async function addFolder(req, res) {
   }
 }
 
-
 async function updateFolder(req, res) {
   try {
     const { folderId } = req.params; // Get the folder ID from the request parameters
-    const { title, parent_id, description, thumbnail, is_active, is_new } = req.body;
+    const { title, parent_id, description, thumbnail, is_active, is_new } =
+      req.body;
 
     // Check if folderId is provided
     if (!folderId) {
       return res.status(400).json({
         status: "error",
-        message: "Folder ID is required. Please refresh the page and try again.",
+        message:
+          "Folder ID is required. Please refresh the page and try again.",
       });
     }
 
@@ -387,7 +382,8 @@ async function updateFolder(req, res) {
     if (rows.length > 0) {
       return res.status(400).json({
         status: "error",
-        message: "A folder with the same title already exists under the specified parent.",
+        message:
+          "A folder with the same title already exists under the specified parent.",
       });
     }
 
@@ -488,7 +484,7 @@ async function addFile(req, res) {
       thumbnail = null,
       image = null,
       size,
-      price = 0.000, // Ensure price defaults to 0.000 if not provided
+      price = 0.0, // Ensure price defaults to 0.000 if not provided
       url,
       url_type,
       is_active,
@@ -501,7 +497,8 @@ async function addFile(req, res) {
     if (is_featured && price > 0) {
       return res.status(400).json({
         status: "error",
-        message: "You cannot select both 'featured file' and 'paid files'. Please choose only one.",
+        message:
+          "You cannot select both 'featured file' and 'paid files'. Please choose only one.",
       });
     }
 
@@ -563,7 +560,6 @@ async function addFile(req, res) {
     });
   }
 }
-
 
 async function cutAndCopyFile(req, res) {
   try {
@@ -695,7 +691,6 @@ async function cutAndCopyFile(req, res) {
     });
   }
 }
-
 
 async function cutAndCopyFolder(req, res) {
   try {
@@ -952,7 +947,6 @@ async function getAllFiles(req, res) {
   }
 }
 
-
 async function getFileByFileId(req, res) {
   try {
     const id = req.params.fileId;
@@ -986,7 +980,6 @@ async function getFileByFileId(req, res) {
   }
 }
 
-
 async function updateSlugsForFolders(req, res) {
   let connection;
   try {
@@ -1000,10 +993,40 @@ async function updateSlugsForFolders(req, res) {
             WHEN COUNT(*) = 0 THEN LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-'))
             ELSE CONCAT(LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-')), '-', COUNT(*))
           END
-        FROM res_folders
-        WHERE LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-')) = LOWER(REPLACE(REPLACE(REPLACE(title, '_', '-'), '[', '-'), ']', '-'))
-        AND rf.id <> id  -- Ensure you're comparing the correct identifiers
-        GROUP BY rf.title
+        FROM res_folders AS rf_inner
+        WHERE LOWER(REPLACE(REPLACE(REPLACE(rf_inner.title, '_', '-'), '[', '-'), ']', '-')) = LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-'))
+        AND rf_inner.folder_id <> rf.folder_id  -- Ensure you're comparing the correct identifiers
+      )
+      WHERE rf.slug IS NULL;
+    `;
+
+    await connection.execute(query);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Successfully updated slugs for folders with NULL values",
+    });
+  } catch (error) {
+    return res.status;
+  }
+}
+
+async function updateSlugsForFiles(req, res) {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    const query = `
+      UPDATE res_files AS rf
+      SET rf.slug = (
+        SELECT
+          CASE 
+            WHEN COUNT(*) = 0 THEN LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-'))
+            ELSE CONCAT(LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-')), '-', COUNT(*))
+          END
+        FROM res_files AS rf_inner
+        WHERE LOWER(REPLACE(REPLACE(REPLACE(rf_inner.title, '_', '-'), '[', '-'), ']', '-')) = LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-'))
+        AND rf_inner.file_id <> rf.file_id  -- Ensure you're comparing the correct identifiers
       )
       WHERE rf.slug IS NULL;
     `;
@@ -1012,7 +1035,7 @@ async function updateSlugsForFolders(req, res) {
     
     return res.status(200).json({
       status: "success",
-      message: "Successfully updated slugs for folders with NULL values",
+      message: "Successfully updated slugs for files with NULL values",
     });
     
   } catch (error) {
@@ -1043,4 +1066,5 @@ module.exports = {
   searchFilesFolders,
   searchFilesFoldersWithSorting,
   updateSlugsForFolders,
+  updateSlugsForFiles
 };

@@ -26,7 +26,8 @@ router.get("/folder/file/:fileId", FilesController.getFileByFileId);
 router.post("/file/move", FilesController.cutAndCopyFile);
 router.post("/folder/move", FilesController.cutAndCopyFolder);
 
-router.get("/update/slug/folder", FilesController.updateSlugsForFolders);
+router.get("/folders/update/slug", FilesController.updateSlugsForFolders);
+router.get("/folders/files/update/slug", FilesController.updateSlugsForFiles);
 
 // shared files
 

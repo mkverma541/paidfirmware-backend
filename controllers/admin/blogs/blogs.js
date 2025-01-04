@@ -65,44 +65,146 @@ async function createBlog(req, res) {
 }
 
 
-
-// Get all blogs
+// Get all blogs with pagination, including tags and categories with IDs
 async function getBlogs(req, res) {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = (page - 1) * limit;
+
+        // Fetch paginated blogs with tags and categories
         const [rows] = await pool.query(`
             SELECT b.*, 
-                   GROUP_CONCAT(DISTINCT t.name) AS tags, 
-                   GROUP_CONCAT(DISTINCT c.name) AS categories
+                   GROUP_CONCAT(DISTINCT CONCAT(t.tag_id, ':', t.name)) AS tags, 
+                   GROUP_CONCAT(DISTINCT CONCAT(c.category_id, ':', c.name)) AS categories
             FROM res_blogs b
             LEFT JOIN res_blogs_tags_relationship bt ON b.blog_id = bt.blog_id
             LEFT JOIN res_blogs_tags t ON bt.tag_id = t.tag_id
             LEFT JOIN res_blogs_categories_relationship bc ON b.blog_id = bc.blog_id
             LEFT JOIN res_blogs_categories c ON bc.category_id = c.category_id
             GROUP BY b.blog_id
-        `);
+            ORDER BY b.created_at DESC
+            LIMIT ? OFFSET ?
+        `, [limit, offset]);
 
         // Format the results into the desired structure
         const blogs = rows.map(blog => {
+            // Parse tags and categories into array of objects with id and name
+            const tags = blog.tags
+                ? blog.tags.split(',').map(tag => {
+                    const [id, name] = tag.split(':');
+                    return { id: parseInt(id), name };
+                })
+                : [];
+
+            const categories = blog.categories
+                ? blog.categories.split(',').map(category => {
+                    const [id, name] = category.split(':');
+                    return { id: parseInt(id), name };
+                })
+                : [];
+
             return {
                 blog_id: blog.blog_id,
                 title: blog.title,
                 slug: blog.slug,
-                content: blog.content,
                 author: blog.author,
-                excerpt: blog.excerpt,
                 featured_image: blog.featured_image,
-                gallery: blog.gallery ? JSON.parse(blog.gallery) : [], // Parse gallery JSON into array
                 status: blog.status,
                 created_at: blog.created_at,
                 updated_at: blog.updated_at,
-                tags: blog.tags ? blog.tags.split(',') : [], // Convert tags string to array
-                categories: blog.categories ? blog.categories.split(',') : [], // Convert categories string to array
+                tags, // Array of tag objects with id and name
+                categories, // Array of category objects with id and name
             };
         });
 
-        res.status(200).json({
+        // Get total count for pagination metadata
+        const [[{ total }]] = await pool.query(
+            `SELECT COUNT(*) AS total FROM res_blogs`
+        );
+
+        // Construct response with pagination metadata
+        const response = {
             data: blogs,
+            total,
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
             status: "success",
+            message: "Blogs fetched successfully",
+        };
+
+        res.status(200).json({ response });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Internal server error",
+            status: "error",
+        });
+    }
+}
+
+// get blog by id
+
+async function getBlogById(req, res) {
+    try {
+        const { id } = req.params;
+
+        // Fetch the blog details with tags and categories
+        const [rows] = await pool.query(`
+            SELECT b.*, 
+                   GROUP_CONCAT(DISTINCT CONCAT(t.tag_id, ':', t.name)) AS tags, 
+                   GROUP_CONCAT(DISTINCT CONCAT(c.category_id, ':', c.name)) AS categories
+            FROM res_blogs b
+            LEFT JOIN res_blogs_tags_relationship bt ON b.blog_id = bt.blog_id
+            LEFT JOIN res_blogs_tags t ON bt.tag_id = t.tag_id
+            LEFT JOIN res_blogs_categories_relationship bc ON b.blog_id = bc.blog_id
+            LEFT JOIN res_blogs_categories c ON bc.category_id = c.category_id
+            WHERE b.blog_id = ?
+            GROUP BY b.blog_id
+        `, [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                message: "Blog not found",
+                status: "error",
+            });
+        }
+
+        const blog = rows[0];
+
+        // Parse tags and categories into array of objects with id and name
+        const tags = blog.tags
+            ? blog.tags.split(',').map(tag => {
+                const [tagId, tagName] = tag.split(':');
+                return { id: parseInt(tagId), name: tagName };
+            })
+            : [];
+
+        const categories = blog.categories
+            ? blog.categories.split(',').map(category => {
+                const [categoryId, categoryName] = category.split(':');
+                return { id: parseInt(categoryId), name: categoryName };
+            })
+            : [];
+
+        // Construct the blog response
+        const blogData = {
+            blog_id: blog.blog_id,
+            title: blog.title,
+            slug: blog.slug,
+            author: blog.author,
+            featured_image: blog.featured_image,
+            status: blog.status,
+            created_at: blog.created_at,
+            updated_at: blog.updated_at,
+            tags, // Array of tag objects
+            categories, // Array of category objects
+        };
+
+        res.status(200).json({
+            data: blogData,
+            status: "success",
+            message: "Blog fetched successfully",
         });
     } catch (err) {
         console.error(err);
@@ -112,6 +214,8 @@ async function getBlogs(req, res) {
         });
     }
 }
+
+    
 
 // Delete a blog
 async function deleteBlog(req, res) {
@@ -128,4 +232,4 @@ async function deleteBlog(req, res) {
     }
 }
 
-module.exports = { createBlog, getBlogs, deleteBlog };
+module.exports = { createBlog, getBlogs, deleteBlog, getBlogById };

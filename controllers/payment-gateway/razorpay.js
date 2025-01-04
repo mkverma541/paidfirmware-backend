@@ -61,7 +61,6 @@ async function fetchPayment(req, res) {
 
     if (order.status === "paid") {
       const orderId = await getOrderIdByTransactionOrderId(razorpay_order_id);
-
       await processOrder(id, orderId, razorpay_payment_id, res);
 
       res.status(200).json({

@@ -13,7 +13,11 @@ class FilesController {
             'photo',
             'folders',
             'files',
-            'blogs'
+            'blogs',
+            'teams',
+            'icons',
+            'agents',
+            'products',
         ]
     }
 
@@ -38,7 +42,7 @@ class FilesController {
                 });
             res.status(200).json({
                 status: 'success',
-                response: files
+                response: files,
             })
         } catch (e) {
             res.status(200).json({

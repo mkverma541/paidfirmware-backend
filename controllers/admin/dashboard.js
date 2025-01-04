@@ -29,11 +29,11 @@ async function getUserRegistrationChart(req, res) {
       let aggregation, groupBy;
       if (monthDiff === 0) {
         // If the date range is within the same month, group by day
-        aggregation = `DATE(date_create) AS period`;
+        aggregation = `DATE(created_at) AS period`;
         groupBy = `GROUP BY period ORDER BY period ASC`;
       } else {
         // If the date range is more than one month, group by month
-        aggregation = `DATE_FORMAT(date_create, '%Y-%m') AS period`; // Format: YYYY-MM
+        aggregation = `DATE_FORMAT(created_at, '%Y-%m') AS period`; // Format: YYYY-MM
         groupBy = `GROUP BY period ORDER BY period ASC`;
       }
   
@@ -42,7 +42,7 @@ async function getUserRegistrationChart(req, res) {
         `
         SELECT ${aggregation}, COUNT(*) AS count
         FROM res_users
-        WHERE date_create BETWEEN ? AND ?
+        WHERE created_at BETWEEN ? AND ?
         ${groupBy}
         `,
         [start, end]

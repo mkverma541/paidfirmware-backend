@@ -45,10 +45,13 @@ async function getPages(req, res) {
 }
 
 
-async function getPage(req, res) {
+async function getPageDetailsById(req, res) {
   try {
-    const [rows] = await pool.query("SELECT * FROM res_pages WHERE slug = ?", [
-      req.params.slug,
+
+    const page_id = req.params.id;
+
+    const [rows] = await pool.query("SELECT * FROM res_pages WHERE page_id = ?", [
+      page_id,
     ]);
 
     res.status(200).json({
@@ -200,7 +203,7 @@ async function generateJsonFile(req, res) {
 
 module.exports = {
   getPages,
-  getPage,
+  getPageDetailsById,
   updatePage,
   createPage,
   deletePage,

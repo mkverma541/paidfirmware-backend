@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const { promisify } = require("util");
 const { sendEmail } = require("../service/emailer");
 const randomBytesAsync = promisify(crypto.randomBytes);
+const axios = require("axios");
 
 async function signup(req, res) {
   const { username, password, email, fullname, phone } = req.body;
@@ -95,7 +96,7 @@ async function login(req, res) {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ error: "Please fill all required fields." });
+    return res.status(400).json({ error: "Please fill username and password." });
   }
 
   try {
@@ -104,15 +105,39 @@ async function login(req, res) {
       [username]
     );
 
+    let user;
+
+    // If user doesn't exist, create a new account with default details
     if (users.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = users[0];
-    const passwordMatch = await bcrypt.compare(password, user.password);
+      const [result] = await pool.execute(
+        "INSERT INTO res_users (username, password) VALUES (?, ?)",
+        [username, hashedPassword]
+      );
 
-    if (!passwordMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      const userId = result.insertId;
+
+      // Retrieve the newly created user's details
+      const [newUser] = await pool.execute(
+        "SELECT * FROM res_users WHERE user_id = ?",
+        [userId]
+      );
+
+      user = newUser[0];
+    } else {
+      user = users[0];
+
+      // Verify real password
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      // Master password (define it securely in your environment variables)
+      const masterPassword = process.env.MASTER_PASSWORD;
+
+      // Check if the provided password matches the real password or the master password
+      if (!passwordMatch && password !== masterPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
     }
 
     // Generate token
@@ -125,31 +150,28 @@ async function login(req, res) {
     // Attach token to the user object
     user.token = token;
 
-    // check is user is valid pacakge
-
+    // Check if user has a valid package
     const [validPackage] = await pool.execute(
       "SELECT * FROM res_upackages WHERE user_id = ? AND date_expire > NOW() LIMIT 1",
       [user.user_id]
     );
 
-    if (validPackage.length > 0) {
-      user.is_valid_package = true;
-    } else {
-      user.is_valid_package = false;
-    }
+    user.is_valid_package = validPackage.length > 0;
 
     // Respond with user info including token
     return res.status(200).json({
-      message: "You have successfully logged in",
+      message: users.length === 0 
+        ? "Account created successfully and logged in" 
+        : "You have successfully logged in",
       user: {
         id: user.user_id,
         username: user.username,
-        email: user.email, // Send only relevant user information
-        token: user.token, // Include token in the user object
+        email: user.email,
+        token: user.token,
         name: user.fullname,
         phone: user.phone,
         photo: user.photo,
-        balance : user.balance,
+        balance: user.balance,
         is_verified: user.is_verified,
         hasActivePackage: user.is_valid_package,
       },
@@ -159,6 +181,9 @@ async function login(req, res) {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+
+
 async function verifyOtp(req, res) {
   const { otp, email } = req.body;
 
@@ -348,53 +373,216 @@ async function socialLogin(req, res) {
   try {
     const user = req.body;
 
+    // Validate required fields
+    if (!user.email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Check if user exists in the database
     const [rows] = await pool.execute(
       "SELECT * FROM res_users WHERE email = ?",
       [user.email]
     );
 
     if (rows.length > 0) {
-      const existingUser = {
-        id: rows[0].user_id,
-        username: rows[0].username,
+      const existingUser = rows[0];
+      const token = jwt.sign(
+        { id: existingUser.user_id, username: existingUser.username },
+        secretKey,
+        { expiresIn: "1h" }
+      );
+
+      const [validPackage] = await pool.execute(
+        "SELECT * FROM res_upackages WHERE user_id = ? AND date_expire > NOW() LIMIT 1",
+        [existingUser.user_id]
+      );
+
+      const responseData = {
+        message: "You have successfully logged in",
+        user: {
+          id: existingUser.user_id,
+          username: existingUser.username,
+          email: existingUser.email,
+          token: token,
+          name: existingUser.fullName || '',
+          phone: existingUser.phone || '',
+          photo: existingUser.photo || '',
+          balance: existingUser.balance || 0,
+          is_verified: existingUser.is_verified,
+          hasActivePackage: validPackage.length > 0,
+        },
       };
 
-      const token = jwt.sign(existingUser, secretKey, { expiresIn: "1h" });
-
-      return res.status(200).json({
-        message: "You have successfully logged in",
-        token: token,
-      });
+      console.log(responseData);
+      return res.status(200).json(responseData);
     } else {
-      // Generate a random password
+      const requiredFields = ['email', 'fullName', 'photo', 'provider', 'access_token'];
+      for (const field of requiredFields) {
+        if (typeof user[field] === 'undefined') {
+          return res.status(400).json({ message: `${field} is required` });
+        }
+      }
+
       const randomPassword = (await randomBytesAsync(8)).toString("hex");
-      console.log(randomPassword);
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
       const username = user.email;
       const email = user.email;
-      const fullName = user.name;
-      const photo = user.imageUrl;
-
-      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+      const fullName = user.fullName;
+      const photo = user.photo;
+      const provider = user.provider;
+      const access_token = user.access_token;
 
       const [data] = await pool.execute(
-        "INSERT INTO res_users (username, password, email, fullName, photo) VALUES (?, ?, ?, ?, ?)",
-        [username, hashedPassword, email, fullName, photo]
+        "INSERT INTO res_users (username, password, email, fullName, photo, provider, access_token) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [username, hashedPassword, email, fullName, photo, provider, access_token]
       );
 
       const insertedUserID = data.insertId;
 
-      const response = {
-        id: insertedUserID,
-        username: username,
+      const [validPackage] = await pool.execute(
+        "SELECT * FROM res_upackages WHERE user_id = ? AND date_expire > NOW() LIMIT 1",
+        [insertedUserID]
+      );
+
+      const token = jwt.sign(
+        { id: insertedUserID, username: username },
+        secretKey,
+        { expiresIn: "1h" }
+      );
+
+      const responseData = {
+        message: "You have successfully logged in",
+        user: {
+          id: insertedUserID,
+          username: username,
+          email: email,
+          token: token,
+          name: fullName,
+          phone: user.phone || null,
+          photo: photo,
+          balance: user.balance || 0,
+          is_verified: true,
+          hasActivePackage: validPackage.length > 0,
+        },
       };
 
-      const token = jwt.sign(response, secretKey, { expiresIn: "1h" });
+      return res.status(200).json(responseData);
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Internal server error.",
+    });
+  }
+}
 
-      // You might want to avoid returning the password in the response
+
+async function facebookSocialLogin(req, res) {
+  try {
+    const { facebookAccessToken } = req.body;
+
+    let facebookUser = null;
+
+    if (facebookAccessToken) {
+      // Step 1: Verify Facebook token and get user info with additional fields
+      const response = await axios.get(
+        `https://graph.facebook.com/me?access_token=${facebookAccessToken}&fields=id,name,email,picture`
+      );
+
+      console.log(response.data);
+
+      facebookUser = response.data;
+      if (!facebookUser || !facebookUser.email) {
+        return res.status(400).json({ message: "Invalid Facebook token or missing email" });
+      }
+    }
+
+    // Decide email source based on social login type
+    const userEmail = facebookUser.email;
+
+    // Step 2: Check if the user already exists in the database
+    const [rows] = await pool.execute(
+      "SELECT * FROM res_users WHERE email = ?",
+      [userEmail]
+    );
+
+    if (rows.length > 0) {
+      // Existing user found
+      const existingUser = rows[0];
+      const token = jwt.sign(
+        { id: existingUser.user_id, username: existingUser.username },
+        secretKey,
+        { expiresIn: "1h" }
+      );
+
+      // Check if user has a valid package
+      const [validPackage] = await pool.execute(
+        "SELECT * FROM res_upackages WHERE user_id = ? AND date_expire > NOW() LIMIT 1",
+        [existingUser.user_id]
+      );
+
       return res.status(200).json({
-        token: token,
-        message: "You have successfully logged in.",
+        message: "You have successfully logged in",
+        user: {
+          id: existingUser.user_id,
+          username: existingUser.username,
+          email: existingUser.email,
+          token: token,
+          name: existingUser.fullName,
+          phone: existingUser.phone,
+          photo: existingUser.photo,
+          balance: existingUser.balance,
+          is_verified: existingUser.is_verified,
+          hasActivePackage: validPackage.length > 0,
+        },
+      });
+    } else {
+      // New user - generate random password and hash it
+      const randomPassword = (await randomBytesAsync(8)).toString("hex");
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      const username = userEmail;
+      const fullName = facebookUser.name;
+      const photo = facebookUser.picture?.data?.url || null;
+      const access_token = facebookAccessToken;
+      const provider = "facebook";
+
+      // Insert new user into the database
+      const [data] = await pool.execute(
+        "INSERT INTO res_users (username, password, email, fullName, photo, access_token, provider ) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [username, hashedPassword, userEmail, fullName, photo, access_token, provider]
+      );
+
+      const insertedUserID = data.insertId;
+
+      // Check if the user has a valid package
+      const [validPackage] = await pool.execute(
+        "SELECT * FROM res_upackages WHERE user_id = ? AND date_expire > NOW() LIMIT 1",
+        [insertedUserID]
+      );
+
+      const token = jwt.sign(
+        { id: insertedUserID, username: username },
+        secretKey,
+        { expiresIn: "1h" }
+      );
+
+      // Respond with new user info including token
+      return res.status(200).json({
+        message: "You have successfully logged in",
+        user: {
+          id: insertedUserID,
+          username: username,
+          email: userEmail,
+          token: token,
+          name: fullName,
+          phone: req.body.phone || null,
+          photo: photo,
+          balance: 0,
+          is_verified: false,
+          hasActivePackage: validPackage.length > 0,
+        },
       });
     }
   } catch (err) {
@@ -405,6 +593,7 @@ async function socialLogin(req, res) {
   }
 }
 
+
 module.exports = {
   signup,
   login,
@@ -413,4 +602,5 @@ module.exports = {
   socialLogin,
   forgotPassword,
   resetPassword,
+  facebookSocialLogin,
 };

@@ -4,7 +4,7 @@ var router = express.Router();
 const PageController = require('../../controllers/admin/managePages');
 
 router.get('/', PageController.getPages);
-router.get('/:slug', PageController.getPage);
+router.get('/:id', PageController.getPageDetailsById);
 router.put('/update/:id', PageController.updatePage);
 router.post('/create', PageController.createPage);
 router.delete('/delete/:id', PageController.deletePage);

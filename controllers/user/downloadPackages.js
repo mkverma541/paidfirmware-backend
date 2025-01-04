@@ -1,6 +1,5 @@
 const express = require("express");
 const { pool } = require("../../config/database");
-const { response } = require("../../app");
 
 async function getPackageDetails(req, res) {
   try {

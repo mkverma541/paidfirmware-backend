@@ -1,0 +1,75 @@
+const { pool } = require("../../config/database");
+
+async function contactUsEnquiry(req, res) {
+  try {
+    const { name, email, phone, subject, message, user_id = null } = req.body;
+
+    // table res_contact_enquiries
+    const query = `
+            INSERT INTO res_contact_enquiries (name, email, phone, subject, message, user_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+
+    await pool.query(query, [name, email, phone, subject, message, user_id]);
+
+    res.status(201).json({
+      message:
+        "Your message has been submitted successfully and we will get back to you shortly",
+      status: "success",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Internal server error",
+      status: "error",
+    });
+  }
+}
+
+// Get a list of file requests with pagination
+async function getList(req, res) {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
+    const query = `
+            SELECT rfr.id, rfr.name, rfr.email, rfr.phone, rfr.subject, rfr.message, rfr.created_at,
+                   u.username AS user_name, u.email AS user_email, u.phone AS user_phone
+            FROM res_contact_enquiries rfr
+            LEFT JOIN res_users u ON rfr.user_id = u.user_id
+            LIMIT ? OFFSET ?
+        `;
+
+    // Fetch paginated file requests
+    const [rows] = await pool.query(query, [limit, offset]);
+
+    // Get total count for pagination metadata
+    const [[{ total }]] = await pool.query(
+      `SELECT COUNT(*) AS total FROM res_contact_enquiries`
+    );
+
+    let result = {
+      data: rows,
+      total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      status: "success",
+    };
+
+    res.status(200).json({
+      response: result,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Internal server error",
+      status: "error",
+    });
+  }
+}
+
+module.exports = {
+  contactUsEnquiry,
+  getList,
+};

@@ -8,7 +8,8 @@ const BlogsController = require('../../controllers/admin/blogs/blogs');
 
 // Blog routes
 router.post('/create', BlogsController.createBlog);
-router.get('/', BlogsController.getBlogs);
+router.get('/list', BlogsController.getBlogs);
+router.get('/:id', BlogsController.getBlogById);
 router.delete('/delete/:id', BlogsController.deleteBlog);
 
 
@@ -21,6 +22,7 @@ router.delete('/tags/delete/:id', TagsController.deleteTag);
 router.post('/categories/create', CategoriesController.createCategory);
 router.get('/categories', CategoriesController.getCategories);
 router.delete('/categories/delete/:id', CategoriesController.deleteCategory);
+router.put('/categories/update/:id', CategoriesController.updateCategory);
 
 
 module.exports = router;

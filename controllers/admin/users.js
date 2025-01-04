@@ -13,7 +13,7 @@ async function getAllUserList(req, res) {
       SELECT * 
       FROM res_users
       WHERE username LIKE ? OR email LIKE ?
-      ORDER BY date_create DESC
+      ORDER BY created_at DESC
       LIMIT ? OFFSET ?
       `,
       [search, search, limit, offset]

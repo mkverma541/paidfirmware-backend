@@ -1,38 +1,63 @@
-const { pool } = require("../../config/database");
+const { pool, secretKey } = require("../../config/database");
+const jwt = require("jsonwebtoken");
 
 async function checkDiscount(req, res) {
   try {
-    const { id } = req.user;
-    const { discount_code, currency } = req.body;
+    let userId = null;
+    const { discount_code, currency, cartHashId } = req.body;
     let discount = [];
+    let cartItems = [];
 
-    // Check for discount code and retrieve discount details if provided
-    if (discount_code) {
-      const [discountResult] = await pool.execute(
-        `SELECT * FROM res_coupons WHERE code = ? AND is_active = 1`,
-        [discount_code]
-      );
-      discount = discountResult;
+    // Extract user ID from token if provided
+    const authHeader = req.headers.authorization;
+
+    if (authHeader) {
+      const token = authHeader.split(" ")[1];
+      try {
+        const decoded = jwt.verify(token, secretKey); // Replace `secretKey` with your actual secret
+        userId = decoded.id; // Extract user ID from token
+      } catch (err) {
+        console.error("Invalid token:", err.message);
+      }
     }
 
-    // Fetch cart items for the user
-    const [cartItems] = await pool.execute(
-      `SELECT c.package_id, c.file_id, c.quantity, p.*, f.*
-       FROM res_cart c
-       LEFT JOIN res_download_packages p ON c.package_id = p.package_id
-       LEFT JOIN res_files f ON c.file_id = f.file_id
-       WHERE c.user_id = ?`,
-      [id]
-    );
+    // Merge or update the cart based on user ID and cartHashId
+    if (userId) {
+      // Fetch cart items for the logged-in user
+      const [userCartItems] = await pool.execute(
+        `SELECT * FROM res_cart WHERE user_id = ?`,
+        [userId]
+      );
+
+      cartItems = userCartItems;
+    } else if (cartHashId) {
+      // Fetch guest cart items
+      const [guestCartItems] = await pool.execute(
+        `SELECT * FROM res_cart WHERE cart_hash = ?`,
+        [cartHashId]
+      );
+      cartItems = guestCartItems;
+    }
+
+    
+    if (cartItems.length === 0) {
+      // No items found in the cart
+      return res.status(200).json({
+        message: "Cart is empty",
+        currency,
+        discounts: [],
+        subTotal: "0.00",
+        taxes: [],
+        total: "0.00",
+      });
+    }
 
     // Calculate the subtotal price of the cart in USD (base currency)
     let subTotal = cartItems.reduce((acc, item) => {
-      const price = item.price || 0; // Price should be in USD
+      const price = item.sale_price || 0; // Price should be in USD
       const quantity = item.quantity || 1;
       return acc + price * quantity;
     }, 0);
-
-    console.log("Subtotal in base currency (USD):", subTotal);
 
     // Fetch the exchange rate for the provided currency
     const exchangeRateResult = await getExchangeRate(currency);
@@ -40,33 +65,40 @@ async function checkDiscount(req, res) {
     const subTotalAmount = subTotal * exchangeRateResult; // Convert subtotal to target currency
     let total = subTotalAmount;
 
-    console.log("Subtotal in target currency (after conversion):", subTotalAmount);
-
     // Initialize discount values
     let totalDiscountValue = 0;
 
     // Apply discount if available
-    if (discount.length > 0) {
-      const discountAmount = parseFloat(discount[0].discount_value) || 0; // Discount amount in USD
-      const discountType = discount[0].discount_type;
+    if (discount_code) {
+      const [discountResult] = await pool.execute(
+        `SELECT * FROM res_coupons WHERE code = ? AND is_active = 1`,
+        [discount_code]
+      );
+      discount = discountResult;
 
-      console.log("Discount Amount (in USD):", discountAmount);
-      console.log("Discount Type:", discountType);
+      if (discount.length > 0) {
+        const discountAmount = parseFloat(discount[0].discount_value) || 0; // Discount amount in USD
+        const discountType = discount[0].discount_type;
 
-      // Handle fixed discount conversion from USD to target currency
-      if (discountType === "fixed") {
-        const convertedDiscountAmount = discountAmount * exchangeRateResult; // Convert the discount to the target currency
-        console.log("Converted Discount Amount (in target currency):", convertedDiscountAmount);
-        totalDiscountValue = Math.min(convertedDiscountAmount, total).toFixed(2); // Cap discount to total
-      } else if (discountType === "percentage") {
-        totalDiscountValue = (subTotalAmount * (discountAmount / 100)).toFixed(2);
+        if (discountType === "fixed") {
+          const convertedDiscountAmount = discountAmount * exchangeRateResult; // Convert the discount to the target currency
+          console.log(
+            "Converted Discount Amount (in target currency):",
+            convertedDiscountAmount
+          );
+          totalDiscountValue = Math.min(convertedDiscountAmount, total).toFixed(
+            2
+          ); // Cap discount to total
+        } else if (discountType === "percentage") {
+          totalDiscountValue = (
+            subTotalAmount *
+            (discountAmount / 100)
+          ).toFixed(2);
+        }
+
+        total -= parseFloat(totalDiscountValue); // Apply the discount to total
       }
-
-      total -= parseFloat(totalDiscountValue); // Apply the discount to total
     }
-
-    console.log("Total Discount Applied:", totalDiscountValue);
-    console.log("Total after Discount:", total);
 
     // Fetch all applicable taxes
     const [taxes] = await pool.execute(`SELECT * FROM res_tax_classes`);
@@ -87,7 +119,7 @@ async function checkDiscount(req, res) {
 
     // Prepare the response
     let response = {
-      currency: currency,
+      currency,
       discounts: discount.map((d) => ({
         coupon_id: d.coupon_id,
         code: d.code,
@@ -128,7 +160,10 @@ async function checkDiscount(req, res) {
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching cart:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({
+      error: "Internal Server Error",
+      cart: [],
+    });
   }
 }
 
@@ -138,8 +173,6 @@ async function getExchangeRate(currency) {
     `SELECT exchange_rate FROM res_exchange_rates WHERE currency_code = ? ORDER BY rate_date DESC LIMIT 1`,
     [currency]
   );
-
-  console.log("Exchange Rate Result for currency:", currency, exchangeRateResult);
 
   if (exchangeRateResult.length === 0) {
     throw new Error(`Exchange rate not found for currency: ${currency}`);
@@ -178,7 +211,10 @@ async function checkDiscountCoupon(req, res) {
 
     // Check if coupon is expired
     const currentDate = new Date();
-    if (currentDate < new Date(coupon.start_date) || currentDate > new Date(coupon.end_date)) {
+    if (
+      currentDate < new Date(coupon.start_date) ||
+      currentDate > new Date(coupon.end_date)
+    ) {
       return res.status(400).json({ message: "Discount code is expired" });
     }
 
@@ -192,25 +228,28 @@ async function checkDiscountCoupon(req, res) {
       [id]
     );
 
-      console.log("Cart Items:", cartItems);
+    console.log("Cart Items:", cartItems);
     // Calculate subtotal for validation
-    const subtotal = cartItems.reduce((acc, item) => acc + (item.price || 0) * (item.quantity || 1), 0);
+    const subtotal = cartItems.reduce(
+      (acc, item) => acc + (item.price || 0) * (item.quantity || 1),
+      0
+    );
 
     // Check minimum order value
     if (subtotal < coupon.min_order_value) {
       return res.status(400).json({
-        message: `Minimum order value for this discount code is ${coupon.min_order_value}`
+        message: `Minimum order value for this discount code is ${coupon.min_order_value}`,
       });
     }
 
     // Check product type restrictions
     if (coupon.product_type) {
       const validProduct = cartItems.some(
-        item => item.product_type === coupon.product_type
+        (item) => item.product_type === coupon.product_type
       );
       if (!validProduct) {
         return res.status(400).json({
-          message: `Discount code is not valid for the products in your cart`
+          message: `Discount code is not valid for the products in your cart`,
         });
       }
     }
@@ -218,13 +257,12 @@ async function checkDiscountCoupon(req, res) {
     // Check usage limits
     if (coupon.usage_count >= coupon.max_usage) {
       return res.status(400).json({
-        message: "Discount code usage limit has been reached"
+        message: "Discount code usage limit has been reached",
       });
     }
 
     // If all checks pass, return success
     return res.status(200).json({ message: "Discount code is valid" });
-
   } catch (error) {
     console.error("Error checking discount:", error);
     return res.status(500).json({ message: "Internal server error" });
