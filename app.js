@@ -5,10 +5,10 @@ const logger = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const createError = require("http-errors");
-
-
+require('./logger'); // Path to the logger file
+  
 require("./config/database");
-//const redisClient = require('./redisClient');
+
 
 //require('./controllers/test.js');
 

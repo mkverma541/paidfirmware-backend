@@ -12,7 +12,9 @@
   "BINANCE_API_SECRET": "juyiifbgsq5tfcuskb3d5edwwhfsvwhkckqxynqsdgubimjvmwvkbjgrwurwnoml",
   "APP_BASE_URL": "http://localhost:3000",
   "APP_PORT": 3000,
-  "MASTER_PASSWORD": "123"
+  "MASTER_PASSWORD": "123",
+  "REDIS_URL" : "redis://127.0.0.1:6379"
+
 
 
 }

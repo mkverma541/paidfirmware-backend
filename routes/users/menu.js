@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const { cacheJson } = require('../../middlewars/cacheMiddleware');
 
 const MenuController = require("../../controllers/user/menu");
 
-router.get("/", MenuController.getMenus);
-router.get('/clear-cache', MenuController.clearMenuCache);
+router.get("/", cacheJson, MenuController.getMenus);
 
 module.exports = router;
