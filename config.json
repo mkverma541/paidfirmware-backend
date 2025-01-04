@@ -13,7 +13,7 @@
   "APP_BASE_URL": "http://localhost:3000",
   "APP_PORT": 3000,
   "MASTER_PASSWORD": "123",
-  "REDIS_URL" : "redis://127.0.0.1:6379"
+  "REDIS_URL" : "redis://mukesh:An5Xn66nySDs.6y@redis-11184.c322.us-east-1-2.ec2.redns.redis-cloud.com:11184"
 
 
 
