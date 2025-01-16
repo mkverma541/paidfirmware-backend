@@ -12,23 +12,24 @@ async function getMenus(req, res) {
   try {
     // Query the menus based on the location
     const [menus] = await pool.query(
-      `
-        SELECT m.menu_id, m.title, m.parent_id, m.position 
-        FROM res_menu m
-        WHERE m.display_location = ?
-      `,
+      `SELECT m.menu_id, m.title, m.parent_id, m.position 
+       FROM res_menu m
+       WHERE m.display_location = ?`,
       [location]
     );
 
     if (menus.length === 0) {
-      return { message: "No menus found", status: "error" };
+      return res.status(404).json({ message: "No menus found", status: "error" });
     }
 
-    // Query the menu items for the fetched menus
-    const [menuItems] = await pool.query(`
-        SELECT i.menu_id, i.title, i.url
-        FROM res_menu_items i
-      `);
+    // Extract menu IDs to filter relevant items
+    const menuIds = menus.map((menu) => menu.menu_id);
+    const [menuItems] = await pool.query(
+      `SELECT i.menu_id, i.title, i.url
+       FROM res_menu_items i
+       WHERE i.menu_id IN (?)`,
+      [menuIds]
+    );
 
     // Map the menus to include the associated items
     const menuData = menus.map((menu) => ({
@@ -44,7 +45,6 @@ async function getMenus(req, res) {
         })),
     }));
 
-    // Return the response with the fetched (or cached) data
     res.status(200).json({
       data: menuData,
       status: "success",

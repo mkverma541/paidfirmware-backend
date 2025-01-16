@@ -1,30 +1,6 @@
 const { pool } = require("../../config/database");
-const jwt = require("jsonwebtoken");
 
 const { sendEmail } = require("../service/emailer");
-
-// Fetch user by ID
-const getUserById = async (userId) => {
-  const [user] = await pool.execute(
-    "SELECT * FROM res_users WHERE user_id = ?",
-    [userId]
-  );
-  return user;
-};
-
-// Check if payment already exists in the database
-const checkExistingPayment = async (paymentId) => {
-  const [existingPayment] = await pool.execute(
-    "SELECT * FROM res_orders WHERE payment_id = ?",
-    [paymentId]
-  );
-  return existingPayment;
-};
-
-// Fetch Razorpay order details
-const fetchOrderDetails = async (razorpay, orderId) => {
-  return await razorpay.orders.fetch(orderId);
-};
 
 // Fetch and validate user cart
 const fetchUserCart = async (userId) => {
@@ -35,65 +11,144 @@ const fetchUserCart = async (userId) => {
   return userCart;
 };
 
-// fetch total amount of cart items
-
-const fetchTotalAmount = async (userId) => {
-  const query = `
-    SELECT 
-      SUM(
-        (CASE WHEN f.file_id IS NOT NULL THEN f.price * c.quantity ELSE 0 END) +
-        (CASE WHEN p.package_id IS NOT NULL THEN p.price * c.quantity ELSE 0 END)
-      ) AS total_amount
-    FROM res_cart c
-    LEFT JOIN res_files f ON c.file_id = f.file_id
-    LEFT JOIN res_download_packages p ON c.package_id = p.package_id
-    WHERE c.user_id = ?;
-  `;
-
-  const [rows] = await pool.execute(query, [userId]);
-
-  // Access the total_amount field from the first row and return it
-  const totalAmount = rows[0]?.total_amount || 0;
-
-  return totalAmount; // Return only the number
-};
+// Insert order into the database
 
 const insertOrder = async (d) => {
-  const [order] = await pool.execute(
-    `INSERT INTO res_orders (user_id, transaction_order_id, amount_due, amount_paid, payment_method, currency, notes, item_types) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      d.user_id,
-      d.transaction_order_id,
-      +d.amount_due,
-      +d.amount_paid,
-      d.payment_method,
-      d.currency,
-      d.notes,
-      d.item_types,
-    ]
-  );
-  console.log(order);
-  return order.insertId;
+  console.log(d, "data");
+
+  // Ensure all required fields have default values
+  const {
+    user_id,
+    transaction_order_id = null,
+    subtotal = 0,
+    total_amount = 0,
+    amount_due = 0,
+    tax = 0,
+    discount = 0,
+    exchange_rate = 1,
+    payment_method,
+    currency,
+    notes = null,
+    item_types = '[]', // Default as empty JSON string if not provided
+  } = d;
+
+  if (
+    !user_id ||
+    !payment_method ||
+    !currency ||
+    !item_types
+  ) {
+    throw new Error("Missing required fields");
+  }
+
+  try {
+    const [order] = await pool.execute(
+      `INSERT INTO res_orders 
+      (user_id, transaction_order_id, subtotal, total_amount, amount_due, tax, discount, exchange_rate, payment_method, currency, notes, item_types) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        user_id,
+        transaction_order_id,
+        subtotal,
+        total_amount,
+        amount_due,
+        tax,
+        discount,
+        exchange_rate,
+        payment_method,
+        currency,
+        notes,
+        item_types,
+      ]
+    );
+    console.log(order);
+    return order.insertId;
+  } catch (error) {
+    console.error("Error inserting order:", error.message);
+    throw error;
+  }
 };
 
-const getOrderIdByTransactionOrderId = async (transactionOrderId) => {
-  const [order] = await pool.execute(
-    "SELECT order_id FROM res_orders WHERE transaction_order_id = ?",
-    [transactionOrderId]
-  );
-  console.log(order);
-  return order[0].order_id;
-};
+const calculateOrderDetails = async ({ cartItems, discountCode, currency }) => {
+  try {
+    if (!cartItems.length) {
+      throw new Error("Cart is empty.");
+    }
 
-const updatePaymentStatus = async (data) => {
-  console.log(data, "data payment");
-  await pool.execute(
-    "UPDATE res_orders SET payment_id = ?, payment_status = ? WHERE order_id = ?",
-    [data.payment_id, data.payment_status, data.order_id]
-  );
+    const [exchangeRateResult] = await pool.execute(
+      `SELECT exchange_rate FROM res_exchange_rates WHERE currency_code = ? ORDER BY rate_date DESC LIMIT 1`,
+      [currency]
+    );
 
-  return true;
+    if (exchangeRateResult.length === 0) {
+      throw new Error(`Exchange rate not found for currency: ${currency}`);
+    }
+
+    const exchange_rate = exchangeRateResult[0].exchange_rate;
+    console.log(exchange_rate, "exchange_rate");
+
+    // Calculate subtotal in base currency (USD)
+    const subtotal = cartItems.reduce((acc, item) => {
+      const price = item.sale_price || 0;
+      const quantity = item.quantity || 1;
+      return acc + price * quantity;
+    }, 0);
+
+    // Convert subtotal to target currency
+    const subtotal_converted = subtotal * exchange_rate;
+
+    // Apply discount
+    let discount_value = 0;
+    if (discountCode) {
+      const [discountResult] = await pool.execute(
+        `SELECT * FROM res_coupons WHERE code = ? AND is_active = 1`,
+        [discountCode]
+      );
+
+      if (discountResult.length > 0) {
+        const discount = discountResult[0];
+        const discount_amount = parseFloat(discount.discount_value) || 0;
+
+        if (discount.discount_type === "fixed") {
+          discount_value = Math.min(
+            discount_amount * exchange_rate,
+            subtotal_converted
+          );
+        } else if (discount.discount_type === "percentage") {
+          discount_value = subtotal_converted * (discount_amount / 100);
+        }
+      }
+    }
+
+    const total_after_discount = subtotal_converted - discount_value;
+
+    // Calculate taxes
+    const [taxes] = await pool.execute(`SELECT * FROM res_tax_classes`);
+    const total_tax = taxes.reduce((acc, tax) => {
+      if (tax.amount_type === "percent") {
+        return acc + (total_after_discount * parseFloat(tax.amount)) / 100;
+      } else if (tax.amount_type === "fixed") {
+        return acc + parseFloat(tax.amount) * exchange_rate;
+      }
+      return acc;
+    }, 0);
+
+    // Calculate final total and due amount
+    const total_amount = total_after_discount + total_tax;
+
+    // Return all calculated values as an object
+    return {
+      currency,
+      exchange_rate,
+      subtotal: parseFloat(subtotal_converted),
+      discount: parseFloat(discount_value),
+      tax: parseFloat(total_tax),
+      total_amount: parseFloat(total_amount),
+      amount_due: parseFloat(total_amount), // Assuming no payment initially
+    };
+  } catch (error) {
+    throw new Error(`Error calculating order details: ${error.message}`);
+  }
 };
 
 const getPackagePeriods = async (packageIds) => {
@@ -127,12 +182,7 @@ const createNewUser = async (user) => {
 
   const [newUser] = await pool.execute(
     "INSERT INTO res_users (username, email, phone, password) VALUES (?, ?, ?, ?)",
-    [
-      username,
-      user.email,
-      user.phone,
-      password,
-    ]
+    [username, user.email, user.phone, password]
   );
 
   return newUser.insertId;
@@ -141,8 +191,11 @@ const createNewUser = async (user) => {
 // Send order confirmation email
 const sendOrderConfirmationEmail = async (userId, paymentId, orderId) => {
   try {
-    const user = await getUserById(userId);
-
+    const [user] = await pool.execute(
+      "SELECT email FROM res_users WHERE user_id = ?",
+      [userId]
+    );
+    
     if (!user || user.length === 0) {
       throw new Error("User not found.");
     }
@@ -150,7 +203,9 @@ const sendOrderConfirmationEmail = async (userId, paymentId, orderId) => {
     const userEmail = user[0].email || "mkverma541@gmail.com"; // Fallback to default email if none is present
 
     if (!userEmail) {
-      throw new Error("No email address found for the user, and no fallback email provided.");
+      throw new Error(
+        "No email address found for the user, and no fallback email provided."
+      );
     }
 
     const emailSubject = "Order Confirmation";
@@ -171,16 +226,10 @@ const sendOrderConfirmationEmail = async (userId, paymentId, orderId) => {
 };
 
 module.exports = {
-  getUserById,
-  checkExistingPayment,
-  fetchOrderDetails,
-
-  getOrderIdByTransactionOrderId,
   fetchUserCart,
   getPackagePeriods,
-  fetchTotalAmount,
   insertOrder,
   sendOrderConfirmationEmail,
-  updatePaymentStatus,
   createNewUser,
+  calculateOrderDetails,
 };

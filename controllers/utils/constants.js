@@ -1,5 +1,5 @@
 // Period units in seconds
- const PERIOD_UNITS_IN_SECONDS = {
+const PERIOD_UNITS_IN_SECONDS = {
   seconds: 1,
   minutes: 60,
   hours: 60 * 60,
@@ -18,77 +18,70 @@ const BANDWIDTH_UNITS_IN_BYTES = {
   TB: 1024 * 1024 * 1024 * 1024,
 };
 
-
 const ITEM_TYPE = {
-  1 : 'Digital Files',
-  2 : 'Subscription Package',
-  3 : 'Digital Product',
-  4 : 'Courses',
-  5 : 'Wallet Recharge',
-  6 : 'Physical Product',
-}
+  1: "Digital Files",
+  2: "Subscription Package",
+  3: "Digital Product",
+  4: "Courses",
+  5: "Wallet Recharge",
+  6: "Physical Product",
+};
 
-const PRODUCT_TYPE ={
-  1: 'Physical',
-  2: 'Digital',
-}
+const PRODUCT_TYPE = {
+  1: "Physical",
+  2: "Digital",
+};
 
 const PRODUCT_STATUS = {
-  1 : 'Draft',
-  2 : 'Active',
-  3 : 'Inactive',
-  4 : 'Archived',
-}
+  1: "Draft",
+  2: "Active",
+  3: "Inactive",
+  4: "Archived",
+};
 
 const PAYMENT_STATUS = {
-  1 : 'Pending',
-  2 : 'Paid',
-  3 : 'Failed',
-  4 : 'Refunded',
-}
+  1: "Pending",
+  2: "Paid",
+  3: "Failed",
+  4: "Refunded",
+};
 
 const PAYMENT_METHOD = {
-  1 : 'Razorpay',
-  2 : 'Manual',
-  3: 'Account Balance',
-}
-
-// SHARE ALL POSSIBLE ORDER STATUS IN CASE OF PHYSICAL PRODUCT AND DIGITAL PRODUCT
+  1: "Razorpay",
+  2: "Manual",
+  3: "Account Balance",
+  4: "Binance",
+};
 
 const ORDER_STATUS = {
-  1: 'Pending',              // Order placed but not processed yet.
-  2: 'Accepted',             // Seller has reviewed and accepted the order.
-  3: 'Confirmed',            // Order is confirmed and ready for processing.
-  4: 'Processing',           // Order is being prepared or packed.
-  5: 'Shipped',              // Order has been shipped (for physical products).
-  6: 'Delivered',            // Order delivered to the customer (for physical products).
-  7: 'Ready for Pickup',     // Order ready for pickup by the customer (for physical products).
-  8: 'Cancelled',            // Order was cancelled by the customer or seller.
-  9: 'Returned',             // Order returned by the customer.
-  10: 'Refunded',            // Payment refunded to the customer.
-  11: 'Failed',              // Order failed due to payment or other issues.
-  12: 'In Preparation',      // Order is being prepared for delivery (digital or physical).
-  13: 'Dispatched',          // Order dispatched and on the way (for physical products).
-  14: 'Download Ready',      // For digital products: Download link or access is available.
-  15: 'Access Granted',      // For digital products: User has been granted access to the product.
-  16: 'Out for Delivery',    // For physical products: Order is out for delivery.
-  17: 'Awaiting Payment',    // Order placed but payment is pending.
-  18: 'Awaiting Confirmation', // Awaiting confirmation from the seller or customer.
-  19: 'Payment Failed',      // Payment process failed during the order.
-  20: 'Partially Fulfilled', // Part of the order has been completed.
-  21: 'Hold',                // Order is on hold, usually due to pending information.
-  22: 'Archived',            // Order has been archived after completion or inactivity.
+  1: "Pending", // Order placed but no further action yet.
+  2: "Accepted", // Order accepted by the seller.
+  3: "Processing", // Order is being prepared (packing or generating access).
+  4: "Shipped", // For physical products: Order dispatched.
+  5: "Out for Delivery", // For physical products: Out for final delivery.
+  6: "Delivered", // Order successfully delivered to the customer.
+  7: "Completed", // Order completed and closed.
+  8: "Cancelled", // Order was cancelled by the customer or seller.
+  9: "Returned", // Physical product returned by the customer.
+  10: "Refunded", // Order payment refunded to the customer.
+  11: "Partially Fulfilled", // Only part of the order was fulfilled.
+  12: "On Hold", // Order is paused pending some action.
 };
 
- const SEARCH_TYPE = {
-  WEBSITE: '0',
-  PRODUCTS: '1',
-  CATEGORIES: '2',
-  FILES: '3',
-  FOLDERS: '4',
-  BLOGS: '5',
+const SEARCH_TYPE = {
+  WEBSITE: "0",
+  PRODUCTS: "1",
+  CATEGORIES: "2",
+  FILES: "3",
+  FOLDERS: "4",
+  BLOGS: "5",
 };
 
+const COURSE_DURATION_TYPE = {
+  1: "Single Validity",
+  2: "Lifetime Validity",
+  3: "Course Expiry Date",
+};
 
 
 module.exports = {
@@ -101,7 +94,5 @@ module.exports = {
   PRODUCT_TYPE,
   PRODUCT_STATUS,
   SEARCH_TYPE,
-
+  COURSE_DURATION_TYPE,
 };
-
-

@@ -1,29 +1,32 @@
 const express = require("express");
 const router = express.Router();
-
 const digitalFilesController = require("../../controllers/user/digitalFiles");
-const authenticateUser = require('../../middlewars/authenticateToken');
+const downloadFileController = require("../../controllers/user/downloadFile");
 
-// shared files
+const authenticateUser = require("../../middlewars/authenticateToken");
+const cacheMiddleware = require("../../middlewars/redis");
 
-router.get("/folders", digitalFilesController.getAllFoldersFiles);
-router.get("/folders/:slug", digitalFilesController.getFolderAndFiles);
-router.get("/folders/path/:slug", digitalFilesController.getFolderPath);
-router.get("/folder/description/:slug", digitalFilesController.getFolderDescription);
-
-router.get("/file/path/:slug", digitalFilesController.getFilePath);
-router.get("/file/:slug",  digitalFilesController.getFileByFileSlug);
-
-router.get("/files/recent", digitalFilesController.recentFiles);
-router.get("/files/paid", digitalFilesController.paidFiles);
-
+router.get("/folders", cacheMiddleware, digitalFilesController.getAllFoldersFiles);
+router.get("/folders/:slug", cacheMiddleware, digitalFilesController.getFolderAndFiles);
+router.get("/folders/path/:slug", cacheMiddleware, digitalFilesController.getFolderPath);
 router.get(
-  "/file/generate-download-link/:fileId", authenticateUser,
-  digitalFilesController.generateDownloadLink
+  "/folder/description/:slug",
+  cacheMiddleware,
+  digitalFilesController.getFolderDescription
 );
-router.get("/file/download/link",  digitalFilesController.downloadFile);
-router.get('/clear-cache', digitalFilesController.clearAllCache);
+
+router.get("/file/path/:slug", cacheMiddleware, digitalFilesController.getFilePath);
+router.get("/file/:slug", cacheMiddleware, digitalFilesController.getFileByFileSlug);
+
+router.get("/files/recent", cacheMiddleware, digitalFilesController.recentFiles);
+router.get("/files/paid", cacheMiddleware, digitalFilesController.paidFiles);
 
 
+router.post(
+  "/file/generate-download-link",
+  authenticateUser,
+  downloadFileController.generateDownloadLink
+);
+router.get("/file/download/link", downloadFileController.downloadFile);
 
 module.exports = router;

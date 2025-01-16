@@ -28,6 +28,9 @@ const discountRouter = require("./admin/discounts");
 const mediaRouter = require("./admin/media");
 const walletRouter = require("./admin/wallet");
 const jobRouter = require("./admin/jobs");
+const settingsRouter = require("./admin/settings");
+const currenciesRouter = require("./admin/currencies");
+const courseRouter = require("./admin/course");
 
 
 router.use("/", filesRouter);
@@ -59,5 +62,8 @@ router.use("/social-platforms", socialPlatformRouter);
 router.use("/api", apiRouter);
 router.use("/media", mediaRouter);
 router.use("/jobs", jobRouter);
+router.use("/settings", settingsRouter);
+router.use("/currencies", currenciesRouter);
+router.use("/courses", courseRouter);
 
 module.exports = router;

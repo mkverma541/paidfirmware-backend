@@ -22,8 +22,6 @@ function authenticateToken(req, res, next) {
       return res.status(403).json({ error: "Forbidden: Invalid token" });
     }
 
-    console.log("User authenticated:", user);
-
     // Attach the user information to the request object
     req.user = user;
 

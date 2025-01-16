@@ -1,9 +1,5 @@
 const express = require("express");
 const { pool } = require("../../config/database");
-const axios = require("axios");
-const crypto = require("crypto");
-const generateToken = require("../utils/generateToken");
-const verifyToken = require("../utils/verifyToken");
 const NodeCache = require("node-cache");
 const fileCache = new NodeCache({ stdTTL: 0 }); // Cache TTL of 1 hour
 

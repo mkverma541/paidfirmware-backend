@@ -6,11 +6,7 @@ const FilesController = require("../../controllers/admin/files");
 const sharedFilesController = require("../../controllers/shared/file");
 
 router.get("/folders", FilesController.getAllFoldersFiles);
-router.get(
-  "/files/:fileId/generate-link",
-  FilesController.generateDownloadLink
-);
-router.get("/file/download", FilesController.downloadFile);
+
 router.get("/file/:fileId", FilesController.getFileByFileId);
 router.get("/files/search", FilesController.searchFilesFolders);
 router.get("/files/search/all", FilesController.searchFilesFoldersWithSorting);

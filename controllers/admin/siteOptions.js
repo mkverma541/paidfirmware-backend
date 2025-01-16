@@ -8,11 +8,14 @@ async function getAllOptions(req, res) {
     );
 
     const options = {};
+    
     optionsResult.forEach(option => {
       options[option.option_name] = option.option_value;
     });
 
-    return res.status(200).json({ options });
+    return res.status(200).json({
+      options
+    });
   } catch (error) {
     console.error("Error fetching options:", error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -25,7 +28,7 @@ async function addOption(req, res) {
       const { option_name, option_value } = req.body;
   
       // Validate that both option_name and option_value are provided
-      if (!option_name || !option_value) {
+      if (!option_name) {
         return res.status(400).json({ error: "Option name and value are required" });
       }
   

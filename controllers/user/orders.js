@@ -30,17 +30,9 @@ async function getAllOrderList(req, res) {
       [id, `%${search}%`, limit, offset]
     );
 
-
     // Map and initialize grouped orders
     const groupedOrders = orders.map((order) => ({
-      order_id: order.order_id,
-      created_at: order.created_at,
-      amount_due: order.amount_due,
-      amount_paid: order.amount_paid,
-      payment_method: order.payment_method,
-      payment_status: order.payment_status,
-      order_status: order.order_status,
-      currency: order.currency,
+      ...order,
       item_types: JSON.parse(order.item_types || "[]"), // Parse item_type JSON
       products: [],
       files: [],
@@ -103,12 +95,11 @@ async function getAllOrderList(req, res) {
                 rf.title,
                 rf.thumbnail,
                 rf.size,
-                rf.price,
+                uf.price,
                 rf.slug,
                 uf.ufile_id,
                 uf.user_id,
-                uf.order_id,
-                uf.date_create AS ufile_date_create
+                uf.order_id
               FROM res_files rf
               JOIN res_ufiles uf ON rf.file_id = uf.file_id
               WHERE uf.order_id = ? AND uf.user_id = ?
@@ -179,16 +170,7 @@ async function getOrderDetails(req, res) {
     const [[order]] = await pool.execute(
       `
         SELECT 
-          o.order_id,
-          o.created_at,
-          o.amount_due,
-          o.amount_paid,
-          o.payment_method,
-          o.payment_status,
-          o.order_status,
-          o.currency,
-          o.notes,
-          o.item_types
+          *
         FROM res_orders AS o
         WHERE o.user_id = ? AND o.order_id = ?
       `,
@@ -207,15 +189,7 @@ async function getOrderDetails(req, res) {
 
     // Initialize details
     const orderDetails = {
-      order_id: order.order_id,
-      created_at: order.created_at,
-      amount_due: order.amount_due,
-      amount_paid: order.amount_paid,
-      payment_method: order.payment_method,
-      payment_status: order.payment_status,
-      order_status: order.order_status,
-      currency: order.currency,
-      notes: order.notes,
+      ...order,
       products: [],
       topups: [],
       files: [],
@@ -272,12 +246,11 @@ async function getOrderDetails(req, res) {
             rf.title,
             rf.thumbnail,
             rf.size,
-            rf.price,
             rf.slug,
             uf.ufile_id,
             uf.user_id,
-            uf.order_id,
-            uf.date_create AS ufile_date_create
+            uf.price,
+            uf.order_id
           FROM res_files rf
           JOIN res_ufiles uf ON rf.file_id = uf.file_id
           WHERE uf.order_id = ? AND uf.user_id = ?
@@ -286,7 +259,31 @@ async function getOrderDetails(req, res) {
       );
 
       if (files.length) {
-        orderDetails.files.push(...files);
+        // Check each file's download status
+        for (const file of files) {
+          const [[download]] = await pool.execute(
+            `
+              SELECT hash_token, expired_at 
+              FROM res_udownloads 
+              WHERE file_id = ? AND order_id = ? AND user_id = ?
+            `,
+            [file.file_id, order_id, id]
+          );
+
+          // Determine file state
+          if (download) {
+            const now = new Date();
+            const expiredAt = download.expired_at
+              ? new Date(download.expired_at)
+              : null;
+            file.isExpired = expiredAt && expiredAt <= now; // Check if expired
+            file.canDownload = !file.isExpired; // Allow download if not expired
+          } else {
+            file.canDownload = true; // Default to allow download if no entry exists
+          }
+
+          orderDetails.files.push(file);
+        }
       }
     }
 

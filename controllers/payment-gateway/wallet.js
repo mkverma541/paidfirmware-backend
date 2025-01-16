@@ -2,129 +2,191 @@ const { pool, secretKey } = require("../../config/database");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-const { insertOrder, createNewUser } = require("./helper");
+const { insertOrder, calculateOrderDetails } = require("./helper");
 
 const { processOrder } = require("./processOrder");
 
+
 async function createOrder(req, res) {
+  const connection = await pool.getConnection(); // Get a transactional connection
   try {
+    await connection.beginTransaction(); // Start a transaction
+
     const options = req.body;
     const { id } = req.user;
 
-    // Check if user is logged in
-
-    if (!id) {
-      return res.status(401).json({
-        status: "fail",
-        message: "Please login to create an order.",
-      });
-    }
-
-    const [userRows] = await pool.execute(
-      "SELECT user_id, balance FROM res_users WHERE user_id = ?",
+    // Validate user existence and balance
+    const [userRows] = await connection.execute(
+      "SELECT user_id, balance, currency FROM res_users WHERE user_id = ? FOR UPDATE",
       [id]
     );
 
     if (!userRows.length) {
+      await connection.rollback();
       return res.status(400).json({
         status: "fail",
         message: "User not found.",
       });
     }
 
-    // get cart items
+    const userBalance = +userRows[0].balance; // Ensure it's a number
 
-    const [cartItems] = await pool.execute(
+    // Get cart items
+    const [cartItems] = await connection.execute(
       "SELECT * FROM res_cart WHERE user_id = ?",
       [id]
     );
 
     if (!cartItems.length) {
+      await connection.rollback();
       return res.status(400).json({
         status: "fail",
         message: "No items in cart.",
       });
     }
 
-   // check if item_type is 5 // wallet payment then return error
-
+    // Check for restricted item_type (e.g., wallet recharge)
     const walletItem = cartItems.find((item) => item.item_type === 5);
 
     if (walletItem) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Please choose another payment method for wallet top up recharge.",
-      });
-    }
-
-    if (userRows[0].balance < +options.amount_due) {
+      await connection.rollback();
       return res.status(400).json({
         status: "fail",
         message:
-          "Insufficient funds. Please top up your wallet or use another payment method.",
+          "Please choose another payment method for wallet top-up recharge.",
       });
     }
 
-    // restrict item 5 from being ordered for wallet payment
+    // Get default currency of store
+    const [settings] = await connection.execute(
+      "SELECT * FROM res_options WHERE option_name = 'currency'"
+    );
 
-    // get the item_type unique values
+    if (!settings.length) {
+      await connection.rollback();
+      return res.status(400).json({
+        status: "fail",
+        message: "Currency setting not found.",
+      });
+    }
+
+    const storeCurrency = settings[0].option_value; // Store's currency (INR)
+
+    // Check if order currency matches wallet currency
+    if (options.currency !== storeCurrency) {
+      await connection.rollback();
+      return res.status(400).json({
+        status: "fail",
+        message: `Please change the currency to ${storeCurrency} (your wallet currency) to proceed with the payment.`,
+      });
+    }
+
+    // Calculate total amount in the order's currency
     const itemTypes = [...new Set(cartItems.map((item) => item.item_type))];
 
-    // Insert the order
-
-    let payload = {
-      user_id: id,
-      transaction_order_id: null,
-      ...options,
-      payment_method: +options.payment_method,
-      payment_paid: options.amount_due,
-      item_types: JSON.stringify(itemTypes),
-    };
-    console.log("Payload", payload);
-
-    const order = await insertOrder(payload);
-    console.log("Order created successfully:", order);
-
-    // debit user wallet and update balance and credit
-
-    await pool.execute(
-      "UPDATE res_users SET balance = balance - ? WHERE user_id = ?",
-      [options.amount_due, id]
-    );
-
-    console.log("User wallet debited successfully:", id);
-
-    // log the res_transfers table
-
-    let description = "Debiting user wallet for order #" + order;
-
-    await pool.execute(
-      "INSERT INTO res_transfers (user_id, amount, order_id, type, notes, description) VALUES (?, ?, ?, ?, ?, ?)",
-      [id, options.amount_due, order, "debit", "Order Paid", description]
-    );
-
-    console.log("User wallet debited successfully:", id);
-    // Process the order
-    console.log("Processing order:", order);
-
-    await processOrder({
-      user_id: id,
-      order_id: order,
-      payment_id: null,
-      payment_status: 2,
+    const orderDetails = await calculateOrderDetails({
+      cartItems,
+      discountCode: options.discount_code,
+      currency: options.currency,
     });
 
-    // Respond with order details and full user information
+    if (!orderDetails || !orderDetails.amount_due || isNaN(orderDetails.amount_due)) {
+      await connection.rollback();
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid order details.",
+      });
+    }
+
+    // Total amount in the order's currency
+    const totalAmountDueInOrderCurrency = +orderDetails.amount_due;
+
+    // Check if the wallet has enough balance
+    if (totalAmountDueInOrderCurrency > userBalance) {
+      await connection.rollback();
+      return res.status(400).json({
+        status: "fail",
+        message: "Insufficient wallet balance.",
+      });
+    }
+
+    // Prepare order payload
+    let payload = {
+      user_id: id,
+      ...orderDetails,
+      transaction_order_id: null,
+      ...options,
+      payment_method: 3, // Wallet payment method
+      item_types: JSON.stringify(itemTypes),
+    };
+
+    // Insert order into the database
+    const order = await insertOrder(payload);
+
+    if (!order) {
+      throw new Error("Failed to create order.");
+    }
+
+    // Debit user wallet
+    const amountToDebit = totalAmountDueInOrderCurrency;
+
+    // Ensure proper numeric values for debiting
+    if (isNaN(amountToDebit)) {
+      await connection.rollback();
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid payment amount.",
+      });
+    }
+
+    await connection.execute( 
+      "UPDATE res_users SET balance = balance - ? WHERE user_id = ?",
+      [amountToDebit, id]
+    );
+
+    // Log wallet transaction
+    const description = "Debiting user wallet for order #" + order;
+    await connection.execute(
+      "INSERT INTO res_transfers (user_id, amount,  order_id, type, notes, description) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        id,
+        amountToDebit,
+        order,
+        "debit",
+        "Order Paid",
+        description,
+      ]
+    );
+
+    // Update order status
+    await connection.execute(
+      "UPDATE res_orders SET payment_status = ?, amount_paid = ?, order_status = ?, payment_date = ? WHERE order_id = ?",
+      [2, amountToDebit, 7, new Date(), order]
+    );
+
+    // Process the order
+    await processOrder(order, id);
+
+    // Commit transaction
+    await connection.commit();
+
     return res.json({
       order_id: order,
     });
   } catch (err) {
     console.error("Error creating order:", err.message);
+
+    if (connection) await connection.rollback(); // Rollback transaction on error
+
     res.status(500).send({
       status: "error",
       message: "Internal Server Error",
     });
+  } finally {
+    if (connection) await connection.release(); // Release the connection
   }
 }
+
+
 
 module.exports = { createOrder };

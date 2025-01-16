@@ -1,9 +1,5 @@
 const express = require("express");
 const { pool } = require("../../config/database");
-const axios = require("axios");
-const crypto = require("crypto");
-const generateToken = require("../utils/generateToken");
-const verifyToken = require("../utils/verifyToken");
 const NodeCache = require("node-cache");
 const fileCache = new NodeCache({ stdTTL: 0 }); // Cache TTL of 1 hour
 
@@ -128,94 +124,6 @@ async function searchFilesFoldersWithSorting(req, res) {
   }
 }
 
-async function generateDownloadLink(fileId, userId, packageId) {
-  try {
-    const [rows] = await pool.execute(
-      "SELECT * FROM res_files WHERE file_id = ?",
-      [fileId]
-    );
-
-    if (rows.length === 0) {
-      throw new Error("File not found");
-    }
-
-    // Set link expiration time (testing: 60 seconds)
-    const expirationTime = Math.floor(Date.now() / 1000) + 60;
-
-    // Token data (only include necessary data like fileId, userId, expirationTime)
-    const tokenData = { fileId, userId, expirationTime };
-
-    // Generate token (you should have your own token generation logic)
-    const token = generateToken(tokenData); // Ensure this function exists
-    const url = "http://localhost:3000/api/v1/file/download";
-
-    // Save the download record in the database
-    await pool.execute(
-      `INSERT INTO res_udownloads (user_id, upackage_id, file_id, hash_token, date_expire) 
-       VALUES (?, ?, ?, ?, FROM_UNIXTIME(?))`,
-      [userId, packageId, fileId, token, expirationTime]
-    );
-
-    // Return the generated download URL with the token
-    return `${url}?token=${token}`;
-  } catch (err) {
-    console.error(err);
-    throw new Error("Internal Server Error");
-  }
-}
-
-// Function to handle the download request
-
-async function downloadFile(req, res) {
-  try {
-    // Verify the token
-    const tokenData = verifyToken(token);
-
-    const fileId = tokenData.fileId.fileId;
-    const expirationTime = tokenData.fileId.expirationTime;
-
-    console.log("Token data:", tokenData);
-    console.log("File ID:", fileId);
-    console.log("Expiration Time:", expirationTime);
-
-    // Check if the link is expired
-    const currentTime = Math.floor(Date.now() / 1000);
-
-    if (currentTime > tokenData.expirationTime) {
-      return res
-        .status(403)
-        .json({ status: "error", message: "Download link expired" });
-    }
-
-    // Fetch the file details from the database
-    const [rows] = await pool.execute(
-      "SELECT * FROM res_files WHERE file_id = ?",
-      [fileId] // Now fileId is a number
-    );
-
-    if (rows.length === 0) {
-      return res.status(404).json({
-        status: "error",
-        message: "File not found",
-      });
-    }
-
-    const file = rows[0];
-    console.log("File:", file);
-
-    const fileUrl = file.url;
-
-    console.log("File URL:", fileUrl);
-
-    // Redirect to the actual file URL
-    return res.redirect(fileUrl);
-  } catch (error) {
-    console.error("Download error:", error);
-    return res
-      .status(400)
-      .json({ status: "error", message: "Invalid or expired download link" });
-  }
-}
 
 async function getFolderPath(folderId) {
   let path = [];
@@ -1061,8 +969,6 @@ module.exports = {
   updateFile,
   cutAndCopyFile,
   cutAndCopyFolder,
-  generateDownloadLink,
-  downloadFile,
   searchFilesFolders,
   searchFilesFoldersWithSorting,
   updateSlugsForFolders,

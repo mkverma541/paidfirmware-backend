@@ -9,7 +9,19 @@ const randomBytesAsync = promisify(crypto.randomBytes);
 const axios = require("axios");
 
 async function signup(req, res) {
-  const { username, password, email, fullname, phone } = req.body;
+  const {
+    username,
+    password,
+    email,
+    first_name = null,
+    last_name = null,
+  } = req.body;
+
+  let phone = req.body.phone || null;
+
+  if (phone == "") {
+    phone = null;
+  }
 
   // Check for missing required fields
   if (!username || !password || !email) {
@@ -35,8 +47,7 @@ async function signup(req, res) {
     );
     if (existingEmail.length > 0) {
       return res.status(409).json({
-        message:
-          "Email already registered. If this is yours, try 'Forget Password'.",
+        message: "Email already registered. Please login.",
       });
     }
 
@@ -61,8 +72,8 @@ async function signup(req, res) {
 
     // Insert new user into the database
     const [data] = await pool.execute(
-      "INSERT INTO res_users (username, password, email, fullname, phone, otp) VALUES (?, ?, ?, ?, ?, ?)",
-      [username, hashedPassword, email, fullname, phone, otp]
+      "INSERT INTO res_users (username, password, email, first_name, last_name,  phone, otp) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [username, hashedPassword, email, first_name, last_name, phone, otp]
     );
 
     // Fetch the newly created user
@@ -96,61 +107,45 @@ async function login(req, res) {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ error: "Please fill username and password." });
+    return res
+      .status(400)
+      .json({ error: "Please fill username and password." });
   }
 
   try {
+    // Check if the user exists by matching both username and email
     const [users] = await pool.execute(
-      "SELECT * FROM res_users WHERE username = ?",
-      [username]
+      "SELECT * FROM res_users WHERE username = ? OR email = ?",
+      [username, username] // Search for username in both username and email fields
     );
 
-    let user;
-
-    // If user doesn't exist, create a new account with default details
     if (users.length === 0) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const [result] = await pool.execute(
-        "INSERT INTO res_users (username, password) VALUES (?, ?)",
-        [username, hashedPassword]
-      );
-
-      const userId = result.insertId;
-
-      // Retrieve the newly created user's details
-      const [newUser] = await pool.execute(
-        "SELECT * FROM res_users WHERE user_id = ?",
-        [userId]
-      );
-
-      user = newUser[0];
-    } else {
-      user = users[0];
-
-      // Verify real password
-      const passwordMatch = await bcrypt.compare(password, user.password);
-
-      // Master password (define it securely in your environment variables)
-      const masterPassword = process.env.MASTER_PASSWORD;
-
-      // Check if the provided password matches the real password or the master password
-      if (!passwordMatch && password !== masterPassword) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
+      // If no user is found, return error
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate token
+    const user = users[0];
+
+    // Verify the password
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    // Master password (define it securely in your environment variables)
+    const masterPassword = process.env.MASTER_PASSWORD;
+
+    // Check if the provided password matches the real password or the master password
+    if (!passwordMatch && password !== masterPassword) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Generate token for the user
+
     const token = jwt.sign(
       { id: user.user_id, username: user.username },
       secretKey,
       { expiresIn: "30d" }
     );
 
-    // Attach token to the user object
-    user.token = token;
-
-    // Check if user has a valid package
+    // Check if the user has a valid package
     const [validPackage] = await pool.execute(
       "SELECT * FROM res_upackages WHERE user_id = ? AND date_expire > NOW() LIMIT 1",
       [user.user_id]
@@ -160,19 +155,11 @@ async function login(req, res) {
 
     // Respond with user info including token
     return res.status(200).json({
-      message: users.length === 0 
-        ? "Account created successfully and logged in" 
-        : "You have successfully logged in",
+      message: "You have successfully logged in",
       user: {
         id: user.user_id,
-        username: user.username,
-        email: user.email,
-        token: user.token,
-        name: user.fullname,
-        phone: user.phone,
-        photo: user.photo,
-        balance: user.balance,
-        is_verified: user.is_verified,
+        ...user,
+        token,
         hasActivePackage: user.is_valid_package,
       },
     });
@@ -181,8 +168,6 @@ async function login(req, res) {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
-
-
 
 async function verifyOtp(req, res) {
   const { otp, email } = req.body;
@@ -208,7 +193,7 @@ async function verifyOtp(req, res) {
     const token = jwt.sign(
       { id: existingUser[0].user_id, username: existingUser[0].username },
       secretKey,
-      { expiresIn: "1h" }
+      { expiresIn: "30d" }
     );
 
     await pool.execute(
@@ -298,7 +283,7 @@ async function forgotPassword(req, res) {
     );
 
     if (existingUser.length === 0) {
-      return res.status(404).json({ message: "We can't find your email." });
+      return res.status(404).json({ message: "Email is not exist" });
     }
 
     const token = jwt.sign(
@@ -313,7 +298,7 @@ async function forgotPassword(req, res) {
     const emailBody = `
       Hi, <br><br>
       You requested to reset your password. Please click the link below to reset your password: <br>
-      <a href="${resetLink}">Reset Password</a><br><br>
+      <a href="${resetLink}" style="texr-decoration:underline">Reset Password</a><br><br>
       This link will expire in 1 hour.
     `;
 
@@ -404,9 +389,9 @@ async function socialLogin(req, res) {
           username: existingUser.username,
           email: existingUser.email,
           token: token,
-          name: existingUser.fullName || '',
-          phone: existingUser.phone || '',
-          photo: existingUser.photo || '',
+          name: existingUser.fullName || "",
+          phone: existingUser.phone || "",
+          photo: existingUser.photo || "",
           balance: existingUser.balance || 0,
           is_verified: existingUser.is_verified,
           hasActivePackage: validPackage.length > 0,
@@ -416,9 +401,15 @@ async function socialLogin(req, res) {
       console.log(responseData);
       return res.status(200).json(responseData);
     } else {
-      const requiredFields = ['email', 'fullName', 'photo', 'provider', 'access_token'];
+      const requiredFields = [
+        "email",
+        "fullName",
+        "photo",
+        "provider",
+        "access_token",
+      ];
       for (const field of requiredFields) {
-        if (typeof user[field] === 'undefined') {
+        if (typeof user[field] === "undefined") {
           return res.status(400).json({ message: `${field} is required` });
         }
       }
@@ -435,7 +426,15 @@ async function socialLogin(req, res) {
 
       const [data] = await pool.execute(
         "INSERT INTO res_users (username, password, email, fullName, photo, provider, access_token) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [username, hashedPassword, email, fullName, photo, provider, access_token]
+        [
+          username,
+          hashedPassword,
+          email,
+          fullName,
+          photo,
+          provider,
+          access_token,
+        ]
       );
 
       const insertedUserID = data.insertId;
@@ -477,7 +476,6 @@ async function socialLogin(req, res) {
   }
 }
 
-
 async function facebookSocialLogin(req, res) {
   try {
     const { facebookAccessToken } = req.body;
@@ -494,7 +492,9 @@ async function facebookSocialLogin(req, res) {
 
       facebookUser = response.data;
       if (!facebookUser || !facebookUser.email) {
-        return res.status(400).json({ message: "Invalid Facebook token or missing email" });
+        return res
+          .status(400)
+          .json({ message: "Invalid Facebook token or missing email" });
       }
     }
 
@@ -513,7 +513,7 @@ async function facebookSocialLogin(req, res) {
       const token = jwt.sign(
         { id: existingUser.user_id, username: existingUser.username },
         secretKey,
-        { expiresIn: "1h" }
+        { expiresIn: "30d" }
       );
 
       // Check if user has a valid package
@@ -551,7 +551,15 @@ async function facebookSocialLogin(req, res) {
       // Insert new user into the database
       const [data] = await pool.execute(
         "INSERT INTO res_users (username, password, email, fullName, photo, access_token, provider ) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [username, hashedPassword, userEmail, fullName, photo, access_token, provider]
+        [
+          username,
+          hashedPassword,
+          userEmail,
+          fullName,
+          photo,
+          access_token,
+          provider,
+        ]
       );
 
       const insertedUserID = data.insertId;
@@ -592,7 +600,6 @@ async function facebookSocialLogin(req, res) {
     });
   }
 }
-
 
 module.exports = {
   signup,

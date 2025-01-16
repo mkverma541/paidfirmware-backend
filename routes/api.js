@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
-const geoLocationController = require("../controllers/api/geoLocation");
-const exchangeRateController = require("../controllers/api/exchangeRate");
+const locationController = require("../controllers/api/location");
+const settingController = require("../controllers/api/settings");
 
-router.use("/get-location", geoLocationController.getUserLocation);
-router.use("/get-exchange-rates", exchangeRateController.getAllCurrencyRates);
+const cacheMiddleware = require("../middlewars/redis");
+
+router.use("/get-location", locationController.getUserLocation);
+router.use("/settings", cacheMiddleware, settingController.getAllOptions);
 
 module.exports = router;

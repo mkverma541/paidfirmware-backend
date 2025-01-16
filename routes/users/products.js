@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 
-const { cacheJson } = require('../../middlewars/cacheMiddleware');
 const ProductController = require('../../controllers/user/products');
+const cacheMiddleware = require("../../middlewars/redis");
 
-router.get('/', cacheJson, ProductController.getProductList);
-router.get('/:slug', cacheJson, ProductController.getProductDetails);
-router.get('/related-products/:slug', cacheJson, ProductController.getRelatedProducts);
-router.get('/category/:slug', cacheJson, ProductController.getProductsByCategory);
+router.get('/', cacheMiddleware,   ProductController.getProductList);
+router.get('/:slug', cacheMiddleware,  ProductController.getProductDetails);
+router.get('/related-products/:slug', cacheMiddleware, ProductController.getRelatedProducts);
+router.get('/category/:slug', cacheMiddleware,  ProductController.getProductsByCategory);
 
 
 module.exports = router;

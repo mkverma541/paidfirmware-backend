@@ -1,18 +1,15 @@
-const fs = require('fs');
-const path = require('path');
+const ogs = require('open-graph-scraper');
 
-// Read and parse the JSON file
-const jsonFilePath = path.join(__dirname, 'data.json');
-const jsonData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
+// Define the URL you want to test
+const options = { url: 'http://localhost:4200' }; // Replace with your local or live URL
 
-// Perform a map function on the JSON data
-const mappedData = jsonData.map(item => {
+console.log('Testing Open Graph for:', options.url);
 
-    // get name key
-    return {
-        name: item.name,
-        icon: item.icon_image_url,
-    };
+ogs(options, (error, results) => {
+  if (error) {
+    console.error('Error:', error);
+  } else {
+        console.log('Open Graph Results:', results);
+    console.log('Open Graph Results:', results);
+  }
 });
-
-console.log(mappedData);

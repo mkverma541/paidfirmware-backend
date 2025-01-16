@@ -8,7 +8,7 @@ const createError = require("http-errors");
 require('./logger'); // Path to the logger file
   
 require("./config/database");
-
+//require("./config/redis");  
 
 //require('./controllers/test.js');
 
@@ -50,12 +50,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Use grouped routes
-app.use("/api/v1/user", userRoutes);
+app.use("/api", apiRoutes);
 app.use("/api/v1/admin", adminRoutes);
-app.use("/api/v1/user", apiRoutes);
+app.use("/api/v1/user", userRoutes);
 
 
-// Catch 404 and forward to error handler
+// Catch 404 and forward to error handler               
 app.use(function (req, res, next) {
   next(createError(404));
 });

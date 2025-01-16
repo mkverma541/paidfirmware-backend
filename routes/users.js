@@ -11,8 +11,7 @@ const agentRouter = require('./users/agents');
 const teamsRouter = require('./users/teams');
 const blogsRouter = require('./users/blogs');
 const videosRouter = require('./users/videos');
-const miscRouter = require('./users/misc');
-const currencyRouter = require('./users/currencies');
+const pagesRouter = require('./users/pages');
 const searchRouter = require('./users/search');
 const menuRouter = require('./users/menu');
 const couponRouter = require('./users/coupons');
@@ -24,6 +23,10 @@ const productRouter = require('./users/product');
 const ordersRouter = require('./users/orders');
 const walletRouter = require('./users/wallet');
 const dashboardRouter = require('./users/dashboard');
+const locationRouter = require("./users/location");
+const currencyRouter = require("./users/currencies");
+const courseRouter = require("./users/courses");
+
 
 // shared
 const orderRouter = require("./shared/order");
@@ -39,8 +42,7 @@ router.use("/agents", agentRouter);
 router.use("/teams", teamsRouter);
 router.use("/blogs", blogsRouter);
 router.use("/videos", videosRouter);
-router.use("/pages", miscRouter);
-router.use("/currencies", currencyRouter);
+router.use("/pages", pagesRouter);
 router.use("/order", orderRouter);
 router.use("/search", searchRouter);
 router.use("/menu", menuRouter);
@@ -48,9 +50,11 @@ router.use("/coupons", couponRouter);
 router.use("/reviews", reviewRouter);
 router.use("/request-file", requestFileRouter);
 router.use("/leads", contactUsEnquiryRouter);
-router.use("/products", productsRouter);
+router.use("/products",  productsRouter);
 router.use("/product", productRouter);
 router.use("/wallet", walletRouter);
 router.use("/dashboard", dashboardRouter);
+router.use("/currencies", currencyRouter);
+router.use("/courses", courseRouter);
 
 module.exports = router;
