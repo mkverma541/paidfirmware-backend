@@ -1,5 +1,43 @@
 const { pool } = require("../../config/database");
 
+
+async function getCourseContent(req, res) {
+  const { courseId } = req.params;
+
+  try {
+    // Fetch topics for the course
+    const [topics] = await pool.execute(
+      `SELECT topic_id, topic_name, description FROM res_course_topics WHERE course_id = ?`,
+      [courseId]
+    );
+
+    if (topics.length === 0) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "No topics found for this course." });
+    }
+
+    // Fetch content for each topic
+    for (const topic of topics) {
+      const [content] = await pool.execute(
+        `SELECT content_id, content_type, file_name, file_url, description, is_preview 
+        FROM res_topic_content WHERE topic_id = ?`,
+        [topic.topic_id]
+      );
+      topic.content = content;
+    }
+
+    res.status(200).json({ status: "success", data: topics });
+  } catch (error) {
+    console.error("Error fetching topics and content:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+}
+
 // 4. Create Content for a Topic
 async function createContent(req, res) {
   const { topicId } = req.params;
@@ -131,4 +169,5 @@ module.exports = {
   createContent,
   updateContent,
   deleteContent,
+  getCourseContent,
 };

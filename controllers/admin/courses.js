@@ -9,6 +9,7 @@ async function createCourse(req, res) {
       subtitle,
       slug,
       language,
+      learning_outcomes,
       description,
       sale_price,
       original_price,
@@ -133,13 +134,14 @@ async function createCourse(req, res) {
     // Insert course data
     const [courseResult] = await connection.query(
       `INSERT INTO res_courses 
-      (title, subtitle, slug, language, description, sale_price, original_price, duration_type, duration, duration_unit, expiry_date, status) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (title, subtitle, slug, language, learning_outcomes, description, sale_price, original_price, duration_type, duration, duration_unit, expiry_date, status) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title,
         subtitle,
         slug,
         language,
+        learning_outcomes,
         description,
         sale_price,
         original_price,
@@ -230,6 +232,7 @@ async function getCourseList(req, res) {
     const limit = parseInt(req.query.limit, 10) || 10;
     const offset = (page - 1) * limit;
     const categorySlug = req.query.category || null; // Default to null if not provided
+    console.log(categorySlug);
 
     let categoryId = null;
 
@@ -318,17 +321,7 @@ async function getCourseList(req, res) {
 
     // Structure course data
     const courseList = courses.map((course) => ({
-      course_id: course.course_id,
-      title: course.title || "Untitled",
-      subtitle: course.subtitle || "",
-      description: course.description || "",
-      language: course.language || "Unknown",
-      sale_price: course.sale_price || 0,
-      original_price: course.original_price || 0,
-      duration_type: course.duration_type || "N/A",
-      duration_value: course.duration_value || null,
-      expiry_date: course.expiry_date || null,
-      created_at: course.created_at || "",
+      ...course,
       media: mediaMap[course.course_id] || [],
       categories: categoryMap[course.course_id] || [],
     }));
@@ -348,34 +341,18 @@ async function getCourseList(req, res) {
   }
 }
 
-
-async function  getCourseDetails(req, res) {
+async function getCourseDetails(req, res) {
   try {
-    console.log(req.params);
-    const { id, slug } = req.params; // Extracting id or slug from request params
-    
-    if (!id && !slug) {
-      return res.status(400).json({ error: "Course ID or slug is required" });
+    const { slug } = req.params;
+
+    if (!slug) {
+      res.status(400).json({ error: "Course Slug is required" });
     }
 
-    let courseQuery = `SELECT * FROM res_courses WHERE`;                                                    
-    let queryParams = [];
-
-    // If a course ID is provided, fetch by ID
-    if (id) {
-      courseQuery += ` course_id = ?`;
-      queryParams.push(id);
-    } 
-    // If a slug is provided, fetch by slug                                   
-    else if (slug) {
-      courseQuery += ` slug = ?`;
-      queryParams.push(slug);
-    }
-
-    console.log(courseQuery);
-
-    // Execute the course query
-    const [course] = await pool.execute(courseQuery, queryParams);
+    const [course] = await pool.execute(
+      `SELECT * FROM res_courses WHERE slug = ?`,
+      [slug]
+    );
 
     if (course.length === 0) {
       return res.status(404).json({ error: "Course not found" });
@@ -403,17 +380,7 @@ async function  getCourseDetails(req, res) {
 
     // Structure the course data response
     const response = {
-      course_id: courseDetails.course_id,
-      title: courseDetails.title || "Untitled",
-      subtitle: courseDetails.subtitle || "",
-      description: courseDetails.description || "",
-      language: courseDetails.language || "Unknown",
-      sale_price: courseDetails.sale_price || 0,
-      original_price: courseDetails.original_price || 0,
-      duration_type: courseDetails.duration_type || "N/A",
-      duration_value: courseDetails.duration_value || null,
-      expiry_date: courseDetails.expiry_date || null,
-      created_at: courseDetails.created_at || "",
+      ...courseDetails,
       media: media || [],
       categories: categories || [],
     };
@@ -427,8 +394,6 @@ async function  getCourseDetails(req, res) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
-
-
 
 async function deleteCourse(req, res) {
   const { courseId } = req.params;
@@ -467,15 +432,21 @@ async function deleteCourse(req, res) {
 
 async function updateCourse(req, res) {
   const { courseId } = req.params;
+
+  console.log(req.body);
+  console.log(courseId);
+
   const {
     title,
     subtitle,
     language,
+    slug,
+    learning_outcomes,
     description,
     sale_price,
     original_price,
     duration_type,
-    duration_value,
+    duration,
     expiry_date,
     categories = [],
     newCategories = [],
@@ -490,32 +461,41 @@ async function updateCourse(req, res) {
       .json({ status: "error", message: "Course ID is required" });
   }
 
-  const connection = await pool.getConnection(); // Using transactions for atomicity
+  const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
 
     // Update course data
     await connection.execute(
       `UPDATE res_courses 
-      SET title = ?, subtitle = ?, language = ?, description = ?, sale_price = ?, 
-      original_price = ?, duration_type = ?, duration_value = ?, expiry_date = ? 
+      SET title = ?, subtitle = ?, language = ?, slug = ?, learning_outcomes = ?, description = ?, sale_price = ?, 
+      original_price = ?, duration_type = ?, duration = ?, expiry_date = ? 
       WHERE course_id = ?`,
       [
         title,
         subtitle,
         language,
+        slug,
+        learning_outcomes,
         description,
         sale_price,
         original_price,
         duration_type,
-        duration_value,
+        duration,
         expiry_date,
         courseId,
       ]
     );
 
-    // Update categories
-    const categoriesIds = [...categories];
+    // Delete existing category relationships
+    await connection.execute(
+      `DELETE FROM res_course_category_relationships WHERE course_id = ?`,
+      [courseId]
+    );
+
+    // Add categories
+    const existingCategories = categories.map((cat) => cat.category_id);
+    const categoriesIds = [...existingCategories];
 
     for (const categoryName of newCategories) {
       const slug = generateSlug(categoryName);
@@ -526,7 +506,6 @@ async function updateCourse(req, res) {
       categoriesIds.push(insertedCategory.insertId);
     }
 
-    // Insert category relationships
     if (categoriesIds.length > 0) {
       const categoryQueries = categoriesIds.map((categoryId) =>
         connection.execute(
@@ -537,9 +516,15 @@ async function updateCourse(req, res) {
       await Promise.all(categoryQueries);
     }
 
-    // Update tags
+    // Delete existing tag relationships
+    await connection.execute(
+      `DELETE FROM res_course_tag_relationship WHERE course_id = ?`,
+      [courseId]
+    );
 
-    const tagsIds = [...tags];
+    // Add tags
+    const existingTags = tags.map((tag) => tag.tag_id);
+    const tagsIds = [...existingTags];
 
     for (const tagName of newTags) {
       const slug = generateSlug(tagName);
@@ -550,7 +535,6 @@ async function updateCourse(req, res) {
       tagsIds.push(insertedTag.insertId);
     }
 
-    // Insert tag relationships
     if (tagsIds.length > 0) {
       const tagQueries = tagsIds.map((tagId) =>
         connection.execute(
@@ -561,7 +545,13 @@ async function updateCourse(req, res) {
       await Promise.all(tagQueries);
     }
 
-    // Insert media
+    // Delete existing media
+    await connection.execute(
+      `DELETE FROM res_course_media WHERE course_id = ?`,
+      [courseId]
+    );
+
+    // Add media
     if (media.length > 0) {
       const mediaQueries = media.map((mediaItem) =>
         connection.execute(
@@ -574,12 +564,12 @@ async function updateCourse(req, res) {
 
     // Commit transaction
     await connection.commit();
+    res
+      .status(200)
+      .json({ status: "success", message: "Course updated successfully" });
   } catch (error) {
     console.error(error);
-
-    // Rollback transaction in case of error
     await connection.rollback();
-
     res.status(500).json({
       status: "error",
       message: "Failed to update course",
