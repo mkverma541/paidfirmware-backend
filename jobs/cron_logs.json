@@ -5020,5 +5020,17 @@
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-01-18T06:21:00.776Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-01-18T06:21:00.792Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
   }
 ]
