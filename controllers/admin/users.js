@@ -1,4 +1,72 @@
 const { pool } = require("../../config/database");
+const bcrypt = require("bcrypt");
+
+async function addNewUser(req, res) {
+  const {
+    password,
+    email,
+    role_id = null,
+    first_name = null,
+    last_name = null,
+    user_type = 1,
+  } = req.body;
+
+  // Check for missing required fields
+
+  if (!password || !email) {
+    return res.status(400).json({ error: "Please fill all required fields." });
+  }
+
+  try {
+    // Check if username already exists
+
+    const [existingUser] = await pool.execute(
+      "SELECT * FROM res_users WHERE email = ?",
+      [email]
+    );
+
+    if (existingUser.length > 0) {
+      return res.status(409).json({
+        message: "Email already exists, please try another email",
+      });
+    }
+
+    let username = email.split("@")[0];
+
+    // Check if email already exists
+    const [existingUsername] = await pool.execute(
+      "SELECT * FROM res_users WHERE username = ?",
+      [username]
+    );
+
+    if (existingUsername.length > 0) {
+      // generate username random
+      username = username + Math.floor(1000 + Math.random() * 9000);
+    }
+
+    // Hash password asynchronously
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert new user into the database
+    const [data] = await pool.execute(
+      "INSERT INTO res_users (username, password, email, first_name, last_name, role_id, user_type ) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [username, hashedPassword, email, first_name, last_name, role_id, user_type]
+    );
+
+    // Fetch the newly created user
+    const [user] = await pool.execute(
+      "SELECT * FROM res_users WHERE user_id = ?",
+      [data.insertId]
+    );
+    // Send back user details
+    return res
+      .status(201)
+      .json({ message: "User registered successfully", user });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
 
 async function getAllUserList(req, res) {
   const page = parseInt(req.query.page) || 1; // Get page from query, default to 1
@@ -51,8 +119,7 @@ async function getAllUserList(req, res) {
   }
 }
 
-
-
 module.exports = {
   getAllUserList,
+  addNewUser,
 };

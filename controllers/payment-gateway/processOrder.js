@@ -26,11 +26,11 @@ const processOrder = async (order_id, user_id) => {
     }
 
     // Separate file and package items
-    const files = userCart
-      .filter((item) => item.item_type === 1);
+    const files = userCart.filter((item) => item.item_type === 1);
     const packages = userCart.filter((item) => item.item_type === 2);
     const products = userCart.filter((item) => item.item_type === 3);
     const walletRecharge = userCart.filter((item) => item.item_type === 5);
+    const courses = userCart.filter((item) => item.item_type === 4);
 
     // Process packages if any
     if (packages.length > 0) {
@@ -69,8 +69,6 @@ const processOrder = async (order_id, user_id) => {
       );
     }
 
-    console.log("Files:", files);
-
     // Insert files if any
     if (files.length > 0) {
       const fileInsertValues = files.map((file) => [
@@ -84,6 +82,8 @@ const processOrder = async (order_id, user_id) => {
         [fileInsertValues]
       );
     }
+
+    console.log("files", files);
 
     // process products
 
@@ -101,8 +101,75 @@ const processOrder = async (order_id, user_id) => {
       );
     }
 
-    // process wallet recharge
-    console.log(walletRecharge, "Wallet recharge");
+    const courseInsertValues = await Promise.all(
+      courses.map(async (course) => {
+        // Fetch course details
+        const [rows] = await connection.execute(
+          "SELECT * FROM res_courses WHERE course_id = ?",
+          [course.item_id]
+        );
+        const courseDetail = rows[0];
+
+        if (!courseDetail) {
+          throw new Error(
+            `Course details not found for item_id: ${course.item_id}`
+          );
+        }
+
+        const { duration_type, duration, duration_unit, expiry_date } =
+          courseDetail;
+
+          console.log("courseDetail", courseDetail);
+
+        // Initialize expiryDate as the current date
+        let expiryDate = new Date();
+
+        if (duration_type === 1) {
+          // Add duration based on the unit
+          switch (duration_unit) {
+            case "hours":
+              expiryDate.setHours(expiryDate.getHours() + duration);
+              break;
+            case "days":
+              expiryDate.setDate(expiryDate.getDate() + duration);
+              break;
+            case "weeks":
+              expiryDate.setDate(expiryDate.getDate() + duration * 7);
+              break;
+            case "months":
+              expiryDate.setMonth(expiryDate.getMonth() + duration);
+              break;
+            case "years":
+              expiryDate.setFullYear(expiryDate.getFullYear() + duration);
+              break;
+            default:
+              throw new Error(`Unknown duration_unit: ${duration_unit}`);
+          }
+        } else if (duration_type === 2) {
+          // Use the expiry_date directly for type 2
+          expiryDate = new Date(expiry_date);
+          if (isNaN(expiryDate.getTime())) {
+            throw new Error(`Invalid expiry_date: ${expiry_date}`);
+          }
+        } else {
+            expiryDate = expiry_date;
+        }
+
+
+        return [
+          user_id,
+          course.item_id,
+          order_id,
+          expiryDate,
+          JSON.stringify(courseDetail),
+        ];
+      })
+    );
+
+    await connection.query(
+      "INSERT INTO res_ucourses (user_id, course_id, order_id, expiry_date, meta) VALUES ?",
+      [courseInsertValues]
+    );
 
     if (walletRecharge.length > 0) {
       const walletRechargeInsertValues = walletRecharge.map((recharge) => [
@@ -126,18 +193,15 @@ const processOrder = async (order_id, user_id) => {
       if (userWallet.length === 0) {
         throw new Error("User not found");
       }
-      console.log("User wallet:", userWallet);
-      console.log("Wallet recharge:", walletRecharge);
 
       const newBalance =
-        parseFloat(userWallet[0].balance) + parseFloat(walletRecharge[0].sale_price);
+        parseFloat(userWallet[0].balance) +
+        parseFloat(walletRecharge[0].sale_price);
 
       await connection.execute(
         "UPDATE res_users SET balance = ? WHERE user_id = ?",
         [newBalance, user_id]
       );
-
-      console.log("Wallet updated");
 
       // Insert wallet transaction
 
@@ -147,14 +211,14 @@ const processOrder = async (order_id, user_id) => {
           user_id,
           order_id,
           walletRecharge[0].sale_price,
-          'credit',
+          "credit",
           "Wallet recharge",
           "Wallet recharge " + "#" + order_id,
         ]
       );
-
-      console.log("Wallet transaction inserted");
     }
+
+    console.log("processOrder", order_id, user_id);
 
     await connection.execute("DELETE FROM res_cart WHERE user_id = ?", [
       user_id,

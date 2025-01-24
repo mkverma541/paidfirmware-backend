@@ -4,6 +4,4 @@ const TelegramController = require('../../controllers/admin/telegram');
 
 router.post('/send-order-details', TelegramController.sendOrderDetailsToTelegram);
 
-
-
 module.exports = router;

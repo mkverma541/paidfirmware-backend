@@ -2,8 +2,6 @@ const { pool } = require("../../config/database");
 
 async function createCourse(req, res) {
   try {
-    // Validate and sanitize input
-
     let {
       title,
       subtitle,
@@ -15,7 +13,7 @@ async function createCourse(req, res) {
       original_price,
       duration_type = 1,
       duration = 1,
-      duration_unit = "years",
+      duration_unit,
       expiry_date = null,
       categories = [],
       newCategories = [],
@@ -25,10 +23,8 @@ async function createCourse(req, res) {
       status = 2,
     } = req.body;
 
-    const connection = await pool.getConnection();
-    await connection.beginTransaction();
-
-    if ((!title, !slug, !original_price, !sale_price)) {
+    // Basic validation for essential fields
+    if (!title || !slug || !original_price || !sale_price) {
       return res.status(400).json({
         status: "error",
         message: "Please provide title, slug, original_price and sale_price",
@@ -56,172 +52,152 @@ async function createCourse(req, res) {
       });
     }
 
-    if (duration_type == 1 && !duration_unit && !duration) {
+    if (duration_type === 1 && !duration_unit && !duration) {
       return res.status(400).json({
         status: "error",
         message: "Please provide course duration.",
       });
     }
 
-    if (duration_type == 3 && !expiry_date) {
+    if (duration_type === 3 && !expiry_date) {
       return res.status(400).json({
         status: "error",
         message: "Please provide expiry date.",
       });
     }
 
-    // check if title and slug already exists
+    // Database validation checks
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
 
-    const [titleExists] = await connection.execute(
-      `SELECT * FROM res_courses WHERE title = ?`,
-      [title]
-    );
+    try {
+      const [titleExists] = await connection.execute(
+        `SELECT * FROM res_courses WHERE title = ?`,
+        [title]
+      );
+      if (titleExists.length > 0) {
+        return res.status(400).json({
+          status: "error",
+          message: "Course with this title already exists",
+        });
+      }
 
-    if (titleExists.length > 0) {
-      return res.status(400).json({
+      const [slugExists] = await connection.execute(
+        `SELECT * FROM res_courses WHERE slug = ?`,
+        [slug]
+      );
+      if (slugExists.length > 0) {
+        return res.status(400).json({
+          status: "error",
+          message: "Course with this slug already exists",
+        });
+      }
+
+      sale_price = parseFloat(sale_price);
+      original_price = parseFloat(original_price);
+      duration_type = parseInt(duration_type);
+      duration = duration ?? parseInt(duration);
+
+      // Insert course data into the database
+      const [courseResult] = await connection.query(
+        `INSERT INTO res_courses 
+        (title, subtitle, slug, language, learning_outcomes, description, sale_price, original_price, duration_type, duration, duration_unit, expiry_date, status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          title,
+          subtitle,
+          slug,
+          language,
+          learning_outcomes,
+          description,
+          sale_price,
+          original_price,
+          duration_type,
+          duration,
+          duration_unit,
+          expiry_date,
+          status,
+        ]
+      );
+
+      const courseId = courseResult.insertId;
+
+      // Handle categories
+      const categoriesIds = [...categories.map((cat) => cat.category_id)];
+      for (const categoryName of newCategories) {
+        const categorySlug = generateSlug(categoryName);
+        const [newCategory] = await connection.execute(
+          `INSERT INTO res_course_categories (category_name, slug) VALUES (?, ?)`,
+          [categoryName, categorySlug]
+        );
+        categoriesIds.push(newCategory.insertId);
+      }
+
+      if (categoriesIds.length > 0) {
+        await Promise.all(
+          categoriesIds.map((categoryId) =>
+            connection.execute(
+              `INSERT INTO res_course_category_relationships (course_id, category_id) VALUES (?, ?)`,
+              [courseId, categoryId]
+            )
+          )
+        );
+      }
+
+      // Handle tags
+      const tagsIds = [...tags.map((tag) => tag.tag_id)];
+      for (const tagName of newTags) {
+        const tagSlug = generateSlug(tagName);
+        const [newTag] = await connection.execute(
+          `INSERT INTO res_course_tags (tag_name, slug) VALUES (?, ?)`,
+          [tagName, tagSlug]
+        );
+        tagsIds.push(newTag.insertId);
+      }
+
+      if (tagsIds.length > 0) {
+        await Promise.all(
+          tagsIds.map((tagId) =>
+            connection.execute(
+              `INSERT INTO res_course_tag_relationship (course_id, tag_id) VALUES (?, ?)`,
+              [courseId, tagId]
+            )
+          )
+        );
+      }
+
+      // Handle media
+      if (media.length > 0) {
+        await Promise.all(
+          media.map((mediaItem) =>
+            connection.execute(
+              `INSERT INTO res_course_media (course_id, type, file_name, is_cover) VALUES (?, ?, ?, ?)`,
+              [courseId, mediaItem.type, mediaItem.file_name, mediaItem.is_cover]
+            )
+          )
+        );
+      }
+
+      await connection.commit();
+      res.status(201).json({
+        status: "success",
+        message: "Course created successfully",
+        data: { courseId, title, categories: categoriesIds, tags: tagsIds },
+      });
+
+    } catch (error) {
+      await connection.rollback();
+      console.error("Error while inserting data: ", error);
+      res.status(400).json({
         status: "error",
-        message: "Course with this title already exists",
+        message: error.message || "An error occurred while processing your request.",
       });
     }
-
-    const [slugExists] = await connection.execute(
-      `SELECT * FROM res_courses WHERE slug = ?`,
-      [slug]
-    );
-
-    if (slugExists.length > 0) {
-      return res.status(400).json({
-        status: "error",
-        message: "Course with this slug already exists",
-      });
-    }
-
-    //now we can insert the course
-
-    // process the string into number
-    // if duration_type is 1 then set expiry_date to null
-    // if duration_type is 2 then set duration and duration_unit, expiry_date to null
-    // if duration_type is 3 then set duration and duration_unit to null
-
-    let duration_value = null;
-
-    if (duration_type == 1) {
-      const unitToHours = {
-        hours: 1,
-        days: 24,
-        weeks: 24 * 7,
-        months: 24 * 30,
-        years: 24 * 365,
-      };
-      duration_value = (unitToHours[duration_unit] || 0) * duration;
-      expiry_date = null;
-    } else if (duration_type == 2) {
-      duration_value = null;
-      expiry_date = null;
-    } else if (duration_type == 3) {
-      duration_value = null;
-      duration = null;
-      duration_unit = null;
-    }
-
-    // sale_price, original_price, duration_type, duration conver string to number
-
-    sale_price = parseFloat(sale_price);
-    original_price = parseFloat(original_price);
-    duration_type = parseInt(duration_type);
-    duration = parseInt(duration);
-
-    // Insert course data
-    const [courseResult] = await connection.query(
-      `INSERT INTO res_courses 
-      (title, subtitle, slug, language, learning_outcomes, description, sale_price, original_price, duration_type, duration, duration_unit, expiry_date, status) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        title,
-        subtitle,
-        slug,
-        language,
-        learning_outcomes,
-        description,
-        sale_price,
-        original_price,
-        duration_type,
-        duration_value,
-        duration_unit,
-        expiry_date,
-        status,
-      ]
-    );
-
-    const courseId = courseResult.insertId;
-
-    // Handle categories
-    const categoriesIds = [...categories.map((cat) => cat.category_id)];
-    for (const categoryName of newCategories) {
-      const categorySlug = generateSlug(categoryName);
-      const [newCategory] = await connection.execute(
-        `INSERT INTO res_course_categories (category_name, slug) VALUES (?, ?)`,
-        [categoryName, categorySlug]
-      );
-      categoriesIds.push(newCategory.insertId);
-    }
-
-    if (categoriesIds.length > 0) {
-      await Promise.all(
-        categoriesIds.map((categoryId) =>
-          connection.execute(
-            `INSERT INTO res_course_category_relationships (course_id, category_id) VALUES (?, ?)`,
-            [courseId, categoryId]
-          )
-        )
-      );
-    }
-
-    // Handle tags
-    const tagsIds = [...tags.map((tag) => tag.tag_id)];
-    for (const tagName of newTags) {
-      const tagSlug = generateSlug(tagName);
-      const [newTag] = await connection.execute(
-        `INSERT INTO res_course_tags (tag_name, slug) VALUES (?, ?)`,
-        [tagName, tagSlug]
-      );
-      tagsIds.push(newTag.insertId);
-    }
-
-    if (tagsIds.length > 0) {
-      await Promise.all(
-        tagsIds.map((tagId) =>
-          connection.execute(
-            `INSERT INTO res_course_tag_relationship (course_id, tag_id) VALUES (?, ?)`,
-            [courseId, tagId]
-          )
-        )
-      );
-    }
-
-    // Handle media
-    if (media.length > 0) {
-      await Promise.all(
-        media.map((mediaItem) =>
-          connection.execute(
-            `INSERT INTO res_course_media (course_id, type, file_name, is_cover) VALUES (?, ?, ?, ?)`,
-            [courseId, mediaItem.type, mediaItem.file_name, mediaItem.is_cover]
-          )
-        )
-      );
-    }
-
-    await connection.commit();
-    res.status(201).json({
-      status: "success",
-      message: "Course created successfully",
-      data: { courseId, title, categories: categoriesIds, tags: tagsIds },
-    });
   } catch (error) {
-    console.error(error);
+    console.error("General error: ", error);
     res.status(400).json({
       status: "error",
-      message: error.details ? error.details[0].message : "Invalid input",
+      message: error.message || "Invalid input",
     });
   }
 }
@@ -343,30 +319,31 @@ async function getCourseList(req, res) {
 
 async function getCourseDetails(req, res) {
   try {
-    const { slug } = req.params;
+    const { courseId } = req.params;
 
-    if (!slug) {
-      res.status(400).json({ error: "Course Slug is required" });
+    if (!courseId) {
+      res.status(400).json({ error: "Course ID is required" });
     }
 
     const [course] = await pool.execute(
-      `SELECT * FROM res_courses WHERE slug = ?`,
-      [slug]
+      `SELECT * FROM res_courses WHERE course_id = ?`,
+      [courseId]
     );
+
+    const courseDetails = course[0];
+    console.log(courseDetails)
 
     if (course.length === 0) {
       return res.status(404).json({ error: "Course not found" });
     }
 
-    // Get the course details (we'll also fetch associated media and categories)
-    const courseDetails = course[0]; // Assuming course[0] is the only course result
 
     // Fetch associated media
     const [media] = await pool.execute(
       `SELECT media_id, course_id, type, file_name, is_cover 
       FROM res_course_media 
       WHERE course_id = ? AND is_cover = 1`,
-      [courseDetails.course_id]
+      [courseId]
     );
 
     // Fetch associated categories
@@ -375,7 +352,7 @@ async function getCourseDetails(req, res) {
       FROM res_course_categories c
       JOIN res_course_category_relationships pcr ON c.category_id = pcr.category_id
       WHERE pcr.course_id = ?`,
-      [courseDetails.course_id]
+      [courseId]
     );
 
     // Structure the course data response
@@ -465,6 +442,7 @@ async function updateCourse(req, res) {
   try {
     await connection.beginTransaction();
 
+    
     // Update course data
     await connection.execute(
       `UPDATE res_courses 

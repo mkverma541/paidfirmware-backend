@@ -14,14 +14,13 @@ async function checkDiscount(req, res) {
     if (authHeader) {
       const token = authHeader.split(" ")[1];
       try {
-        const decoded = jwt.verify(token, secretKey); // Replace `secretKey` with your actual secret
-        userId = decoded.id; // Extract user ID from token
+        const decoded = jwt.verify(token, secretKey);
+        userId = decoded.id;
       } catch (err) {
         console.error("Invalid token:", err.message);
       }
     }
 
-    // Merge or update the cart based on user ID and cartHashId
     if (userId) {
       // Fetch cart items for the logged-in user
       const [userCartItems] = await pool.execute(
@@ -39,30 +38,51 @@ async function checkDiscount(req, res) {
       cartItems = guestCartItems;
     }
 
-    
     if (cartItems.length === 0) {
-      // No items found in the cart
       return res.status(200).json({
         message: "Cart is empty",
         currency,
         discounts: [],
-        subTotal: "0.00",
+        subTotal: 0,
         taxes: [],
-        total: "0.00",
+        total: 0,
       });
     }
 
-    // Calculate the subtotal price of the cart in USD (base currency)
+    // check if currency code is valid
+
+    const [currencyResult] = await pool.execute(
+      `SELECT * FROM res_currencies WHERE currency_code = ?`,
+      [currency]
+    );
+
+    if (currencyResult.length === 0) {
+      return res.status(400).json({ message: "Invalid currency code" });
+    }
+
+    // Calculate the subtotal price of the cart
+
     let subTotal = cartItems.reduce((acc, item) => {
-      const price = item.sale_price || 0; // Price should be in USD
+      const price = item.sale_price || 0;
       const quantity = item.quantity || 1;
       return acc + price * quantity;
     }, 0);
 
-    // Fetch the exchange rate for the provided currency
-    const exchangeRateResult = await getExchangeRate(currency);
+    // get the conversion rate for the currency
 
-    const subTotalAmount = subTotal * exchangeRateResult; // Convert subtotal to target currency
+    const [conversionRate] = await pool.execute(
+      `SELECT currency_code, rate FROM res_currencies WHERE currency_code = ? `,
+      [currency]
+    );
+
+    if (conversionRate.length === 0) {
+      return res.status(400).json({ message: "Invalid currency code" });
+    }
+
+    const exchangeRateResult = parseFloat(conversionRate[0].rate);
+    console.log("Exchange Rate:", exchangeRateResult);
+
+    const subTotalAmount = subTotal * exchangeRateResult;
     let total = subTotalAmount;
 
     // Initialize discount values
@@ -77,26 +97,19 @@ async function checkDiscount(req, res) {
       discount = discountResult;
 
       if (discount.length > 0) {
-        const discountAmount = parseFloat(discount[0].discount_value) || 0; // Discount amount in USD
+        const discountAmount = parseFloat(discount[0].discount_value) || 0;
         const discountType = discount[0].discount_type;
 
         if (discountType === "fixed") {
-          const convertedDiscountAmount = discountAmount * exchangeRateResult; // Convert the discount to the target currency
-          console.log(
-            "Converted Discount Amount (in target currency):",
-            convertedDiscountAmount
-          );
-          totalDiscountValue = Math.min(convertedDiscountAmount, total).toFixed(
-            2
-          ); // Cap discount to total
+          const convertedDiscountAmount = discountAmount * exchangeRateResult;
+          totalDiscountValue = parseFloat(convertedDiscountAmount);
         } else if (discountType === "percentage") {
-          totalDiscountValue = (
-            subTotalAmount *
-            (discountAmount / 100)
-          ).toFixed(2);
+          totalDiscountValue = parseFloat(
+            subTotalAmount * (discountAmount / 100)
+          );
         }
 
-        total -= parseFloat(totalDiscountValue); // Apply the discount to total
+        total -= parseFloat(totalDiscountValue);
       }
     }
 
@@ -109,7 +122,7 @@ async function checkDiscount(req, res) {
       if (tax.amount_type === "percent") {
         taxAmount = (subTotalAmount * parseFloat(tax.amount)) / 100;
       } else if (tax.amount_type === "fixed") {
-        taxAmount = parseFloat(tax.amount) * exchangeRateResult; // Apply fixed tax in target currency
+        taxAmount = parseFloat(tax.amount) * exchangeRateResult;
       }
       return acc + taxAmount;
     }, 0);
@@ -135,15 +148,15 @@ async function checkDiscount(req, res) {
         created_at: d.created_at,
         updated_at: d.updated_at,
         is_active: d.is_active,
-        total_discount: totalDiscountValue, // Ensure this reflects the converted value
+        total_discount: totalDiscountValue, 
       })),
-      subTotal: subTotalAmount.toFixed(2),
+      subTotal: subTotalAmount,
       taxes: taxes.map((tax) => {
         let taxAmount = 0;
         if (tax.amount_type === "percent") {
           taxAmount = (subTotalAmount * parseFloat(tax.amount)) / 100;
         } else if (tax.amount_type === "fixed") {
-          taxAmount = parseFloat(tax.amount) * exchangeRateResult; // Use the exchange rate to convert fixed tax
+          taxAmount = parseFloat(tax.amount) * exchangeRateResult; 
         }
         return {
           id: tax.class_id,
@@ -151,10 +164,10 @@ async function checkDiscount(req, res) {
           rate: tax.amount,
           amount_type: tax.amount_type,
           description: tax.description,
-          totalAmount: taxAmount.toFixed(2),
+          totalAmount: taxAmount,
         };
       }),
-      total: totalAmountAfterTax.toFixed(2), // Ensure total includes tax
+      total: totalAmountAfterTax,
     };
 
     return res.status(200).json(response);
@@ -167,19 +180,6 @@ async function checkDiscount(req, res) {
   }
 }
 
-// Helper function to get exchange rate for target currency
-async function getExchangeRate(currency) {
-  const [exchangeRateResult] = await pool.execute(
-    `SELECT exchange_rate FROM res_exchange_rates WHERE currency_code = ? ORDER BY rate_date DESC LIMIT 1`,
-    [currency]
-  );
-
-  if (exchangeRateResult.length === 0) {
-    throw new Error(`Exchange rate not found for currency: ${currency}`);
-  }
-
-  return exchangeRateResult[0].exchange_rate;
-}
 
 async function checkDiscountCoupon(req, res) {
   try {

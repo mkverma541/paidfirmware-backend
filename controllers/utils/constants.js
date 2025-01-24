@@ -83,6 +83,11 @@ const COURSE_DURATION_TYPE = {
   3: "Course Expiry Date",
 };
 
+const USER_TYPES = {
+  1 : "Customer",
+  2 : "Admin"
+}
+
 
 module.exports = {
   PERIOD_UNITS_IN_SECONDS,
@@ -95,4 +100,5 @@ module.exports = {
   PRODUCT_STATUS,
   SEARCH_TYPE,
   COURSE_DURATION_TYPE,
+  USER_TYPES
 };

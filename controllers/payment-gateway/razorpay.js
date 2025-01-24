@@ -35,6 +35,8 @@ async function createOrder(req, res) {
       });
     }
 
+    console.log("Cart items:", cartItems);
+
     const orderDetails = await calculateOrderDetails({
       cartItems,
       discountCode: options.discount_code,
@@ -44,6 +46,8 @@ async function createOrder(req, res) {
 
     // Get the unique item_type values
     const itemTypes = [...new Set(cartItems.map((item) => item.item_type))];
+
+    console.log("Order details:", orderDetails);
 
     // Create Razorpay order
     const order = await razorpay.orders.create(options);
@@ -159,7 +163,7 @@ async function fetchPayment(req, res) {
     const paidAmount = payment.amount / 100; // Convert amount to base currency
 
     await connection.execute(
-      "UPDATE res_orders SET payment_id = ?, payment_status = ?, amount_paid = ?, order_status = ?, payment_date = ? WHERE order_id = ?",
+      "UPDATE res_orders SET payment_id = ?, payment_status = ?, amount_paid = ?, order_status = ?, payment_date = ? WHERE order_id = ?"
       [payment.id, 2, paidAmount, 7, new Date(), order_id]
     );
 

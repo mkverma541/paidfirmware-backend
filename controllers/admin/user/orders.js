@@ -1,7 +1,7 @@
-const { pool } = require("../../config/database");
+const { pool } = require("../../../config/database");
 
 async function getAllOrderList(req, res) {
-  const { id } = req.user; // User ID from the request
+  const { userId : id } = req.query; // User ID from the request
   const page = parseInt(req.query.page, 10) || 1; // Current page, default to 1
   const limit = parseInt(req.query.limit, 10) || 20; // Items per page, default to 20
   const offset = (page - 1) * limit; // Calculate offset for pagination
@@ -38,6 +38,7 @@ async function getAllOrderList(req, res) {
       files: [],
       topups: [],
       packages: [],
+      courses: [],
     }));
 
     // Process each order based on `item_types`
@@ -109,6 +110,31 @@ async function getAllOrderList(req, res) {
 
           if (files.length) {
             order.files.push(...files);
+          }
+        }
+
+        // Fetch courses if applicable
+
+        if (item_types.includes(4)) {
+          console.log("Order ID:", order_id);
+          const [courses] = await pool.execute(
+            `
+              SELECT 
+                up.course_id, 
+                rp.title, 
+                rp.sale_price, 
+                rp.slug,
+                m.file_name AS image
+              FROM res_ucourses AS up
+              INNER JOIN res_courses AS rp ON up.course_id = rp.course_id
+              LEFT JOIN res_course_media AS m ON rp.course_id = m.course_id AND m.is_cover = 1
+              WHERE up.order_id = ? AND up.user_id = ?
+            `,
+            [order_id, id]
+          );
+
+          if (courses.length) {
+            order.courses.push(...courses);
           }
         }
 
@@ -193,6 +219,8 @@ async function getOrderDetails(req, res) {
       products: [],
       topups: [],
       files: [],
+      packages: [],
+      courses: [],
     };
 
     // Fetch topups if applicable
@@ -233,6 +261,31 @@ async function getOrderDetails(req, res) {
 
       if (products.length) {
         orderDetails.products.push(...products);
+      }
+    }
+
+
+    // Fetch courses if applicable
+
+    if (order.item_types.includes(4)) {
+      const [courses] = await pool.execute(
+        `
+          SELECT 
+            up.course_id, 
+            rp.title, 
+            rp.sale_price, 
+            rp.slug,
+            m.file_name AS image
+          FROM res_ucourses AS up
+          INNER JOIN res_courses AS rp ON up.course_id = rp.course_id
+          LEFT JOIN res_course_media AS m ON rp.course_id = m.course_id AND m.is_cover = 1
+          WHERE up.order_id = ? AND up.user_id = ?
+        `,
+        [order_id, id]
+      );
+
+      if (courses.length) {
+        orderDetails.courses.push(...courses);
       }
     }
 

@@ -4,7 +4,6 @@ const router = express.Router();
 const userAuthRouter = require("./users/auth");
 const digitalFilesRouter = require("./users/files");
 const downloadPackagesRouter = require("./users/downloadPackages");
-const AccountRouter = require('./users/account');
 const cartRouter = require('./users/cart');
 const paymentRouter = require('./payment-gateway/index');
 const agentRouter = require('./users/agents');
@@ -20,13 +19,12 @@ const requestFileRouter = require('./users/requestFile');
 const contactUsEnquiryRouter = require('./users/contactUsEnquiry');
 const productsRouter = require('./users/products');
 const productRouter = require('./users/product');
-const ordersRouter = require('./users/orders');
 const walletRouter = require('./users/wallet');
 const dashboardRouter = require('./users/dashboard');
 const locationRouter = require("./users/location");
 const currencyRouter = require("./users/currencies");
 const courseRouter = require("./users/courses");
-
+const userAccountRouter = require("./users/account/index");
 
 // shared
 const orderRouter = require("./shared/order");
@@ -34,8 +32,7 @@ const orderRouter = require("./shared/order");
 router.use("/auth", userAuthRouter);
 router.use("/", digitalFilesRouter); // File Manager
 router.use("/download-packages", downloadPackagesRouter);
-router.use("/account", AccountRouter);
-router.use("/account/orders", ordersRouter);
+router.use("/account", userAccountRouter);
 router.use("/cart", cartRouter);
 router.use("/payment", paymentRouter);
 router.use("/agents", agentRouter);

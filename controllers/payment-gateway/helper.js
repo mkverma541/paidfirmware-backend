@@ -75,17 +75,23 @@ const calculateOrderDetails = async ({ cartItems, discountCode, currency }) => {
       throw new Error("Cart is empty.");
     }
 
-    const [exchangeRateResult] = await pool.execute(
-      `SELECT exchange_rate FROM res_exchange_rates WHERE currency_code = ? ORDER BY rate_date DESC LIMIT 1`,
+    // check currency is valid
+
+    const [currencyResult] = await pool.execute(
+      `SELECT * FROM res_currencies WHERE currency_code = ?`,
       [currency]
     );
 
-    if (exchangeRateResult.length === 0) {
-      throw new Error(`Exchange rate not found for currency: ${currency}`);
+    if (currencyResult.length === 0) {
+      throw new Error(`Currency not found: ${currency}`);
     }
 
-    const exchange_rate = exchangeRateResult[0].exchange_rate;
-    console.log(exchange_rate, "exchange_rate");
+    const [converionRates] = await pool.execute(
+      `SELECT rate FROM res_currencies WHERE currency_code = ? `,
+      [currency]
+    );
+
+    const exchange_rate = parseFloat(converionRates[0].rate);
 
     // Calculate subtotal in base currency (USD)
     const subtotal = cartItems.reduce((acc, item) => {

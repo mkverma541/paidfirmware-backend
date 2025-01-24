@@ -14,7 +14,6 @@ const blogsRouter = require("./admin/blogs");
 const videosRouter = require("./admin/videos");
 const ordersRouter = require("./admin/orders");
 const usersRouter = require("./admin/users");
-const userAccountRouter = require("./admin/userAccount");
 const dashboardRouter = require("./admin/dashboard");
 const downloadPackagerRouter = require("./admin/downloadPackages");
 const taxesRouter = require("./admin/taxes");
@@ -31,7 +30,14 @@ const jobRouter = require("./admin/jobs");
 const settingsRouter = require("./admin/settings");
 const currenciesRouter = require("./admin/currencies");
 const courseRouter = require("./admin/course");
+const modulesRouter = require("./admin/modules");
+const rolesRouter = require("./admin/roles");
+const aclRouter = require("./admin/acl");
+const userAccountRouter = require('./admin/user/index');
+const mailRouter = require('./admin/mailTemplates');
+const leadsRouter = require("./admin/leads/index");
 
+// Routes
 
 router.use("/", filesRouter);
 router.use("/auth", adminAuthRouter);
@@ -41,15 +47,13 @@ router.use("/teams", teamRouter);
 router.use("/social", socialPlatForm);
 router.use("/agents", agentRouter);
 router.use("/request-file", requestFileRouter);
-
 router.use("/leads", contactRouter);
 router.use("/blogs", blogsRouter);
 router.use("/videos", videosRouter);
 router.use("/orders", ordersRouter);
-router.use("/users", usersRouter);
+router.use("/users", usersRouter);  
+router.use("/users/account", userAccountRouter);
 router.use("/wallet", walletRouter);
-router.use("/user/account", userAccountRouter);
-
 router.use("/dashboard", dashboardRouter);
 router.use("/download-packages", downloadPackagerRouter);
 router.use("/taxes", taxesRouter);
@@ -65,5 +69,10 @@ router.use("/jobs", jobRouter);
 router.use("/settings", settingsRouter);
 router.use("/currencies", currenciesRouter);
 router.use("/courses", courseRouter);
+router.use("/modules", modulesRouter);
+router.use("/roles", rolesRouter);
+router.use("/acl", aclRouter);
+router.use("/email-templates", mailRouter);
+router.use("/leads", leadsRouter);
 
 module.exports = router;

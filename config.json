@@ -1,4 +1,3 @@
-
 {
   "DB_HOST": "localhost",
   "DB_USER": "root",
@@ -13,8 +12,8 @@
   "APP_BASE_URL": "http://localhost:3001",
   "APP_PORT": 3000,
   "MASTER_PASSWORD": "123",
-  "REDIS_URL" : "redis://default:MWhWQyGCn69Vz854ev5aDExRw28khnUMy@redis-18417.crce179.ap-south-1-1.ec2.redns.redis-cloud.com"
-
-
-
+  "REDIS_HOST": "redis-18417.crce179.ap-south-1-1.ec2.redns.redis-cloud.com",
+  "REDIS_PORT": "18417",
+  "REDIS_USERNAME": "default",
+  "REDIS_PASSWORD ": "MWhWQyGCn69Vz854ev5aDExRw28khnUM"
 }
