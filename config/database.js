@@ -18,7 +18,14 @@ process.env.STRIPE_SECRET_KEY = config
 process.env.BINANCE_API_KEY = config.BINANCE_API_KEY;
 process.env.BINANCE_API_SECRET = config.BINANCE_API_SECRET;
 process.env.APP_BASE_URL = config.APP_BASE_URL;
-
+process.env.AWS_ACCESS_KEY_ID = config.AWS_ACCESS_KEY_ID;
+process.env.AWS_SECRET_ACCESS_KEY = config.AWS_SECRET_ACCESS_KEY;
+process.env.AWS_REGION = config.AWS_REGION;
+process.env.AWS_S3_BUCKET_NAME = config.AWS_S3_BUCKET_NAME;
+process.env.REDIS_HOST = config.REDIS_HOST;
+process.env.REDIS_PORT = config.REDIS_PORT;
+process.env.REDIS_USERNAME = config.REDIS_USERNAME;
+process.env.REDIS_PASSWORD = config.REDIS_PASSWORD;
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,

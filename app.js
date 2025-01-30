@@ -5,15 +5,15 @@ const logger = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const createError = require("http-errors");
-require('./logger'); // Path to the logger file
-  
+require("./logger"); // Path to the logger file
+
 require("./config/database");
-//require("./config/redis");  
+//require("./config/redis");
 
 //require('./controllers/test.js');
 
 // Crons jobs
-require('./jobs/updateIsNewCron');
+require("./jobs/updateIsNewCron");
 
 const app = express();
 
@@ -23,24 +23,23 @@ app.use(bodyParser.json());
 // CORS configuration
 app.use(
   cors({
-    origin: '*',
+    origin: "*",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: "Content-Type, Authorization",
     credentials: true,
   })
 );
 
-
-
 // View engine setup
 app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "jade");
+app.set("view engine", "pug");
+
+
 
 // Import grouped routes
 const userRoutes = require("./routes/users");
 const adminRoutes = require("./routes/admin");
 const apiRoutes = require("./routes/api");
-
 
 // Middleware setup
 app.use(logger("dev"));
@@ -54,8 +53,7 @@ app.use("/api", apiRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/user", userRoutes);
 
-
-// Catch 404 and forward to error handler               
+// Catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });

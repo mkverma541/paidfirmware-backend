@@ -1,4 +1,14 @@
 const { pool } = require("../../../config/database");
+const AWS = require("aws-sdk");
+
+// Configure AWS
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION || "us-east-1",
+});
+
+const s3 = new AWS.S3();
 
 async function getCourses(req, res) {
   const { id } = req.user; // User ID from the request
@@ -61,7 +71,6 @@ async function getCourses(req, res) {
   }
 }
 
-
 async function getCourseDetails(req, res) {
   const { id } = req.user; // User ID from the request
   const { course_id } = req.params; // Extract course_id from request params
@@ -104,14 +113,11 @@ async function getCourseDetails(req, res) {
   }
 }
 
-
 async function getCourseContent(req, res) {
   const { course_id } = req.params;
-  const {id} = req.user;
-
+  const { id } = req.user;
 
   try {
-
     // Check if the user has purchased the course
 
     const [course] = await pool.execute(
@@ -124,7 +130,6 @@ async function getCourseContent(req, res) {
         .status(403)
         .json({ status: "error", message: "Course not purchased" });
     }
-
 
     // Fetch topics for the course
     const [topics] = await pool.execute(
@@ -141,10 +146,37 @@ async function getCourseContent(req, res) {
     // Fetch content for each topic
     for (const topic of topics) {
       const [content] = await pool.execute(
-        `SELECT content_id, content_type, file_name, file_url, description, is_preview 
-        FROM res_topic_content WHERE topic_id = ?`,
+        `SELECT * FROM res_topic_content WHERE topic_id = ?`,
         [topic.topic_id]
       );
+
+      // Initialize total duration in seconds
+      let totalDuration = 0;
+
+      for (const item of content) {
+        if (item.content_type === "video" && item.video_duration) {
+          const [hours, minutes, seconds] = item.video_duration
+            .split(":")
+            .map(Number);
+
+          // Check if parsed values are valid numbers
+          if (!isNaN(hours) && !isNaN(minutes) && !isNaN(seconds)) {
+            totalDuration += hours * 3600 + minutes * 60 + seconds;
+          }
+        }
+      }
+
+      // Convert total duration back to HH:mm:ss format
+      const hours = Math.floor(totalDuration / 3600);
+      const minutes = Math.floor((totalDuration % 3600) / 60);
+      const seconds = totalDuration % 60;
+      const formattedDuration = [
+        hours.toString().padStart(2, "0"),
+        minutes.toString().padStart(2, "0"),
+        seconds.toString().padStart(2, "0"),
+      ].join(":");
+
+      topic.total_duration = formattedDuration;
       topic.content = content;
     }
 
@@ -159,5 +191,62 @@ async function getCourseContent(req, res) {
   }
 }
 
+async function getLectureDetailsById(req, res) {
+  const { lectureId } = req.params;
 
-module.exports = { getCourses, getCourseDetails, getCourseContent };
+  if (!lectureId) {
+    return res
+      .status(400)
+      .json({ status: "error", message: "Lecture ID is required" });
+  }
+
+  try {
+    // Fetch lecture details from the database
+    const [lecture] = await pool.execute(
+      `SELECT * FROM res_topic_content WHERE content_id = ?`,
+      [lectureId]
+    );
+
+    if (!lecture.length) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Lecture not found" });
+    }
+
+    const data = lecture[0];
+
+    // Check if the lecture is a video
+    if (data.content_type === "video") {
+      const params = {
+        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        Key: `videos/${data.file_name}`,
+        //  Expires: 60 * 24, // Signed URL valid for 5 minutes
+      };
+
+      try {
+        const url = await s3.getSignedUrlPromise("getObject", params);
+        data.file_url = url; // Add the signed URL to the response data
+      } catch (err) {
+        console.error("Error generating signed URL:", err);
+        return res
+          .status(500)
+          .json({ status: "error", message: "Failed to generate video URL" });
+      }
+    }
+
+    // Return the lecture data
+    return res.status(200).json({ status: "success", data });
+  } catch (error) {
+    console.error("Error fetching lecture details:", error);
+    return res
+      .status(500)
+      .json({ status: "error", message: "Internal Server Error" });
+  }
+}
+
+module.exports = {
+  getCourses,
+  getCourseDetails,
+  getCourseContent,
+  getLectureDetailsById,
+};

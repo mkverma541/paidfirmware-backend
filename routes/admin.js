@@ -36,6 +36,7 @@ const aclRouter = require("./admin/acl");
 const userAccountRouter = require('./admin/user/index');
 const mailRouter = require('./admin/mailTemplates');
 const leadsRouter = require("./admin/leads/index");
+const uploadRouter = require("./admin/upload");
 
 // Routes
 
@@ -74,5 +75,6 @@ router.use("/roles", rolesRouter);
 router.use("/acl", aclRouter);
 router.use("/email-templates", mailRouter);
 router.use("/leads", leadsRouter);
+//router.use("/upload", uploadRouter);
 
 module.exports = router;
