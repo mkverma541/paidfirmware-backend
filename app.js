@@ -37,9 +37,7 @@ app.set("view engine", "pug");
 
 
 // Import grouped routes
-const userRoutes = require("./routes/users");
-const adminRoutes = require("./routes/admin");
-const apiRoutes = require("./routes/api");
+const userRoutes = require("./routes");
 
 // Middleware setup
 app.use(logger("dev"));
@@ -48,10 +46,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// Use grouped routes
-app.use("/api", apiRoutes);
-app.use("/api/v1/admin", adminRoutes);
-app.use("/api/v1/user", userRoutes);
+app.use("/api", userRoutes);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {

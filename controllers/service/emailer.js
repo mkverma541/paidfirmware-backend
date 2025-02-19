@@ -1,45 +1,44 @@
-const express = require('express');
-const nodemailer = require('nodemailer');
-const fs = require('fs');
-const path = require('path');
+require("dotenv").config();
+const nodemailer = require("nodemailer");
+const fs = require("fs");
+const handlebars = require("handlebars");
+const path = require("path");
 
-// Load the email template
-// const emailTemplatePath = path.join(__dirname, '../', 'email-templates', 'test.html');
-// const emailTemplate = fs.readFileSync(emailTemplatePath, 'utf-8');
+async function sendEmail(email, subject, templateName, data) {
+  // Create a transport object using Mailgun SMTP
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: false, // Use `true` for port 465, `false` for other ports
+    auth: {
+      user: process.env.SMTP_USERNAME,
+      pass: process.env.SMTP_PASSWORD,
+    },
+  });
 
-// Create a transporter object with your email service provider's SMTP settings
-const transporter = nodemailer.createTransport({
-  host: 'premium119.web-hosting.com',
-  port: 587,
-  secure: false, // Use true when port is 465
-  auth: {
-    user: 'info@mathematicalpathshala.in',
-    pass: 'Y0(2o@9n=U$B',
-  },
-  tls: {
-    rejectUnauthorized: false, // Allow self-signed certificates
-  },
-});
+  const templatePath = path.join(
+    __dirname,
+    "../../email-templates", // Path to email templates
+    `${templateName}.hbs`
+  );
+  const source = fs.readFileSync(templatePath, "utf8");
+  const compiledTemplate = handlebars.compile(source);
+  const htmlContent = compiledTemplate(data);
 
-
-const sendEmail = async (to, subject, html) => {
+  // Email options
   const mailOptions = {
-    from: 'info@mathematicalpathshala.in',
-    to,          // Use the 'to' email argument directly
-    subject,     // Use the 'subject' argument
-    html,        // Use the 'html' content argument
+    from: '"Mailgun Sandbox" <postmaster@sandbox309d164a15074658a249d0257c96396f.mailgun.org>',
+    to: process.env.EMAIL_FROM,
+    subject: subject,
+    html: htmlContent,
   };
 
-  return new Promise((resolve, reject) => {
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Error sending email:', error);
-        return reject(error);
-      }
-      console.log('Email sent: ', info.response);
-      resolve(info);
-    });
-  });
-};
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent: ", info.messageId);
+  } catch (error) {
+    console.error("Error sending email: ", error);
+  }
+}
 
 module.exports = { sendEmail };

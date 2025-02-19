@@ -1,12 +1,11 @@
-// middlewares/cacheMiddleware.js
-
 const Redis = require('ioredis');
+require("dotenv").config();
 
 const redis = new Redis({
-  host: 'redis-18417.crce179.ap-south-1-1.ec2.redns.redis-cloud.com',
-  port: 18417,
-  username: 'default',
-  password: 'MWhWQyGCn69Vz854ev5aDExRw28khnUM',
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  username: process.env.REDIS_USERNAME,
+  password: process.env.REDIS_PASSWORD,
   // tls: {} // Uncomment if a secure TLS connection is required
 });
 
