@@ -35,5 +35,5 @@ async function getDownloadsHistory(req, res) {
 
 
 module.exports = {
-  getDownloadsHistory,
+  getDownloadsHistory
  };

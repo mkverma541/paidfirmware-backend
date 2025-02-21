@@ -1,366 +1,4476 @@
 [
   {
-    "timestamp": "2025-01-30T16:32:00.623Z",
-    "status": "error",
-    "table": "res_files",
-    "message": "Error updating is_new: "
-  },
-  {
-    "timestamp": "2025-01-30T16:33:00.424Z",
-    "status": "error",
-    "table": "res_folders",
-    "message": "Error updating is_new: "
-  },
-  {
-    "timestamp": "2025-01-30T16:33:00.434Z",
-    "status": "error",
-    "table": "res_files",
-    "message": "Error updating is_new: "
-  },
-  {
-    "timestamp": "2025-01-30T16:34:00.297Z",
+    "timestamp": "2025-02-20T04:42:00.814Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:34:00.327Z",
+    "timestamp": "2025-02-20T04:42:00.844Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:35:01.039Z",
+    "timestamp": "2025-02-20T04:43:00.088Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:35:01.080Z",
+    "timestamp": "2025-02-20T04:43:00.115Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:36:00.160Z",
+    "timestamp": "2025-02-20T04:44:00.863Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:36:00.207Z",
+    "timestamp": "2025-02-20T04:44:00.901Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:37:00.238Z",
+    "timestamp": "2025-02-20T04:45:00.648Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:37:00.268Z",
+    "timestamp": "2025-02-20T04:45:00.693Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:38:00.185Z",
+    "timestamp": "2025-02-20T04:46:00.402Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:38:00.227Z",
+    "timestamp": "2025-02-20T04:46:00.428Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:40:00.648Z",
+    "timestamp": "2025-02-20T04:47:00.415Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:40:00.679Z",
+    "timestamp": "2025-02-20T04:47:00.457Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:41:00.939Z",
+    "timestamp": "2025-02-20T04:48:00.609Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:41:00.991Z",
+    "timestamp": "2025-02-20T04:48:00.650Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:42:00.885Z",
+    "timestamp": "2025-02-20T04:49:00.235Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:42:00.917Z",
+    "timestamp": "2025-02-20T04:49:00.269Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:43:00.378Z",
+    "timestamp": "2025-02-20T04:50:00.580Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:43:00.426Z",
+    "timestamp": "2025-02-20T04:50:00.607Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:44:00.092Z",
+    "timestamp": "2025-02-20T04:51:00.558Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:44:00.125Z",
+    "timestamp": "2025-02-20T04:51:00.583Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:45:00.194Z",
+    "timestamp": "2025-02-20T04:52:00.367Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:45:00.223Z",
+    "timestamp": "2025-02-20T04:52:00.404Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:46:00.287Z",
+    "timestamp": "2025-02-20T04:53:00.784Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:46:00.318Z",
+    "timestamp": "2025-02-20T04:53:00.814Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:47:00.328Z",
+    "timestamp": "2025-02-20T04:54:00.943Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:47:00.353Z",
+    "timestamp": "2025-02-20T04:54:00.972Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:48:00.397Z",
+    "timestamp": "2025-02-20T04:55:00.925Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:48:00.440Z",
+    "timestamp": "2025-02-20T04:55:00.954Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:49:00.620Z",
+    "timestamp": "2025-02-20T04:56:01.036Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:49:00.669Z",
+    "timestamp": "2025-02-20T04:56:01.067Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:50:00.566Z",
+    "timestamp": "2025-02-20T04:57:00.713Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:50:00.594Z",
+    "timestamp": "2025-02-20T04:57:00.738Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:51:00.651Z",
+    "timestamp": "2025-02-20T04:58:00.322Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:51:00.685Z",
+    "timestamp": "2025-02-20T04:58:00.352Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:52:00.557Z",
+    "timestamp": "2025-02-20T04:59:00.468Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:52:00.584Z",
+    "timestamp": "2025-02-20T04:59:00.496Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:53:00.659Z",
+    "timestamp": "2025-02-20T05:00:00.424Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:53:00.691Z",
+    "timestamp": "2025-02-20T05:00:00.458Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:54:00.630Z",
+    "timestamp": "2025-02-20T05:01:00.385Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:54:00.659Z",
+    "timestamp": "2025-02-20T05:01:00.421Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:55:00.712Z",
+    "timestamp": "2025-02-20T05:02:00.449Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:55:00.735Z",
+    "timestamp": "2025-02-20T05:02:00.519Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:56:00.447Z",
+    "timestamp": "2025-02-20T05:03:00.207Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:56:00.465Z",
+    "timestamp": "2025-02-20T05:03:00.237Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:57:00.583Z",
+    "timestamp": "2025-02-20T05:04:00.157Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:57:00.608Z",
+    "timestamp": "2025-02-20T05:04:00.195Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:58:01.068Z",
+    "timestamp": "2025-02-20T05:05:00.878Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:58:01.134Z",
+    "timestamp": "2025-02-20T05:05:00.910Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:59:00.947Z",
+    "timestamp": "2025-02-20T05:06:00.736Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T16:59:00.977Z",
+    "timestamp": "2025-02-20T05:06:00.768Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T17:00:00.810Z",
+    "timestamp": "2025-02-20T05:07:00.578Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T17:00:00.836Z",
+    "timestamp": "2025-02-20T05:07:00.605Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T17:01:00.616Z",
+    "timestamp": "2025-02-20T05:08:00.845Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T17:01:00.641Z",
+    "timestamp": "2025-02-20T05:08:00.891Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T17:02:00.524Z",
+    "timestamp": "2025-02-20T05:09:00.760Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T17:02:00.551Z",
+    "timestamp": "2025-02-20T05:09:00.787Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T17:03:00.254Z",
+    "timestamp": "2025-02-20T05:10:00.246Z",
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
   },
   {
-    "timestamp": "2025-01-30T17:03:00.285Z",
+    "timestamp": "2025-02-20T05:10:00.276Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:11:00.095Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:11:00.140Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:12:00.839Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:12:00.866Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:13:00.471Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:13:00.504Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:14:00.227Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:14:00.260Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:15:00.418Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:15:00.446Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:16:00.834Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:16:00.865Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:17:00.562Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:17:00.588Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:18:00.399Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:18:00.423Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:19:00.222Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:19:00.251Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:20:00.854Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:20:00.881Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:21:00.857Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:21:00.882Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:22:01.055Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:22:01.089Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:23:00.283Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:23:00.327Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:24:00.414Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:24:00.447Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:25:00.266Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:25:00.293Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:26:00.210Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:26:00.242Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:27:00.750Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:27:00.782Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:28:00.939Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:28:00.997Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:29:00.802Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:29:00.832Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:30:00.073Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:30:00.103Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:31:00.075Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:31:00.106Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:32:00.118Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:32:00.149Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:33:00.281Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:33:00.313Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:34:00.506Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:34:00.537Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:35:00.298Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:35:00.347Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:36:00.702Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:36:00.731Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:37:00.419Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:37:00.444Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:38:00.970Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:38:00.999Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:39:00.390Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:39:00.440Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:40:00.875Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:40:00.928Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:41:00.205Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:41:00.231Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:42:00.312Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:42:00.366Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:43:00.442Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:43:00.469Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:44:00.279Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:44:00.302Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:45:00.711Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:45:00.743Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:46:00.171Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:46:00.197Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:47:00.516Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:47:00.533Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:48:00.135Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:48:00.236Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:49:00.498Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:49:00.563Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:50:00.600Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:50:00.632Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:51:00.431Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:51:00.454Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:52:00.618Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T05:52:00.644Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:33:00.602Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:33:00.626Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:34:00.870Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:34:00.900Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:36:00.241Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:36:00.272Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:37:00.468Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:37:00.508Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:38:00.277Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:38:00.306Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:40:00.194Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:40:00.237Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:41:00.418Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:41:00.462Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:42:00.783Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:42:00.813Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:43:00.711Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:43:00.738Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:44:00.832Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:44:00.873Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:45:00.798Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:45:00.824Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:46:00.909Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:46:00.956Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:47:01.013Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:47:01.039Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:48:01.021Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:48:01.045Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:49:00.635Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:49:00.669Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:50:00.531Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:50:00.573Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:51:00.869Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:51:00.920Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:52:01.016Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:52:01.048Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:53:00.188Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:53:00.214Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:54:00.108Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:54:00.137Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:55:00.368Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:55:00.394Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:56:00.839Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:56:00.863Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:57:00.564Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:57:00.592Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:58:00.498Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:58:00.528Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:59:00.386Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T06:59:00.427Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:00:01.050Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:00:01.101Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:01:00.561Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:01:00.606Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:02:01.065Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:02:01.135Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:03:00.469Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:03:00.502Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:04:00.323Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:04:00.350Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:05:00.427Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:05:00.455Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:06:00.516Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:06:00.557Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:07:00.426Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:07:00.476Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:08:00.670Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:08:00.703Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:09:00.896Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:09:00.947Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:10:00.391Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:10:00.419Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:11:00.493Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:11:00.547Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:12:01.064Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:12:01.105Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:13:00.452Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:13:00.491Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:14:00.440Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:14:00.465Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:15:00.497Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:15:00.525Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:16:00.554Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:16:00.581Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:17:00.878Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:17:00.931Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:18:00.898Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:18:00.937Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:19:00.742Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:19:00.795Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:20:01.072Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:20:01.110Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:21:00.983Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:21:01.017Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:22:00.388Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:22:00.438Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:23:00.201Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:23:00.245Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:24:00.579Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:24:00.625Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:25:00.650Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:25:00.710Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:26:00.669Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:26:00.717Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:27:00.477Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:27:00.515Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:28:00.508Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:28:00.559Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:29:00.627Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:29:00.659Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:30:00.786Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:30:00.843Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:31:00.593Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:31:00.630Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:32:00.188Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:32:00.212Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:33:00.932Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:33:00.946Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:34:00.175Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:34:00.192Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:35:00.670Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:35:00.685Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:36:00.662Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:36:00.678Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:37:01.007Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:37:01.022Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:38:00.506Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:38:00.522Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:39:00.718Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:39:00.733Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:40:00.127Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:40:00.143Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:41:00.422Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:41:00.438Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:42:00.702Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:42:00.716Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:43:00.901Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:43:00.919Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:44:01.026Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:44:01.041Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:45:00.060Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:45:00.074Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:46:00.346Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:46:00.379Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:47:00.614Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:47:00.628Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:48:00.798Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:48:00.812Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:49:00.208Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:49:00.222Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:50:00.893Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:50:00.907Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:51:00.358Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:51:00.372Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:52:00.576Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:52:00.590Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:53:00.632Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:53:00.655Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:54:00.732Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:54:00.746Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:55:00.919Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:55:00.934Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:56:00.072Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:56:00.086Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:56:02.627Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:56:02.643Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:57:00.670Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:57:00.683Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:58:00.931Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:58:00.945Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:59:00.916Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T07:59:00.930Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:00:00.217Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:00:00.232Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:01:00.133Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:01:00.147Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:02:00.488Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:02:00.502Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:02:03.280Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:02:03.295Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:03:00.657Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:03:00.671Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:04:00.763Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:04:00.778Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:05:00.833Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:05:00.851Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:06:00.824Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:06:00.839Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:07:00.856Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:07:00.879Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:08:00.082Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:08:00.096Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:09:00.230Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:09:00.244Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:10:00.062Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:10:00.078Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:11:00.186Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:11:00.200Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:12:00.111Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:12:00.125Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:13:00.804Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:13:00.819Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:14:00.494Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:14:00.508Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:15:00.724Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:15:00.738Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:16:00.620Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:16:00.634Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:17:00.653Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:17:00.671Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:18:00.928Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:18:00.942Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:20:00.999Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:20:01.015Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:21:00.931Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:21:00.962Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:22:00.998Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:22:01.014Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:23:00.207Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:23:00.221Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:24:00.280Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:24:00.294Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:25:00.420Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:25:00.434Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:26:00.537Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:26:00.552Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:27:00.191Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:27:00.212Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:28:00.787Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:28:00.801Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:29:01.024Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:29:01.039Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:30:00.970Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:30:00.985Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:31:00.998Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:31:01.012Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:32:00.867Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:32:00.883Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:33:00.952Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:33:00.969Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:34:00.364Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:34:00.386Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:35:00.801Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:35:00.816Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:36:00.654Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:36:00.668Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:37:00.823Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:37:00.837Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:38:00.994Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:38:01.012Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:39:00.365Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:39:00.379Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:40:00.354Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:40:00.368Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:41:00.405Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:41:00.421Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:42:00.064Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:42:00.092Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:43:00.583Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:43:00.598Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:44:00.453Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:44:00.466Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:45:00.201Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:45:00.215Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:46:00.549Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:46:00.567Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:47:00.857Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:47:00.872Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:48:00.922Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:48:00.937Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:49:00.092Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:49:00.106Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:50:00.204Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:50:00.220Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:51:00.348Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:51:00.363Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:52:00.666Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:52:00.683Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:53:00.192Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:53:00.206Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:54:00.752Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:54:00.767Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:55:00.047Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:55:00.061Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:56:00.052Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:56:00.071Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:57:00.414Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:57:00.434Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:58:00.505Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:58:00.522Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:59:00.704Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T08:59:00.718Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:00:00.814Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:00:00.829Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:01:00.978Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:01:00.993Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:02:00.218Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:02:00.233Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:03:00.833Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:03:00.847Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:04:00.488Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:04:00.502Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:05:00.669Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:05:00.683Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:06:00.163Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:06:00.178Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:07:00.555Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:07:00.568Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:08:00.704Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:08:00.718Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:09:00.768Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:09:00.782Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:10:00.651Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:10:00.665Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:11:00.939Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:11:00.953Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:12:00.990Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:12:01.004Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:13:00.276Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:13:00.290Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:14:00.205Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:14:00.219Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:15:00.170Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:15:00.186Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:15:02.687Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:15:02.703Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:16:00.628Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:16:00.642Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:17:00.772Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:17:00.786Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:18:00.840Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:18:00.855Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:19:00.936Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:19:00.950Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:21:00.987Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:21:01.001Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:23:00.576Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:23:00.591Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:24:00.522Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:24:00.536Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:25:00.677Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:25:00.696Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:26:00.752Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:26:00.767Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:27:00.250Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:27:00.264Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:28:00.265Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:28:00.281Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:29:00.842Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:29:00.867Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:30:00.769Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:30:00.799Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:31:00.777Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:31:00.809Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:32:00.694Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:32:00.729Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:33:00.717Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:33:00.743Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:34:01.015Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:34:01.040Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:35:00.105Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:35:00.133Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:36:00.263Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:36:00.314Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:37:00.083Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:37:00.107Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:38:00.107Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:38:00.149Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:40:00.716Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:40:00.743Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:41:00.564Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:41:00.599Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:42:00.555Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:42:00.600Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:43:00.587Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:43:00.624Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:44:00.507Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:44:00.534Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:45:00.373Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:45:00.403Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:47:00.342Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:47:00.376Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:48:00.428Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:48:00.453Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:49:00.322Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:49:00.355Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:50:00.546Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:50:00.594Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:51:00.446Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:51:00.486Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:52:00.189Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:52:00.203Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:53:00.310Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:53:00.324Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:54:00.536Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:54:00.553Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:55:00.124Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:55:00.139Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:56:00.600Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:56:00.616Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:57:00.714Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:57:00.729Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:58:00.069Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:58:00.084Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:59:00.680Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T09:59:00.710Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:00:00.118Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:00:00.142Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:01:00.900Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:01:00.944Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:02:00.859Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:02:00.885Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:03:00.803Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:03:00.834Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:04:00.364Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:04:00.413Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:05:00.524Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:05:00.550Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:06:00.548Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:06:00.576Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:07:00.662Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:07:00.711Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:08:00.907Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:08:00.936Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:09:00.723Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:09:00.752Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:10:00.995Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:10:01.020Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:11:00.906Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:11:00.951Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:12:00.985Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:12:01.011Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:13:00.261Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:13:00.287Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:14:00.786Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:14:00.812Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:15:01.076Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:15:01.128Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:16:00.785Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:16:00.812Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:17:00.154Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:17:00.181Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:18:00.092Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:18:00.120Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:19:00.090Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:19:00.118Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:20:00.190Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:20:00.220Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:21:00.292Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:21:00.318Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:22:00.232Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:22:00.262Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:23:01.056Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:23:01.088Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:24:00.193Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:24:00.220Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:25:00.298Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:25:00.329Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:26:00.601Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:26:00.635Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:27:00.314Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:27:00.343Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:28:00.651Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:28:00.701Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:29:00.966Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:29:00.992Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:30:00.320Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:30:00.345Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:31:00.354Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:31:00.402Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:32:00.802Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:32:00.824Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:33:00.214Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:33:00.241Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:34:00.277Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T10:34:00.308Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:07:00.263Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:07:00.299Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:08:00.693Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:08:00.720Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:09:00.359Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:09:00.407Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:10:00.487Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:10:00.516Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:11:00.154Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:11:00.182Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:12:00.576Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:12:00.601Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:13:00.402Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:13:00.428Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:14:00.070Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:14:00.097Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:15:00.093Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:15:00.138Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:17:00.582Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:17:00.617Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:18:00.552Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:18:00.575Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:19:00.925Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:19:00.953Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:20:00.874Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:20:00.900Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:21:00.355Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:21:00.384Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:22:00.275Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:22:00.302Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:23:00.419Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:23:00.446Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:24:00.478Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:24:00.510Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:25:00.135Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:25:00.174Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:26:00.537Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:26:00.566Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:27:00.142Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:27:00.173Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:28:00.178Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:28:00.205Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:29:00.188Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:29:00.229Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:30:00.094Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:30:00.125Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:31:01.045Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:31:01.075Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:32:00.704Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:32:00.732Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:33:00.628Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:33:00.661Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:34:00.440Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:34:00.471Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:35:00.201Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:35:00.228Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:36:00.641Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:36:00.670Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:37:00.114Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:37:00.128Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:38:00.559Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:38:00.574Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:39:00.558Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:39:00.573Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:40:00.920Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:40:00.934Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:41:00.121Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:41:00.135Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:42:00.617Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:42:00.631Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:43:00.466Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:43:00.480Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:44:00.205Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:44:00.221Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:45:00.797Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:45:00.812Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:46:00.234Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:46:00.256Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:47:00.980Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:47:00.997Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:48:00.060Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:48:00.075Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:49:00.901Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:49:00.915Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:50:00.491Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:50:00.505Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:51:00.775Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:51:00.790Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:52:00.077Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:52:00.091Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:53:00.981Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:53:00.996Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:54:00.434Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:54:00.449Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:55:00.817Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:55:00.832Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:56:00.350Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:56:00.364Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:57:00.705Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:57:00.726Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:58:00.584Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:58:00.598Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:59:00.292Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T12:59:00.307Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:00:00.860Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:00:00.875Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:01:00.582Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:01:00.596Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:02:00.195Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:02:00.210Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:03:00.786Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:03:00.800Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:04:00.263Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:04:00.278Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:05:00.689Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:05:00.704Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:06:00.837Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:06:00.852Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:07:00.412Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:07:00.428Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:08:00.279Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:08:00.293Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:09:00.510Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:09:00.524Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:10:01.023Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:10:01.037Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:11:00.281Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-02-20T13:11:00.298Z",
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"

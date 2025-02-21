@@ -31,7 +31,6 @@ async function getPackages(req, res) {
   }
 }
 
-module.exports = { getPackages };
 
 async function updateCurrentPackage(req, res) {
   const { packageId, userId: id } = req.query;
