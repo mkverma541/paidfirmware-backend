@@ -33,6 +33,29 @@ async function getUsers(req, res) {
   }
 }
 
+async function insertTestUser(req, res) {
+  const connection = await pool.getConnection(); // Get DB connection
+
+  const username = req.query.username;  
+  const amount = req.query.amount;
+  
+  try {
+
+    const [users] = await connection.execute("INSERT INTO test (username, amount) VALUES (?, ?)", [username, amount]);
+   
+    return res.status(200).json({
+      users
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
+  } finally {
+    connection.release(); // Release connection
+  }
+}
+
 module.exports = {
   getUsers,
+  insertTestUser
 };
