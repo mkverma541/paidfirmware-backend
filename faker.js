@@ -1,40 +1,40 @@
 const { faker } = require('@faker-js/faker');
-const { pool } = require("./config/database");
+const axios = require('axios');
 
-// Function to generate fake IP blacklist records
-const generateIpBlacklistRecords = (count = 5000) => {
-    return Array.from({ length: count }, () => {
-        return [
-            faker.internet.ip(), // Random IP address
-            faker.lorem.sentence(), // Random reason for blacklist
-            faker.date.between({ from: '2023-01-01', to: '2024-12-31' }) // created_at
-                .toISOString()
-                .slice(0, 19)
-                .replace('T', ' '), // MySQL DATETIME format
-            faker.date.recent({ days: 30 }) // updated_at
-                .toISOString()
-                .slice(0, 19)
-                .replace('T', ' ') // MySQL DATETIME format
-        ];
-    });
+const API_URL = 'http://localhost:3000/api/team'; // Change to your actual API endpoint
+
+// Function to generate a fake team member
+const generateFakeTeamMember = () => {
+    return {
+        name: faker.person.fullName(),
+        designation: faker.person.jobTitle(),
+        email: faker.internet.email(),
+        photo: faker.image.avatar(),
+        phone: faker.phone.number('+1##########'),
+        gender: faker.helpers.arrayElement(['Male', 'Female', 'Other']),
+        bio: faker.lorem.paragraph(),
+        address: faker.location.streetAddress(),
+        country: faker.location.country(),
+        social_links: [
+            { platform: 'LinkedIn', url: faker.internet.url() },
+            { platform: 'Twitter', url: faker.internet.url() }
+        ],
+        status: faker.datatype.boolean(),
+    };
 };
 
-// Function to insert fake IP blacklist records into the database
-const insertIpBlacklistRecords = () => {
-    const sql = `
-        INSERT INTO res_ip_blacklist (ip_address, reason, created_at, updated_at) 
-        VALUES ?
-    `;
-    const values = generateIpBlacklistRecords();
-
-    pool.query(sql, [values], (err, result) => {
-        if (err) {
-            console.error("IP Blacklist Insert Error:", err);
-            return;
+// Function to insert fake team members by calling the API
+const insertFakeTeamMembers = async (count = 10) => {
+    for (let i = 0; i < count; i++) {
+        const teamMember = generateFakeTeamMember();
+        try {
+            const response = await axios.post(API_URL, teamMember);
+            console.log(`✅ Team Member ${i + 1} Created:`, response.data);
+        } catch (error) {
+            console.error(`❌ Error Creating Team Member ${i + 1}:`, error.response?.data || error.message);
         }
-        console.log(`Inserted ${result.affectedRows} fake IP blacklist records`);
-    });
+    }
 };
 
-// Run the function
-insertIpBlacklistRecords();
+// Run the function to insert fake data
+insertFakeTeamMembers(5); // Change the number to insert more team members

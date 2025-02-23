@@ -9,4 +9,7 @@ const cacheMiddleware = require("../middlewars/redis");
 router.use("/get-location", locationController.getUserLocation);
 router.use("/settings", cacheMiddleware, settingController.getAllOptions);
 
+
+
+
 module.exports = router;

@@ -38,6 +38,8 @@ const mailRouter = require('./admin/mailTemplates');
 const leadsRouter = require("./admin/leads/index");
 const uploadRouter = require("./admin/upload");
 const reportsRouter = require("./admin/reports");
+const excelReportsRouter = require("./admin/reportsExcel");
+const apiManagerRouter = require("./admin/apiManager");
 
 // Routes
 
@@ -77,6 +79,8 @@ router.use("/acl", aclRouter);
 router.use("/email-templates", mailRouter);
 router.use("/leads", leadsRouter);
 router.use("/reports", reportsRouter);
+router.use("/reports/download/excel", excelReportsRouter);
+router.use("/api-manager", apiManagerRouter);
 //router.use("/upload", uploadRouter);
 
 module.exports = router;
