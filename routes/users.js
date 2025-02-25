@@ -25,6 +25,7 @@ const locationRouter = require("./users/location");
 const currencyRouter = require("./users/currencies");
 const courseRouter = require("./users/courses");
 const userAccountRouter = require("./users/account/index");
+const testRouter = require("./users/test");
 
 // shared
 const orderRouter = require("./shared/order");
@@ -57,5 +58,6 @@ router.use("/wallet", walletRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/currencies", currencyRouter);
 router.use("/courses", courseRouter);
+router.use("/balance", testRouter);
 
 module.exports = router;
