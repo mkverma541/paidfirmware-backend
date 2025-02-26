@@ -15,6 +15,7 @@ async function signup(req, res) {
     last_name = null,
     phone = null,
     role = "manager",
+    status = 1,
   } = req.body;
 
   if (!username || !password || !email) {
@@ -46,8 +47,8 @@ async function signup(req, res) {
 
     // Insert new user
     await connection.execute(
-      "INSERT INTO users (username, password, email, first_name, last_name, phone, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [username, hashedPassword, email, first_name, last_name,  phone, role]
+      "INSERT INTO users (username, password, email, first_name, last_name, phone, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [username, hashedPassword, email, first_name, last_name,  phone, role, status]
     );
 
     await connection.commit(); // Commit transaction
@@ -62,8 +63,6 @@ async function signup(req, res) {
     connection.release(); // Always release connection
   }
 }
-
-module.exports = signup;
 
 async function login(req, res) {
   const { username, password } = req.body;
@@ -375,6 +374,29 @@ async function changePassword(req, res) {
   }
 }
 
+async function checkUsername(req, res) {
+  const username = req.params.username;
+
+  if (!username) {
+    return res.status(400).json({ error: "Please provide a username." });
+  }
+
+  try {
+    const [users] = await pool.execute(
+      "SELECT * FROM users WHERE username = ?",
+      [username]
+    );
+
+    if (users.length > 0) {
+      return res.status(409).json({ error: "Username already exists" });
+    }
+
+    return res.status(200).json({ message: "Username is available" });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   signup,
   login,
@@ -383,4 +405,5 @@ module.exports = {
   changePassword,
   forgotPassword,
   resetPassword,
+  checkUsername,
 };
