@@ -1,6 +1,31 @@
 const { pool } = require("../../config/database");
 const bcrypt = require("bcrypt");
 
+async function checkUsername(req, res) {
+  const {username} = req.params;
+
+  try {
+    // Check if username already exists
+    const [existingUser] = await pool.execute(
+      "SELECT * FROM res_users WHERE username = ?",
+      [username]
+    );
+
+    if (existingUser.length > 0) {
+      return res.status(409).json({
+        message: "Username already exists, please try another username",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Username is available",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 async function addNewUser(req, res) {
   const {
     password,
@@ -50,7 +75,15 @@ async function addNewUser(req, res) {
     // Insert new user into the database
     const [data] = await pool.execute(
       "INSERT INTO res_users (username, password, email, first_name, last_name, role_id, user_type ) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [username, hashedPassword, email, first_name, last_name, role_id, user_type]
+      [
+        username,
+        hashedPassword,
+        email,
+        first_name,
+        last_name,
+        role_id,
+        user_type,
+      ]
     );
 
     // Fetch the newly created user
@@ -122,4 +155,5 @@ async function getAllUserList(req, res) {
 module.exports = {
   getAllUserList,
   addNewUser,
+  checkUsername,
 };
