@@ -6,7 +6,7 @@ const clientController  = require("../controllers/client");
 router.post("/add", clientController.createClient);
 router.get("/", clientController.getClients);
 router.get("/:id", clientController.getClientById);
-router.put("/update/:id", clientController.updateClient);
+router.put("/update", clientController.updateClient);
 
 
 module.exports = router;

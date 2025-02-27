@@ -100,7 +100,7 @@ async function getClients(req, res) {
 async function getClientById(req, res) {
   try {
     const { id } = req.params;
-    const [client] = await pool.query("SELECT * FROM clients WHERE id = ?", [
+    const [client] = await pool.query("SELECT * FROM clients WHERE client_id = ?", [
       id,
     ]);
     if (client.length === 0) {
@@ -117,31 +117,31 @@ async function getClientById(req, res) {
 
 async function updateClient(req, res) {
   try {
-    const { id } = req.params;
     const {
+      client_id,
       client_name,
       contact_person,
-      country_id,
-      email_id,
+      country,
+      email,
       contact_number,
       website_url,
       status,
     } = req.body;
 
     const query = `
-            UPDATE clients SET client_name = ?, contact_person = ?, country_id = ?, email_id = ?, contact_number = ?, website_url = ?, status = ?
-            WHERE id = ?
+            UPDATE clients SET client_name = ?, contact_person = ?, country = ?, email = ?, contact_number = ?, website_url = ?, status = ?
+            WHERE client_id = ?
         `;
 
     const [result] = await pool.query(query, [
       client_name,
       contact_person,
-      country_id,
-      email_id,
+      country,
+      email,
       contact_number,
       website_url,
       status,
-      id,
+      client_id,
     ]);
 
     if (result.affectedRows === 0) {

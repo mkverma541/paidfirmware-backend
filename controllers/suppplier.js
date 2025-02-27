@@ -1,52 +1,77 @@
 const { pool } = require("../config/database");
 
-async function generateClientCode() {
+async function generateSupplierCode() {
   const [result] = await pool.query(
-    "SELECT COUNT(client_id) AS count FROM clients"
+    "SELECT COUNT(supplier_id) AS count FROM suppliers"
   );
   const count = result[0].count + 1000;
-  return `C${count}`;
+  return `S${count}`;
 }
 
-async function createClient(req, res) {
+
+async function addSupplier(req, res) {
   try {
     const {
-      client_name,
-      contact_person,
+      supplier_name,
+      supplier_website,
       country,
       email,
       contact_number,
-      website_url,
-      status = 1,
+      panel_size,
+      complete,
+      terminate,
+      over_quota,
+      quality_term,
+      survey_close,
+      post_back_url,
+      about_supplier,
+      allowed_countries,
+
     } = req.body;
 
-    if (!client_name || !contact_person || !country || !website_url) {
-      return res.status(400).json({
-        message: "Mandatory fields are missing",
-        status: "error",
-      });
-    }
-
-    const client_code = await generateClientCode();
+ 
+    const supplier_code = await generateSupplierCode();
+    const allowedCountries = JSON.stringify(allowed_countries);
 
     const query = `
-            INSERT INTO clients (client_code, client_name, contact_person, country, email, contact_number, website_url, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO suppliers (supplier_code, supplier_name, supplier_website, country, email, contact_number, panel_size, complete, terminate, over_quota, quality_term, survey_close, post_back_url, about_supplier, allowed_countries)
+            VALUES (?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?)
         `;
 
     await pool.query(query, [
-      client_code,
-      client_name,
-      contact_person,
+      supplier_code,
+      supplier_name,
+      supplier_website,
       country,
       email,
       contact_number,
-      website_url,
-      status || "active",
+      panel_size,
+      complete,
+      terminate,
+      over_quota,
+      quality_term,
+      survey_close,
+      post_back_url,
+      about_supplier,
+      allowedCountries,
     ]);
 
     res.status(201).json({
-      message: "Client has been added successfully",
+      message: "Supplier has been added successfully",
       status: "success",
     });
   } catch (err) {
@@ -58,24 +83,25 @@ async function createClient(req, res) {
   }
 }
 
-async function getClients(req, res) {
+async function getSuppliers(req, res) {
   try {
     const { search, page = 1, limit = 10 } = req.query;
     const offset = (page - 1) * limit;
-    let query = "SELECT * FROM clients";
-    let countQuery = "SELECT COUNT(*) AS total FROM clients";
+    let query = "SELECT * FROM suppliers";
+    let countQuery = "SELECT COUNT(*) AS total FROM suppliers";
     let params = [];
 
     if (search) {
-      query += " WHERE client_name LIKE ? OR client_code LIKE ?";
-      countQuery += " WHERE client_name LIKE ? OR client_code LIKE ?";
+      query += " WHERE supplier_name LIKE ? OR supplier_code LIKE ?";
+      countQuery += " WHERE supplier_name LIKE ? OR supplier_code LIKE ?";
       params.push(`%${search}%`, `%${search}%`);
     }
 
     query += " LIMIT ? OFFSET ?";
     params.push(parseInt(limit), parseInt(offset));
 
-    const [clients] = await pool.query(query, params);
+    const [suppliers] = await pool.query(query, params);
+   
     const [countResult] = await pool.query(countQuery, params.slice(0, -2));
     const total = countResult[0].total;
     const totalPages = Math.ceil(total / limit);
@@ -84,7 +110,7 @@ async function getClients(req, res) {
       total,
       totalPages,
       currentPage: parseInt(page),
-      clients,
+      suppliers,
     };
 
     res.status(200).json({
@@ -97,65 +123,85 @@ async function getClients(req, res) {
   }
 }
 
-async function getClientById(req, res) {
+async function getSupplierById(req, res) {
   try {
     const { id } = req.params;
-    const [client] = await pool.query("SELECT * FROM clients WHERE id = ?", [
+    const [supplier] = await pool.query("SELECT * FROM suppliers WHERE supplier_id = ?", [
       id,
     ]);
-    if (client.length === 0) {
+
+    const allowedCountries = JSON.parse(supplier[0].allowed_countries);
+    supplier[0].allowed_countries = allowedCountries;
+
+    if (supplier.length === 0) {
       return res
         .status(404)
-        .json({ message: "Client not found", status: "error" });
+        .json({ message: "Supplier not found", status: "error" });
     }
-    res.status(200).json({ client: client[0], status: "success" });
+    res.status(200).json({ data:supplier[0], status: "success" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error", status: "error" });
   }
 }
 
-async function updateClient(req, res) {
+async function updateSupplier(req, res) {
   try {
-    const { id } = req.params;
     const {
-      client_name,
-      contact_person,
-      country_id,
-      email_id,
+      supplier_id,
+      supplier_name,
+      supplier_website,
+      country,
+      email,
       contact_number,
-      website_url,
-      status,
+      panel_size,
+      complete,
+      terminate,
+      over_quota,
+      quality_term,
+      survey_close,
+      post_back_url,
+      about_supplier,
+      allowed_countries,
     } = req.body;
 
+    const allowedCountries = JSON.stringify(allowed_countries);
+
     const query = `
-            UPDATE clients SET client_name = ?, contact_person = ?, country_id = ?, email_id = ?, contact_number = ?, website_url = ?, status = ?
-            WHERE id = ?
+            UPDATE suppliers SET supplier_name = ?, supplier_website = ?, country = ?, email = ?, contact_number = ?, panel_size = ?, complete = ?, terminate = ?, over_quota = ?, quality_term = ?, survey_close = ?, post_back_url = ?, about_supplier = ?, allowed_countries = ?
+            WHERE supplier_id = ?
         `;
 
     const [result] = await pool.query(query, [
-      client_name,
-      contact_person,
-      country_id,
-      email_id,
+      supplier_name,
+      supplier_website,
+      country,
+      email,
       contact_number,
-      website_url,
-      status,
-      id,
+      panel_size,
+      complete,
+      terminate,
+      over_quota,
+      quality_term,
+      survey_close,
+      post_back_url,
+      about_supplier,
+      allowedCountries,
+      supplier_id,
     ]);
 
     if (result.affectedRows === 0) {
       return res
         .status(404)
-        .json({ message: "Client not found", status: "error" });
+        .json({ message: "Supplier not found", status: "error" });
     }
     res
       .status(200)
-      .json({ message: "Client updated successfully", status: "success" });
+      .json({ message: "Supplier updated successfully", status: "success" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error", status: "error" });
   }
 }
 
-module.exports = { createClient, getClients, getClientById, updateClient };
+module.exports = { addSupplier, getSuppliers, getSupplierById, updateSupplier };

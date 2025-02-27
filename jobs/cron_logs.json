@@ -1,12 +1,18 @@
 [
   {
-    "timestamp": "2025-02-26T19:04:00.386Z",
+    "timestamp": "2025-02-27T18:14:00.858Z",
     "status": "error",
     "table": "res_files",
     "message": "Error updating is_new: Table 'stagnate.res_files' doesn't exist"
   },
   {
-    "timestamp": "2025-02-26T19:04:01.216Z",
+    "timestamp": "2025-02-27T18:15:00.936Z",
+    "status": "error",
+    "table": "res_files",
+    "message": "Error updating is_new: Table 'stagnate.res_files' doesn't exist"
+  },
+  {
+    "timestamp": "2025-02-27T18:16:01.023Z",
     "status": "error",
     "table": "res_files",
     "message": "Error updating is_new: Table 'stagnate.res_files' doesn't exist"
