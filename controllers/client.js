@@ -58,6 +58,23 @@ async function createClient(req, res) {
   }
 }
 
+async function getAllClients(req, res) {
+  try {
+    // Get all clients
+    const [rows] = await pool.query("SELECT client_id, client_name FROM clients");
+    
+    if (!Array.isArray(rows)) {
+      return res.status(404).json({ message: "No clients found", status: "error" });
+    }
+
+    res.status(200).json({ data: rows, status: "success" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error", status: "error" });
+  }
+}
+
+
 async function getClients(req, res) {
   try {
     const { search, page = 1, limit = 10 } = req.query;
@@ -158,4 +175,4 @@ async function updateClient(req, res) {
   }
 }
 
-module.exports = { createClient, getClients, getClientById, updateClient };
+module.exports = { createClient, getClients, getClientById, updateClient, getAllClients };

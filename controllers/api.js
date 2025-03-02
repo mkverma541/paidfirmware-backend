@@ -10,6 +10,17 @@ async function getCountries(req, res) {
   }
 }
 
+async function getLanguages(req, res) {
+  try {
+    const [languages] = await pool.query("SELECT * FROM languages");
+    res.status(200).json({ data:languages, status: "success" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error", status: "error" });
+  }
+}
+
 module.exports = {
   getCountries,
+  getLanguages,
 };
