@@ -6,6 +6,7 @@ const UserController = require('../../controllers/admin/users');
 router.get('/', UserController.getAllUserList);
 router.post('/add', UserController.addNewUser);
 router.get('/check-username/:username', UserController.checkUsername);
+router.put('/update', UserController.updateUser);
 
 module.exports = router;
  

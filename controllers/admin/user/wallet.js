@@ -1,6 +1,76 @@
 
 const { pool } = require("../../../config/database");
 
+async function addCredit(req, res) {
+  const {user_id, amount} = req.body;
+
+  // Start a transaction
+  const connection = await pool.getConnection();
+  await connection.beginTransaction();
+
+  // Validate input
+  if (amount <= 0 || isNaN(amount)) {
+    connection.release();
+    return res.status(400).json({
+      message: "Amount must be a positive number.",
+      status: "error",
+    });
+  }
+
+  try {
+    // Fetch user's details
+    const [[user]] = await connection.query(
+      `SELECT user_id, username, email, balance FROM res_users WHERE user_id = ?`,
+      [user_id]
+    );
+
+    if (!user) {
+      connection.release();
+      return res.status(404).json({
+        message: "User not found.",
+        status: "error",
+      });
+    }
+
+    // Convert user's balance to a number
+    const userBalance = parseFloat(user.balance);
+
+    // Update user's balance
+    const userNewBalance = userBalance + parseFloat(amount);
+
+    await connection.query(`UPDATE res_users SET balance = ? WHERE user_id = ?`, [
+      userNewBalance.toFixed(2),
+      user_id,
+    ]);
+
+    // Generate descriptions
+    const creditDescription = `Credit added to account.`;
+
+    // Log transaction for the user
+    await connection.query(
+      `INSERT INTO res_transfers (user_id, amount, notes, type, description) VALUES (?, ?, ?, ?, ?)`,
+      [user_id, amount,  "Credit added to account.", "credit", creditDescription]
+    );
+
+    await connection.commit();
+    connection.release();
+
+    return res.status(201).json({
+      message: "Balance added successfully!",
+      status: "success",
+    });
+  } catch (err) {
+    await connection.rollback();
+    connection.release();
+    console.error("Error adding balance:", err);
+    return res.status(500).json({
+      message: "An error occurred while adding balance. Please try again.",
+      status: "error",
+    });
+  }
+}
+
+
 async function transferBalance(req, res) {
   const { userId: id } = req.query; // Sender's user ID
   const { receiver_email, amount, notes } = req.body;
@@ -201,6 +271,7 @@ async function getTransactions(req, res) {
 
 
 module.exports = {
+  addCredit,
   transferBalance,
   getTotalBalance,
   getTransactions,

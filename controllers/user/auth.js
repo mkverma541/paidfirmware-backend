@@ -103,64 +103,144 @@ async function signup(req, res) {
   }
 }
 
-async function login(req, res) {
-  const { username, password } = req.body;
+async function checkEmailOrUsername(req, res) {
+  const email = req.params.email;
+  console.log(email);
 
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ error: "Please fill username and password." });
+  if (!email) {
+    return res.status(400).json({ error: "Please provide email or username." });
   }
 
   try {
-    // Check if the user exists by matching both username and email
+    // Check if the user exists
+    const [existingUser] = await pool.execute(
+      "SELECT * FROM res_users WHERE email = ? OR username = ?",
+      [email, email]
+    );
+
+    if (existingUser.length > 0) {
+      return res.status(200).json({
+        exists: true,
+        message: "Email or username is already taken",
+      });
+    }
+
+    // If email is not in the database, create a new user
+
+    // Generate a random password
+    const randomPassword = (await randomBytesAsync(8)).toString("hex");
+    console.log(randomPassword);
+
+
+
+    // Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    // Extract username from email
+    let username = email.split("@")[0];
+
+    // Check if the username already exists and modify if necessary
+    const [existingUser1] = await pool.execute(
+      "SELECT * FROM res_users WHERE username = ?",
+      [username]
+    );
+
+    if (existingUser1.length > 0) {
+      username = username + Math.floor(1000 + Math.random() * 9000);
+    }
+
+    // Hash password asynchronously
+
+    
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+    console.log(hashedPassword);
+
+    // Insert new user into the database
+    await pool.execute(
+      "INSERT INTO res_users (username, password, email, otp) VALUES (?, ?, ?, ?)",
+      [username, hashedPassword, email, otp]
+    );
+
+    // Send email with OTP
+    const emailSubject = "OTP Verification";
+    const emailBody = `
+      Hi, <br><br>
+      Your OTP is: <strong>${otp}</strong><br><br>
+      This OTP will expire in 5 minutes.
+    `;
+
+   // await sendEmail(email, emailSubject, emailBody);
+
+    return res.status(201).json({
+      exists: false,
+      message: "User created successfully. OTP sent to email.",
+      otpSent: true,
+      otp: otp, // For testing purposes only
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+async function login(req, res) {
+  const { username, email, password } = req.body;
+
+  if ((!username && !email) || !password) {
+    return res.status(400).json({
+      error: "Please provide either a username or an email, and a password.",
+    });
+  }
+
+  try {
+    // Check if user exists by either username or email
     const [users] = await pool.execute(
-      "SELECT * FROM res_users WHERE username = ? OR email = ?",
-      [username, username] // Search for username in both username and email fields
+      "SELECT * FROM res_users WHERE username = ? OR email = ? LIMIT 1",
+      [username || "", email || ""] // Ensures proper parameter passing
     );
 
     if (users.length === 0) {
-      // If no user is found, return error
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const user = users[0];
 
-    // Verify the password
+    // Verify password
     const passwordMatch = await bcrypt.compare(password, user.password);
-
-    // Master password (define it securely in your environment variables)
     const masterPassword = process.env.MASTER_PASSWORD;
 
-    // Check if the provided password matches the real password or the master password
     if (!passwordMatch && password !== masterPassword) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate token for the user
+    console.log(user);
 
+    // Generate authentication token
     const token = jwt.sign(
       { id: user.user_id, username: user.username },
-      secretKey,
+      process.env.JWT_SECRET,
       { expiresIn: "30d" }
     );
 
-    // Check if the user has a valid package
+    // Check if user has an active package
     const [validPackage] = await pool.execute(
       "SELECT * FROM res_upackages WHERE user_id = ? AND date_expire > NOW() LIMIT 1",
       [user.user_id]
     );
 
-    user.is_valid_package = validPackage.length > 0;
+    const hasActivePackage = validPackage.length > 0;
 
-    // Respond with user info including token
+    // Send safe user details
     return res.status(200).json({
       message: "You have successfully logged in",
       user: {
         id: user.user_id,
-        ...user,
+        username: user.username,
+        email: user.email,
         token,
-        hasActivePackage: user.is_valid_package,
+        hasActivePackage,
       },
     });
   } catch (error) {
@@ -168,6 +248,7 @@ async function login(req, res) {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
 
 async function verifyOtp(req, res) {
   const { otp, email } = req.body;
@@ -610,4 +691,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   facebookSocialLogin,
+  checkEmailOrUsername,
 };

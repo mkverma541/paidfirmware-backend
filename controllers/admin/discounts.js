@@ -2,47 +2,6 @@ const express = require("express");
 const Joi = require("joi");
 const { pool } = require("../../config/database");
 
-// Define JOI schema for validation
-const discountSchema = Joi.object({
-  discount_id: Joi.number().integer().optional(),
-  discount_code: Joi.string().required().messages({
-    "string.base": "Discount code must be a string",
-    "string.empty": "Discount code cannot be empty",
-    "any.required": "Discount code is required",
-  }),
-  amount_type: Joi.string()
-    .valid("percent", "fixed")
-    .required()
-    .default("percent"),
-  amount: Joi.number().positive().max(100).required().messages({
-    "number.base": "Amount must be a number",
-    "number.positive": "Amount must be a positive number",
-    "number.max": "Amount must be less than or equal to 100",
-    "any.required": "Amount is required",
-  }),
-  start_date: Joi.date().required().messages({
-    "date.base": "Start date must be a valid date",
-  }),
-  start_time: Joi.string()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
-    // HH:mm format
-    is_min_purchase: Joi.boolean().required().default(false),
-    order_min: Joi.number().min(0).optional().allow(null),
-    applies_to: Joi.string().valid(0, 1, 2).required().messages({
-      "any.only": "Applies to must be one of 0, 1, 2",
-    }).allow(null), // Example: 0-All, 1-Download Package, 2-File
-  is_usage_limit: Joi.boolean().required(),
-  usage_limit: Joi.number().integer().min(1).optional().allow(null),
-  is_usage_limit_per_customer: Joi.boolean().required().default(false),
-  is_end_date: Joi.boolean().required(),
-  end_date: Joi.date().optional().messages({
-    "date.base": "End date must be a valid date",
-    }).allow(null),
-  end_time: Joi.string()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
-    .optional().allow(null), // HH:mm format
-  status: Joi.number().valid(1, 2, 3).optional().default(2), // 1: active, 2: scheduled, 3: expired
-});
 
 async function create(req, res) {
   // Validate the request body of discount code creation unique
@@ -128,28 +87,69 @@ async function create(req, res) {
 }
 
 // Get a list of discounts with pagination
+
 async function getList(req, res) {
   try {
-    // Pagination setup
+    // ✅ Pagination setup
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const offset = (page - 1) * limit;
 
-    // Paginated query for discounts
+    // ✅ Filtering based on query params
+    const statusFilter = req.query.status || "all"; // Default to 'all' if no status query param is provided
+    const currentDate = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+
+    // ✅ Dynamic WHERE Clause Construction
+    let conditions = [];
+    let queryParams = [limit, offset];  // Default pagination parameters
+
+    // Adding filters based on status
+    if (statusFilter === "active") {
+      conditions.push("d.is_active = 1", "d.start_date <= ?", "d.end_date >= ?");
+      queryParams.unshift(currentDate, currentDate); // Add current date for comparison
+    } else if (statusFilter === "expired") {
+      conditions.push("d.end_date < ?");
+      queryParams.unshift(currentDate); // Add current date for comparison
+    } else if (statusFilter === "scheduled") {
+      conditions.push("d.start_date > ?");
+      queryParams.unshift(currentDate); // Add current date for comparison
+    }
+
+    // If status is "all", we don't need any status-specific condition, so skip adding filters here
+
+    // ✅ Construct the WHERE clause based on the conditions
+    const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    // ✅ SQL query to fetch discounts with pagination and calculated status
     const query = `
-        SELECT * FROM res_discounts
-        LIMIT ? OFFSET ?
-      `;
+      SELECT d.id, d.name, d.code, d.discount_type, d.value, d.value_type,
+             d.start_date, d.end_date, d.min_order_amount, d.usage_limit, d.is_active,
+             CASE
+               WHEN d.is_active = 0 THEN 'inactive'
+               WHEN d.end_date < CURDATE() THEN 'expired'
+               WHEN d.start_date > CURDATE() THEN 'scheduled'
+               ELSE 'active'
+             END AS status
+      FROM discounts d
+      ${whereClause}
+      ORDER BY d.start_date DESC
+      LIMIT ? OFFSET ?
+    `;
 
-    // Fetch paginated discounts
-    const [discounts] = await pool.execute(query, [limit, offset]);
+    // ✅ Execute paginated query
+    const [discounts] = await pool.execute(query, queryParams);
 
-    // Get total count for pagination metadata
-    const [[{ total }]] = await pool.execute(
-      `SELECT COUNT(*) AS total FROM res_discounts`
-    );
+    // ✅ Query to get total count for pagination metadata
+    const totalCountQuery = `
+      SELECT COUNT(*) AS total
+      FROM discounts d
+      ${whereClause}
+    `;
+    const [totalCountResult] = await pool.execute(totalCountQuery, queryParams.slice(0, conditions.length));
 
-    // Pagination result structure
+    const total = totalCountResult[0]?.total || 0;
+
+    // ✅ Pagination result structure
     const result = {
       data: discounts,
       total,
@@ -158,10 +158,8 @@ async function getList(req, res) {
       status: "success",
     };
 
-    // Return response
-    res.status(200).json({
-      response: result,
-    });
+    // ✅ Return response
+    res.status(200).json({ response: result });
   } catch (error) {
     console.error("Error fetching discounts:", error);
     res.status(500).json({
