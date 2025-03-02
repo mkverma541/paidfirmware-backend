@@ -1,5 +1,6 @@
 const { pool, secretKey } = require("../../config/database");
 const crypto = require("crypto");
+const { min } = require("date-fns");
 const jwt = require("jsonwebtoken");
 
 async function syncCart(req, res) {
@@ -29,7 +30,6 @@ async function syncCart(req, res) {
         const decodedUser = jwt.verify(token, secretKey);
         user_id = decodedUser.id;
       } catch (tokenError) {
-        console.error("Invalid token:", tokenError);
         return res.status(401).json({ message: "Invalid or expired token." });
       }
     }
@@ -46,7 +46,7 @@ async function syncCart(req, res) {
         if (guestCart[0].length > 0) {
           // Insert guest cart items into the user's cart (avoid duplicates)
           const insertGuestCartQuery = `
-            INSERT INTO res_cart (user_id, item_id, item_type, item_name, sale_price, original_price, quantity, stock, media, meta)
+            INSERT INTO res_cart (user_id, item_id, item_type, item_name, sale_price, original_price, quantity, stock, media, meta, min_cart_qty, max_cart_qty)
             VALUES ?
             ON DUPLICATE KEY UPDATE
               quantity = VALUES(quantity),
@@ -66,6 +66,8 @@ async function syncCart(req, res) {
             item.stock,
             item.media,
             item.meta,
+            item.min_cart_qty || 1,
+            item.max_cart_qty || 1
           ]);
 
           await pool.query(insertGuestCartQuery, [guestCartValues]);
@@ -83,7 +85,7 @@ async function syncCart(req, res) {
       // Insert updated cart items for the user
       const insertUserCartQuery = `
         INSERT INTO res_cart 
-        (user_id, item_id, item_type, item_name, sale_price, original_price, quantity, stock, media, meta) 
+        (user_id, item_id, item_type, item_name, sale_price, original_price, quantity, stock, media, meta, min_cart_qty, max_cart_qty) 
         VALUES ?
         ON DUPLICATE KEY UPDATE
           quantity = VALUES(quantity),
@@ -103,6 +105,8 @@ async function syncCart(req, res) {
         item.stock,
         item.media,
         item.meta,
+        item.min_cart_qty || 1,
+        item.max_cart_qty || 1
       ]);
 
       await pool.query(insertUserCartQuery, [userCartValues]);
@@ -126,7 +130,7 @@ async function syncCart(req, res) {
       // Insert new cart items for the guest user
       const insertGuestCartQuery = `
         INSERT INTO res_cart 
-        (cart_hash, item_id, item_type, item_name, sale_price, original_price, quantity, stock, media, meta) 
+        (cart_hash, item_id, item_type, item_name, sale_price, original_price, quantity, stock, media, meta, min_cart_qty, max_cart_qty) 
         VALUES ?
         ON DUPLICATE KEY UPDATE
           quantity = VALUES(quantity),
@@ -146,6 +150,8 @@ async function syncCart(req, res) {
         item.stock,
         item.media,
         item.meta,
+        item.min_cart_qty || 1,
+        item.max_cart_qty || 1
       ]);
 
       await pool.query(insertGuestCartQuery, [guestCartValues]);
@@ -171,16 +177,13 @@ async function getCart(req, res) {
   try {
     const { id } = req.user; // Extract user ID from the token
     const { hashId } = req.body; // Accept hashId from the request body
-    console.log("User ID:", id);
-    console.log("Hash ID:", hashId);
+
 
     // Fetch the user's cart from the database
     const [userCart] = await pool.execute(
       "SELECT * FROM res_cart WHERE user_id = ?",
       [id]
     );
-
-    console.log("User Cart:", userCart);
 
     // Fetch the cart from the hashId if it exists
     let hashCart = [];
@@ -210,8 +213,6 @@ async function getCart(req, res) {
         mergedCart.push(hashItem); // Add the hash item if not already present
       }
     });
-
-    console.log("Merged Cart:", mergedCart);
 
     // Return the merged cart
     res.status(200).json({

@@ -11,4 +11,5 @@ async function getCoupons(req, res) {
     }
 }
 
+
 module.exports = { getCoupons };

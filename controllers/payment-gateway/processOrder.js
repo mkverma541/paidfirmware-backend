@@ -1,7 +1,6 @@
 const { format, addSeconds } = require("date-fns");
 const { pool } = require("../../config/database");
 const {
-  fetchUserCart,
   getPackagePeriods,
   sendOrderConfirmationEmail,
 } = require("./helper");

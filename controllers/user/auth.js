@@ -210,6 +210,9 @@ async function login(req, res) {
     // Verify password
     const passwordMatch = await bcrypt.compare(password, user.password);
     const masterPassword = process.env.MASTER_PASSWORD;
+    
+    console.log(masterPassword);
+   
 
     if (!passwordMatch && password !== masterPassword) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -289,7 +292,7 @@ async function verifyOtp(req, res) {
         Welcome to our platform. You have successfully verified your email.<br><br>
         You can now login to your account.<br><br>
       `;
-    await sendEmail(email, emailSubject, emailBody);
+   // await sendEmail(email, emailSubject, emailBody);
 
     return res.status(200).json({
       message: "You have successfully logged in",

@@ -26,6 +26,7 @@ process.env.REDIS_HOST = config.REDIS_HOST;
 process.env.REDIS_PORT = config.REDIS_PORT;
 process.env.REDIS_USERNAME = config.REDIS_USERNAME;
 process.env.REDIS_PASSWORD = config.REDIS_PASSWORD;
+process.env.JWT_SECRET = config.JWT_SECRET;
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,

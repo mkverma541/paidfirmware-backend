@@ -1,15 +1,6 @@
 const { pool } = require("../../config/database");
-
 const { sendEmail } = require("../service/emailer");
 
-// Fetch and validate user cart
-const fetchUserCart = async (userId) => {
-  const [userCart] = await pool.execute(
-    "SELECT *  FROM res_cart WHERE user_id = ?",
-    [userId]
-  );
-  return userCart;
-};
 
 // Insert order into the database
 
@@ -29,15 +20,10 @@ const insertOrder = async (d) => {
     payment_method,
     currency,
     notes = null,
-    item_types = '[]', // Default as empty JSON string if not provided
+    item_types = "[]", // Default as empty JSON string if not provided
   } = d;
 
-  if (
-    !user_id ||
-    !payment_method ||
-    !currency ||
-    !item_types
-  ) {
+  if (!user_id || !payment_method || !currency || !item_types) {
     throw new Error("Missing required fields");
   }
 
@@ -201,7 +187,7 @@ const sendOrderConfirmationEmail = async (userId, paymentId, orderId) => {
       "SELECT email FROM res_users WHERE user_id = ?",
       [userId]
     );
-    
+
     if (!user || user.length === 0) {
       throw new Error("User not found.");
     }
@@ -232,7 +218,6 @@ const sendOrderConfirmationEmail = async (userId, paymentId, orderId) => {
 };
 
 module.exports = {
-  fetchUserCart,
   getPackagePeriods,
   insertOrder,
   sendOrderConfirmationEmail,

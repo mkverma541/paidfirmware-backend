@@ -148,7 +148,7 @@ async function checkDiscount(req, res) {
         created_at: d.created_at,
         updated_at: d.updated_at,
         is_active: d.is_active,
-        total_discount: totalDiscountValue, 
+        total_discount: totalDiscountValue,
       })),
       subTotal: subTotalAmount,
       taxes: taxes.map((tax) => {
@@ -156,7 +156,7 @@ async function checkDiscount(req, res) {
         if (tax.amount_type === "percent") {
           taxAmount = (subTotalAmount * parseFloat(tax.amount)) / 100;
         } else if (tax.amount_type === "fixed") {
-          taxAmount = parseFloat(tax.amount) * exchangeRateResult; 
+          taxAmount = parseFloat(tax.amount) * exchangeRateResult;
         }
         return {
           id: tax.class_id,
@@ -180,20 +180,18 @@ async function checkDiscount(req, res) {
   }
 }
 
-
 async function checkDiscountCoupon(req, res) {
   try {
-    const { id } = req.user;
-    const { discount_code, currency } = req.body;
+    const { discount_code, currency, hashId, address_id } = req.body;
 
-    if (!discount_code) {
-      return res.status(400).json({ message: "No discount code provided" });
+    if (!discount_code || !currency) {
+      return res.status(400).json({ message: "Invalid request" });
     }
 
     // check if discount code exists
 
     const [couponResult] = await pool.execute(
-      `SELECT * FROM res_coupons WHERE code = ?`,
+      `SELECT * FROM discounts WHERE code = ?`,
       [discount_code]
     );
 
@@ -211,58 +209,236 @@ async function checkDiscountCoupon(req, res) {
 
     // Check if coupon is expired
     const currentDate = new Date();
-    if (
-      currentDate < new Date(coupon.start_date) ||
-      currentDate > new Date(coupon.end_date)
-    ) {
-      return res.status(400).json({ message: "Discount code is expired" });
+
+    if (currentDate < new Date(coupon.start_date)) {
+      return res
+        .status(400)
+        .json({ message: "Discount code is not active yet." });
+    }
+
+    if (currentDate > new Date(coupon.end_date)) {
+      return res.status(400).json({ message: "Discount code has expired." });
+    }
+
+    const headers = req.headers.authorization;
+
+    if (!headers && !hashId) {
+      return res
+        .status(400)
+        .json({ message: "Please login to apply discount" });
     }
 
     // Fetch cart items
-    const [cartItems] = await pool.execute(
-      `SELECT c.package_id, c.file_id, c.quantity, p.*, f.*
-       FROM res_cart c
-       LEFT JOIN res_download_packages p ON c.package_id = p.package_id
-       LEFT JOIN res_files f ON c.file_id = f.file_id
-       WHERE c.user_id = ?`,
-      [id]
-    );
 
-    console.log("Cart Items:", cartItems);
+    let cartItems = [];
+
+    if (hashId) {
+      cartItems = await pool.execute(
+        `SELECT * FROM res_cart WHERE cart_hash = ?`,
+        [hashId]
+      );
+    }
+
+    if (!hashId) {
+      const headers = req.headers.authorization;
+      const token = headers.split(" ")[1];
+      const decoded = jwt.verify(token, secretKey);
+
+      const userId = decoded.id;
+
+      cartItems = await pool.execute(
+        `SELECT * FROM res_cart WHERE user_id = ?`,
+        [userId]
+      );
+    }
+
+    if (cartItems.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+    const cart = cartItems[0];
+
     // Calculate subtotal for validation
-    const subtotal = cartItems.reduce(
-      (acc, item) => acc + (item.price || 0) * (item.quantity || 1),
+    const subtotal = cart.reduce(
+      (acc, item) => acc + (+item.sale_price || 0) * (item.quantity || 1),
       0
     );
 
     // Check minimum order value
-    if (subtotal < coupon.min_order_value) {
+
+    if (subtotal < +coupon.min_order_amount) {
       return res.status(400).json({
-        message: `Minimum order value for this discount code is ${coupon.min_order_value}`,
+        message: `Minimum order value for this discount code is ${coupon.min_order_amount}`,
       });
     }
 
     // Check product type restrictions
-    if (coupon.product_type) {
-      const validProduct = cartItems.some(
-        (item) => item.product_type === coupon.product_type
+
+    let cartTotalAmount = 0;
+    let eligibleProducts = [];
+
+    if (coupon.discount_type == "product") {
+      const [discountProducts] = await pool.execute(
+        `SELECT * FROM discount_products WHERE discount_id = ?`,
+        [coupon.id]
       );
-      if (!validProduct) {
+    
+      if (discountProducts.length === 0) {
         return res.status(400).json({
-          message: `Discount code is not valid for the products in your cart`,
+          message: "Discount code is not applicable to any products",
         });
       }
+    
+      const validItemsTypes = discountProducts.map((dp) => dp.item_type);
+      const cartItemsTypes = cart.map((item) => item.item_type);
+    
+      const isValidItems = validItemsTypes.some((type) =>
+        cartItemsTypes.includes(type)
+      );
+    
+      if (!isValidItems) {
+        return res.status(400).json({
+          message: "Discount code is not applicable to any items in the cart",
+        });
+      }
+    
+      // now check for specific items
+    
+      const discountItemsTypes = discountProducts
+        .filter((dp) => dp.item_id === null)
+        .map((dp) => dp.item_type);
+    
+      const discountItems = discountProducts.filter(
+        (dp) => dp.item_id !== null
+      );
+    
+      const items1 = cart.filter((item) =>
+        discountItemsTypes.includes(item.item_type)
+      );
+    
+      const items2 = cart.filter((cartItem) =>
+        discountItems.some(
+          (discountItem) =>
+            cartItem.item_id === discountItem.item_id &&
+            cartItem.item_type === discountItem.item_type
+        )
+      );
+    
+      // Merge and de-duplicate items using a Set based on a unique key (item_id|item_type)
+      const mergedItems = [...items1, ...items2];
+
+      const seen = new Set();
+      const validItems = mergedItems.filter((item) => {
+        const key = `${item.item_id}|${item.item_type}`;
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      });
+    
+      eligibleProducts = validItems;
+
+      cartTotalAmount  = validItems.reduce(
+        (acc, item) => acc + (+item.sale_price || 0) * (item.quantity || 1),
+        0
+      );
+
     }
 
-    // Check usage limits
-    if (coupon.usage_count >= coupon.max_usage) {
+    if (coupon.discount_type == "order") {
+        cartTotalAmount = subtotal;
+        console.log("Cart Total Amount:", cartTotalAmount);
+    }
+
+    if(coupon.discount_type == "shipping") {
+
+      if(!address_id) {
+        return res.status(400).json({
+          message: "Please provide an address for shipping discount"
+        });
+      }
+
+      // check if cart have dont have item_type 6
+
+      const hasShipping = cart.some((item) => item.item_type === 6);
+
+      if (!hasShipping) {
+        return res.status(400).json({
+          message: "Discount code is not applicable to shipping",
+        });
+      }
+      
+      const [address] = await pool.execute(
+        `SELECT * FROM res_user_addresses WHERE address_id = ?`,
+        [address_id]
+      );
+
+      if (address.length === 0) {
+        return res.status(400).json({
+          message: "Invalid address",
+        });
+      }
+
+      const [discountShipping] = await pool.execute(
+        `SELECT * FROM discount_shipping WHERE discount_id = ? AND country_code = ?`,
+        [coupon.id, address[0].country_code]
+      );
+
+      if (discountShipping.length === 0) {
+        return res.status(400).json({
+          message: "Discount code is not applicable to shipping in this country",
+        });
+      }
+
+      cartTotalAmount = subtotal;
+      console.log("Cart Total Amount:", cartTotalAmount);
+
+    }
+
+    let amount = 0;
+
+    if (coupon.value_type == "fixed") {
+      console.log("Coupon Value:", coupon.value);
+
+      amount = parseFloat(coupon.value);
+    } else if (coupon.value_type == "percentage") {
+      amount = parseFloat(cartTotalAmount * (coupon.value / 100));
+    }
+
+    // Check if discount amount is greater than the total amount
+
+    if (amount > cartTotalAmount) {
       return res.status(400).json({
-        message: "Discount code usage limit has been reached",
+        message: "Discount amount is greater than the total amount",
       });
     }
 
-    // If all checks pass, return success
-    return res.status(200).json({ message: "Discount code is valid" });
+    console.log("Discount Amount:", amount);
+
+    return res.status(200).json({
+      message: "Discount code is valid",
+      discount: {
+        coupon_id: coupon.id,
+        code: coupon.code,
+        description: coupon.description,
+        discount_value: coupon.value,
+        discount_type: coupon.discount_type,
+        total_discount: parseFloat(amount).toFixed(2),
+        eligibleProducts: eligibleProducts.map((item) => ({
+          item_id: item.item_id,
+          item_type: item.item_type,
+          item_name: item.item_name,
+          sale_price: item.sale_price,
+          quantity: item.quantity,
+          total_discount: parseFloat(
+            (item.sale_price * item.quantity * +coupon.value) / 100
+          ).toFixed(2), 
+        })),
+      },
+    });
+
+
   } catch (error) {
     console.error("Error checking discount:", error);
     return res.status(500).json({ message: "Internal server error" });
