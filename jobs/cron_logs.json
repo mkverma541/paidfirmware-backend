@@ -1,9 +1,8 @@
 [
   {
-    "timestamp": "2025-03-02T10:12:00.905Z",
+    "timestamp": "2025-03-02T13:32:00.627Z",
     "status": "error",
     "table": "res_files",
     "message": "Error updating is_new: Table 'stagnate.res_files' doesn't exist"
   }
-] }
 ]
