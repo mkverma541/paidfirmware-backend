@@ -348,7 +348,6 @@ async function checkDiscountCoupon(req, res) {
 
     if (coupon.discount_type == "order") {
         cartTotalAmount = subtotal;
-        console.log("Cart Total Amount:", cartTotalAmount);
     }
 
     if(coupon.discount_type == "shipping") {
@@ -392,14 +391,12 @@ async function checkDiscountCoupon(req, res) {
       }
 
       cartTotalAmount = subtotal;
-      console.log("Cart Total Amount:", cartTotalAmount);
 
     }
 
     let amount = 0;
 
     if (coupon.value_type == "fixed") {
-      console.log("Coupon Value:", coupon.value);
 
       amount = parseFloat(coupon.value);
     } else if (coupon.value_type == "percentage") {
@@ -414,8 +411,6 @@ async function checkDiscountCoupon(req, res) {
       });
     }
 
-    console.log("Discount Amount:", amount);
-
     return res.status(200).json({
       message: "Discount code is valid",
       discount: {
@@ -424,6 +419,7 @@ async function checkDiscountCoupon(req, res) {
         description: coupon.description,
         discount_value: coupon.value,
         discount_type: coupon.discount_type,
+        value_type: coupon.value_type,
         total_discount: parseFloat(amount).toFixed(2),
         eligibleProducts: eligibleProducts.map((item) => ({
           item_id: item.item_id,
