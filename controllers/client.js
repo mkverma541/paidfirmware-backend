@@ -2,10 +2,18 @@ const { pool } = require("../config/database");
 
 async function generateClientCode() {
   const [result] = await pool.query(
-    "SELECT COUNT(client_id) AS count FROM clients"
+    "SELECT MAX(client_code) AS max_code FROM clients WHERE client_code REGEXP '^C[0-9]+$'"
   );
-  const count = result[0].count + 1000;
-  return `C${count}`;
+
+  let newCode = 1000; // Start from 1000 if table is empty
+
+  if (result[0].max_code) {
+    // Extract numeric part from the last client_code (e.g., "C1001" → 1001)
+    const lastNumber = parseInt(result[0].max_code.substring(1), 10);
+    newCode = lastNumber + 1;
+  }
+
+  return `C${newCode}`;
 }
 
 async function createClient(req, res) {
@@ -60,14 +68,11 @@ async function createClient(req, res) {
 
 async function getAllClients(req, res) {
   try {
-    // Get all clients
-    const [rows] = await pool.query("SELECT client_id, client_name FROM clients");
-    
-    if (!Array.isArray(rows)) {
-      return res.status(404).json({ message: "No clients found", status: "error" });
-    }
+    const [clients] = await pool.query(`
+      SELECT client_id, client_name FROM clients
+    `);
 
-    res.status(200).json({ data: rows, status: "success" });
+    res.status(200).json({ data: clients, status: "success" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error", status: "error" });
@@ -77,36 +82,90 @@ async function getAllClients(req, res) {
 
 async function getClients(req, res) {
   try {
-    const { search, page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;
-    let query = "SELECT * FROM clients";
-    let countQuery = "SELECT COUNT(*) AS total FROM clients";
-    let params = [];
+    let { status, client_code, client_name, page = 1, limit = 10 } = req.query;
 
-    if (search) {
-      query += " WHERE client_name LIKE ? OR client_code LIKE ?";
-      countQuery += " WHERE client_name LIKE ? OR client_code LIKE ?";
-      params.push(`%${search}%`, `%${search}%`);
+    // Convert query parameters to integers
+    page = parseInt(page, 10);
+    limit = parseInt(limit, 10);
+    const offset = (page - 1) * limit;
+
+    let queryParams = [];
+    
+    // Base query to fetch clients with country details
+    let clientQuery = `
+      SELECT 
+        c.client_id, 
+        c.client_code, 
+        c.client_name, 
+        c.status, 
+        c.country AS country_code, 
+        co.name AS country_name
+      FROM clients c
+      LEFT JOIN countries co ON c.country = co.code
+      WHERE 1=1
+    `;
+
+    // Apply filters for client query
+    if (status !== undefined && status !== "") {  // Ensure status is not empty or undefined
+      clientQuery += " AND c.status = ?";
+      queryParams.push(parseInt(status, 10));
     }
 
-    query += " LIMIT ? OFFSET ?";
-    params.push(parseInt(limit), parseInt(offset));
+    if (client_code && client_code.trim() !== "") {  // Ensure client_code is not empty
+      clientQuery += " AND c.client_code LIKE ?";
+      queryParams.push(`%${client_code}%`);
+    }
 
-    const [clients] = await pool.query(query, params);
-    const [countResult] = await pool.query(countQuery, params.slice(0, -2));
-    const total = countResult[0].total;
-    const totalPages = Math.ceil(total / limit);
+    if (client_name && client_name.trim() !== "") {  // Ensure client_name is not empty
+      clientQuery += " AND c.client_name LIKE ?";
+      queryParams.push(`%${client_name}%`);
+    }
 
-    const result = {
-      total,
-      totalPages,
-      currentPage: parseInt(page),
-      clients,
-    };
+    // Pagination
+    clientQuery += " LIMIT ? OFFSET ?";
+    queryParams.push(limit, offset);
+
+    // Execute the query to get filtered clients
+    const [clients] = await pool.query(clientQuery, queryParams);
+
+    // Get total count of filtered clients
+    let countQuery = `
+      SELECT COUNT(*) AS total_count 
+      FROM clients c
+      LEFT JOIN countries co ON c.country = co.code
+      WHERE 1=1
+    `;
+
+    // Apply the same filters to the count query
+    const countParams = [...queryParams];
+
+    if (status !== undefined && status !== "") {
+      countQuery += " AND c.status = ?";
+    }
+
+    if (client_code && client_code.trim() !== "") {
+      countQuery += " AND c.client_code LIKE ?";
+    }
+
+    if (client_name && client_name.trim() !== "") {
+      countQuery += " AND c.client_name LIKE ?";
+    }
+
+    // Get the count of filtered clients
+    const [[{ total_count }]] = await pool.query(countQuery, countParams);
+
+    // Calculate total pages based on the total count
+    const totalPages = Math.ceil(total_count / limit);
 
     res.status(200).json({
-      response: result,
+      data: clients,
       status: "success",
+      pagination: {
+        currentPage: page,
+        perPage: limit,
+        totalPages: totalPages,
+        totalItems: total_count
+      }
     });
   } catch (err) {
     console.error(err);
@@ -114,12 +173,44 @@ async function getClients(req, res) {
   }
 }
 
+
+async function getClientCounts(req, res) {
+  try {
+    // Query to fetch the counts of total, active, and inactive clients
+    const countQuery = `
+      SELECT 
+        COUNT(*) AS total_count,
+        SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS active_count,
+        SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS inactive_count
+      FROM clients
+    `;
+
+    // Execute the query
+    const [[counts]] = await pool.query(countQuery);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        total: counts.total_count || 0,
+        active: counts.active_count || 0,
+        inactive: counts.inactive_count || 0
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error", status: "error" });
+  }
+}
+
+
+
 async function getClientById(req, res) {
   try {
     const { id } = req.params;
-    const [client] = await pool.query("SELECT * FROM clients WHERE client_id = ?", [
-      id,
-    ]);
+    const [client] = await pool.query(
+      "SELECT * FROM clients WHERE client_id = ?",
+      [id]
+    );
     if (client.length === 0) {
       return res
         .status(404)
@@ -175,4 +266,11 @@ async function updateClient(req, res) {
   }
 }
 
-module.exports = { createClient, getClients, getClientById, updateClient, getAllClients };
+module.exports = {
+  createClient,
+  getClients,
+  getClientById,
+  updateClient,
+  getAllClients,
+  getClientCounts
+};

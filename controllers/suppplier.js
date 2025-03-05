@@ -18,11 +18,11 @@ async function addSupplier(req, res) {
       email,
       contact_number,
       panel_size,
-      complete,
-      terminate,
-      over_quota,
-      quality_term,
-      survey_close,
+      complete_link,
+      terminate_link,
+      over_quota_link,
+      quality_term_link,
+      survey_close_link,
       post_back_url,
       about_supplier,
       allowed_countries,
@@ -34,7 +34,7 @@ async function addSupplier(req, res) {
     const allowedCountries = JSON.stringify(allowed_countries);
 
     const query = `
-            INSERT INTO suppliers (supplier_code, supplier_name, supplier_website, country, email, contact_number, panel_size, complete, terminate, over_quota, quality_term, survey_close, post_back_url, about_supplier, allowed_countries)
+            INSERT INTO suppliers (supplier_code, supplier_name, supplier_website, country, email, contact_number, panel_size, complete_link, terminate_link, over_quota_link, quality_term_link, survey_close_link, post_back_url, about_supplier, allowed_countries)
             VALUES (?,
                     ?,
                     ?,
@@ -60,11 +60,11 @@ async function addSupplier(req, res) {
       email,
       contact_number,
       panel_size,
-      complete,
-      terminate,
-      over_quota,
-      quality_term,
-      survey_close,
+      complete_link,
+      terminate_link,
+      over_quota_link,
+      quality_term_link,
+      survey_close_link,
       post_back_url,
       about_supplier,
       allowedCountries,
