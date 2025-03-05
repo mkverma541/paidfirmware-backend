@@ -124,45 +124,123 @@ async function createProject(req, res) {
     });
   }
 }
-
 async function getAllProjects(req, res) {
   try {
-    const { search, page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;
-    let query = "SELECT * FROM projects";
-    let countQuery = "SELECT COUNT(*) AS total FROM projects";
-    let params = [];
+    let { search, status, page = 1, limit = 10 } = req.query;
 
-    if (search) {
-      query += " WHERE project_name LIKE ? OR project_code LIKE ?";
-      countQuery += " WHERE project_name LIKE ? OR project_code LIKE ?";
-      params.push(`%${search}%`, `%${search}%`);
+    // Convert query parameters to integers
+    page = parseInt(page, 10);
+    limit = parseInt(limit, 10);
+    const offset = (page - 1) * limit;
+
+    let queryParams = [];
+
+    // Base query to fetch projects
+    let projectQuery = `
+      SELECT 
+        p.*,
+        c.client_name,
+        c.client_code,
+        co.name AS country_name
+      FROM projects p
+      INNER JOIN clients c ON p.client_id = c.client_id
+      INNER JOIN countries co ON p.country_code = co.code
+      WHERE 1=1
+    `;
+
+    // Apply filters for project query
+    if (search && search.trim() !== "") {
+      projectQuery += " AND (p.project_name LIKE ? OR p.project_code LIKE ?)";
+      queryParams.push(`%${search}%`, `%${search}%`);
     }
 
-    query += " LIMIT ? OFFSET ?";
-    params.push(parseInt(limit), parseInt(offset));
+    if (status !== undefined && status.trim() !== "") {
+      projectQuery += " AND p.status = ?";
+      queryParams.push(status);
+    }
 
-    const [projects] = await pool.query(query, params);
-    const [countResult] = await pool.query(countQuery, params.slice(0, -2));
-    const total = countResult[0].total;
-    const totalPages = Math.ceil(total / limit);
+    // Pagination
+    projectQuery += " LIMIT ? OFFSET ?";
+    queryParams.push(limit, offset);
 
-    const result = {
-      total,
-      totalPages,
-      currentPage: parseInt(page),
-      projects,
-    };
+    // Execute the query to get filtered projects
+    const [projects] = await pool.query(projectQuery, queryParams);
+
+    // Get total count of filtered projects
+    let countQuery = `
+      SELECT COUNT(*) AS total_count 
+      FROM projects p
+      INNER JOIN clients c ON p.client_id = c.client_id
+      INNER JOIN countries co ON p.country_code = co.code
+      WHERE 1=1
+    `;
+
+    let countParams = [];
+
+    if (search && search.trim() !== "") {
+      countQuery += " AND (p.project_name LIKE ? OR p.project_code LIKE ?)";
+      countParams.push(`%${search}%`, `%${search}%`);
+    }
+
+    if (status !== undefined && status.trim() !== "") {
+      countQuery += " AND p.status = ?";
+      countParams.push(status);
+    }
+
+    // Get the count of filtered projects
+    const [[{ total_count }]] = await pool.query(countQuery, countParams);
+
+    // Calculate total pages based on the total count
+    const totalPages = Math.ceil(total_count / limit);
 
     res.status(200).json({
-      response: result,
+      data: projects,
       status: "success",
+      pagination: {
+        currentPage: page,
+        perPage: limit,
+        totalPages: totalPages,
+        totalItems: total_count,
+      },
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error", status: "error" });
   }
 }
+
+
+async function getProjectStatusCounts(req, res) {
+  try {
+    // Query to get project status counts
+    const statusCountQuery = `
+      SELECT 
+        COUNT(*) AS total_count,
+        SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS active_count,
+        SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS inactive_count,
+        SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS invoiced_count,
+        SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END) AS closed_count
+      FROM projects
+    `;
+
+    const [[statusCounts]] = await pool.query(statusCountQuery);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        total: statusCounts.total_count || 0,
+        active: statusCounts.active_count || 0,
+        inactive: statusCounts.inactive_count || 0,
+        invoiced: statusCounts.invoiced_count || 0,
+        closed: statusCounts.closed_count || 0
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error", status: "error" });
+  }
+}
+
 
 async function getMappedSuppliers(req, res) {
   try {
@@ -380,4 +458,4 @@ async function getProjectDetailsById(req, res) {
   }
   
 
-module.exports = { createProject, getAllProjects, getProjectDetailsById, updateProject, updateProjectSurveyLink, getMappedSuppliers };
+module.exports = { createProject, getAllProjects, getProjectDetailsById, updateProject, updateProjectSurveyLink, getMappedSuppliers, getProjectStatusCounts };
