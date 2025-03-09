@@ -8,6 +8,110 @@ const { sendEmail } = require("../service/emailer");
 const randomBytesAsync = promisify(crypto.randomBytes);
 const axios = require("axios");
 
+async function checkoutLogin(req, res) {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Please provide your email." });
+  }
+
+  try {
+    // Check if user exists
+
+    const [existingUser] = await pool.execute(
+      "SELECT * FROM res_users WHERE email = ? or username = ?",
+      [email, email]
+    );
+
+    // If user exists, send OTP to email
+
+    if (existingUser.length > 0) {
+      const otp = Math.floor(100000 + Math.random() * 9000);
+      console.log(otp);
+
+      // Update the OTP in the database
+      const [data] = await pool.execute(
+        "UPDATE res_users SET otp = ? WHERE user_id = ?",
+        [otp, existingUser[0].user_id]
+      );
+
+      // Send email with OTP
+      const emailSubject = "OTP Verification";
+      const emailBody = `
+        Hi, <br><br>
+        Your OTP is: ${otp}<br><br>
+        This OTP will expire in 5 minutes.
+      `;
+
+      // Send email to the user's email
+     // await sendEmail(email, emailSubject, emailBody);
+
+      return res.status(200).json({
+        message: "OTP sent successfully. Please check your email.",
+      });
+    } else {
+      // If user does not exist, create a new user
+
+      // Generate a random password
+      const randomPassword = (await randomBytesAsync(8)).toString("hex");
+      console.log(randomPassword);
+
+      // Generate a 6-digit OTP
+      const otp = Math.floor(100000 + Math.random() * 9000);
+
+      // Extract username from email
+      let username = email.split("@")[0];
+
+      // Check if the username already exists and modify if necessary
+      const [existingUser1] = await pool.execute(
+        "SELECT * FROM res_users WHERE username = ?",
+        [username]
+      );
+
+      if (existingUser1.length > 0) {
+        username = username + Math.floor(1000 + Math.random() * 9000);
+      }
+
+      // Hash password asynchronously
+
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      console.log(hashedPassword);
+
+      // Insert new user into the database
+
+      await pool.execute(
+        "INSERT INTO res_users (username, password, email, otp) VALUES (?, ?, ?, ?)",
+        [username, hashedPassword, email, otp]
+      );
+
+      // Send email with OTP
+
+      const emailSubject = "OTP Verification";
+
+      const emailBody = `
+        Hi, <br><br>
+        Your OTP is: <strong>${otp}</strong><br><br>
+        This OTP will expire in 5 minutes.
+      `;
+
+      // Send email to the user's email
+
+     // await sendEmail(email, emailSubject, emailBody);
+
+      return res.status(201).json({
+        message: "User created successfully. OTP sent to email.",
+        otpSent: true,
+
+        otp: otp, // For testing purposes only
+      });
+    }
+  } catch (error) {
+    console.error("Error during OTP sending process:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 async function signup(req, res) {
   const {
     username,
@@ -131,8 +235,6 @@ async function checkEmailOrUsername(req, res) {
     const randomPassword = (await randomBytesAsync(8)).toString("hex");
     console.log(randomPassword);
 
-
-
     // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000);
 
@@ -151,7 +253,6 @@ async function checkEmailOrUsername(req, res) {
 
     // Hash password asynchronously
 
-    
     const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
     console.log(hashedPassword);
@@ -170,7 +271,7 @@ async function checkEmailOrUsername(req, res) {
       This OTP will expire in 5 minutes.
     `;
 
-   // await sendEmail(email, emailSubject, emailBody);
+    // await sendEmail(email, emailSubject, emailBody);
 
     return res.status(201).json({
       exists: false,
@@ -178,7 +279,6 @@ async function checkEmailOrUsername(req, res) {
       otpSent: true,
       otp: otp, // For testing purposes only
     });
-
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -210,9 +310,8 @@ async function login(req, res) {
     // Verify password
     const passwordMatch = await bcrypt.compare(password, user.password);
     const masterPassword = process.env.MASTER_PASSWORD;
-    
+
     console.log(masterPassword);
-   
 
     if (!passwordMatch && password !== masterPassword) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -251,7 +350,6 @@ async function login(req, res) {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
-
 
 async function verifyOtp(req, res) {
   const { otp, email } = req.body;
@@ -292,7 +390,7 @@ async function verifyOtp(req, res) {
         Welcome to our platform. You have successfully verified your email.<br><br>
         You can now login to your account.<br><br>
       `;
-   // await sendEmail(email, emailSubject, emailBody);
+    // await sendEmail(email, emailSubject, emailBody);
 
     return res.status(200).json({
       message: "You have successfully logged in",
@@ -695,4 +793,5 @@ module.exports = {
   resetPassword,
   facebookSocialLogin,
   checkEmailOrUsername,
+  checkoutLogin,
 };

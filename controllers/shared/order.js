@@ -3,50 +3,18 @@ const jwt = require("jsonwebtoken");
 
 async function checkDiscount(req, res) {
   try {
-    let userId = null;
-    const { discount_code, currency, cartHashId } = req.body;
-    let discount = [];
-    let cartItems = [];
+    const { id } = req.user;
+    console.log(id)
+    const { currency } = req.body;
 
-    // Extract user ID from token if provided
-    const authHeader = req.headers.authorization;
-
-    if (authHeader) {
-      const token = authHeader.split(" ")[1];
-      try {
-        const decoded = jwt.verify(token, secretKey);
-        userId = decoded.id;
-      } catch (err) {
-        console.error("Invalid token:", err.message);
-      }
-    }
-
-    if (userId) {
-      // Fetch cart items for the logged-in user
-      const [userCartItems] = await pool.execute(
-        `SELECT * FROM res_cart WHERE user_id = ?`,
-        [userId]
-      );
-
-      cartItems = userCartItems;
-    } else if (cartHashId) {
-      // Fetch guest cart items
-      const [guestCartItems] = await pool.execute(
-        `SELECT * FROM res_cart WHERE cart_hash = ?`,
-        [cartHashId]
-      );
-      cartItems = guestCartItems;
-    }
+    // Fetch cart items for the logged-in user
+    const [cartItems] = await pool.execute(
+      `SELECT * FROM res_cart WHERE user_id = ?`,
+      [id]
+    );
 
     if (cartItems.length === 0) {
-      return res.status(200).json({
-        message: "Cart is empty",
-        currency,
-        discounts: [],
-        subTotal: 0,
-        taxes: [],
-        total: 0,
-      });
+      return res.status(400).json({ message: "Cart is empty" });
     }
 
     // check if currency code is valid
@@ -85,41 +53,13 @@ async function checkDiscount(req, res) {
     const subTotalAmount = subTotal * exchangeRateResult;
     let total = subTotalAmount;
 
-    // Initialize discount values
-    let totalDiscountValue = 0;
-
-    // Apply discount if available
-    if (discount_code) {
-      const [discountResult] = await pool.execute(
-        `SELECT * FROM res_coupons WHERE code = ? AND is_active = 1`,
-        [discount_code]
-      );
-      discount = discountResult;
-
-      if (discount.length > 0) {
-        const discountAmount = parseFloat(discount[0].discount_value) || 0;
-        const discountType = discount[0].discount_type;
-
-        if (discountType === "fixed") {
-          const convertedDiscountAmount = discountAmount * exchangeRateResult;
-          totalDiscountValue = parseFloat(convertedDiscountAmount);
-        } else if (discountType === "percentage") {
-          totalDiscountValue = parseFloat(
-            subTotalAmount * (discountAmount / 100)
-          );
-        }
-
-        total -= parseFloat(totalDiscountValue);
-      }
-    }
-
     // Fetch all applicable taxes
     const [taxes] = await pool.execute(`SELECT * FROM res_tax_classes`);
 
     // Calculate the total tax amount based on the subtotal
     let totalTax = taxes.reduce((acc, tax) => {
       let taxAmount = 0;
-      if (tax.amount_type === "percent") {
+      if (tax.amount_type === "percentage") {
         taxAmount = (subTotalAmount * parseFloat(tax.amount)) / 100;
       } else if (tax.amount_type === "fixed") {
         taxAmount = parseFloat(tax.amount) * exchangeRateResult;
@@ -133,40 +73,8 @@ async function checkDiscount(req, res) {
     // Prepare the response
     let response = {
       currency,
-      discounts: discount.map((d) => ({
-        coupon_id: d.coupon_id,
-        code: d.code,
-        description: d.description,
-        discount_value: d.discount_value,
-        discount_type: d.discount_type,
-        start_date: d.start_date,
-        end_date: d.end_date,
-        min_order_value: d.min_order_value,
-        product_type: d.product_type,
-        max_usage: d.max_usage,
-        usage_count: d.usage_count,
-        created_at: d.created_at,
-        updated_at: d.updated_at,
-        is_active: d.is_active,
-        total_discount: totalDiscountValue,
-      })),
       subTotal: subTotalAmount,
-      taxes: taxes.map((tax) => {
-        let taxAmount = 0;
-        if (tax.amount_type === "percent") {
-          taxAmount = (subTotalAmount * parseFloat(tax.amount)) / 100;
-        } else if (tax.amount_type === "fixed") {
-          taxAmount = parseFloat(tax.amount) * exchangeRateResult;
-        }
-        return {
-          id: tax.class_id,
-          title: tax.title,
-          rate: tax.amount,
-          amount_type: tax.amount_type,
-          description: tax.description,
-          totalAmount: taxAmount,
-        };
-      }),
+      taxes: taxes,
       total: totalAmountAfterTax,
     };
 
@@ -282,40 +190,40 @@ async function checkDiscountCoupon(req, res) {
         `SELECT * FROM discount_products WHERE discount_id = ?`,
         [coupon.id]
       );
-    
+
       if (discountProducts.length === 0) {
         return res.status(400).json({
           message: "Discount code is not applicable to any products",
         });
       }
-    
+
       const validItemsTypes = discountProducts.map((dp) => dp.item_type);
       const cartItemsTypes = cart.map((item) => item.item_type);
-    
+
       const isValidItems = validItemsTypes.some((type) =>
         cartItemsTypes.includes(type)
       );
-    
+
       if (!isValidItems) {
         return res.status(400).json({
           message: "Discount code is not applicable to any items in the cart",
         });
       }
-    
+
       // now check for specific items
-    
+
       const discountItemsTypes = discountProducts
         .filter((dp) => dp.item_id === null)
         .map((dp) => dp.item_type);
-    
+
       const discountItems = discountProducts.filter(
         (dp) => dp.item_id !== null
       );
-    
+
       const items1 = cart.filter((item) =>
         discountItemsTypes.includes(item.item_type)
       );
-    
+
       const items2 = cart.filter((cartItem) =>
         discountItems.some(
           (discountItem) =>
@@ -323,7 +231,7 @@ async function checkDiscountCoupon(req, res) {
             cartItem.item_type === discountItem.item_type
         )
       );
-    
+
       // Merge and de-duplicate items using a Set based on a unique key (item_id|item_type)
       const mergedItems = [...items1, ...items2];
 
@@ -336,25 +244,23 @@ async function checkDiscountCoupon(req, res) {
         seen.add(key);
         return true;
       });
-    
+
       eligibleProducts = validItems;
 
-      cartTotalAmount  = validItems.reduce(
+      cartTotalAmount = validItems.reduce(
         (acc, item) => acc + (+item.sale_price || 0) * (item.quantity || 1),
         0
       );
-
     }
 
     if (coupon.discount_type == "order") {
-        cartTotalAmount = subtotal;
+      cartTotalAmount = subtotal;
     }
 
-    if(coupon.discount_type == "shipping") {
-
-      if(!address_id) {
+    if (coupon.discount_type == "shipping") {
+      if (!address_id) {
         return res.status(400).json({
-          message: "Please provide an address for shipping discount"
+          message: "Please provide an address for shipping discount",
         });
       }
 
@@ -367,7 +273,7 @@ async function checkDiscountCoupon(req, res) {
           message: "Discount code is not applicable to shipping",
         });
       }
-      
+
       const [address] = await pool.execute(
         `SELECT * FROM res_user_addresses WHERE address_id = ?`,
         [address_id]
@@ -386,18 +292,17 @@ async function checkDiscountCoupon(req, res) {
 
       if (discountShipping.length === 0) {
         return res.status(400).json({
-          message: "Discount code is not applicable to shipping in this country",
+          message:
+            "Discount code is not applicable to shipping in this country",
         });
       }
 
       cartTotalAmount = subtotal;
-
     }
 
     let amount = 0;
 
     if (coupon.value_type == "fixed") {
-
       amount = parseFloat(coupon.value);
     } else if (coupon.value_type == "percentage") {
       amount = parseFloat(cartTotalAmount * (coupon.value / 100));
@@ -429,12 +334,10 @@ async function checkDiscountCoupon(req, res) {
           quantity: item.quantity,
           total_discount: parseFloat(
             (item.sale_price * item.quantity * +coupon.value) / 100
-          ).toFixed(2), 
+          ).toFixed(2),
         })),
       },
     });
-
-
   } catch (error) {
     console.error("Error checking discount:", error);
     return res.status(500).json({ message: "Internal server error" });
