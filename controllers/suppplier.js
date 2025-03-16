@@ -123,12 +123,23 @@ async function getSuppliers(req, res) {
   }
 }
 
+async function getAllSuppliers(req, res) {
+  try {
+    const [suppliers] = await pool.query("SELECT * FROM suppliers");
+    res.status(200).json({ data: suppliers, status: "success" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error", status: "error" });
+  }
+}  
+
 async function getSupplierById(req, res) {
   try {
     const { id } = req.params;
     const [supplier] = await pool.query("SELECT * FROM suppliers WHERE supplier_id = ?", [
       id,
     ]);
+
 
     const allowedCountries = JSON.parse(supplier[0].allowed_countries);
     supplier[0].allowed_countries = allowedCountries;
@@ -204,4 +215,4 @@ async function updateSupplier(req, res) {
   }
 }
 
-module.exports = { addSupplier, getSuppliers, getSupplierById, updateSupplier };
+module.exports = { addSupplier, getSuppliers, getSupplierById, updateSupplier, getAllSuppliers };
