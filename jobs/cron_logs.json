@@ -1,38 +1,8 @@
 [
   {
-    "timestamp": "2025-03-17T06:48:00.869Z",
+    "timestamp": "2025-03-22T17:09:00.929Z",
     "status": "error",
     "table": "res_files",
     "message": "Error updating is_new: Table 'stagnate.res_files' doesn't exist"
-  },
-  {
-    "timestamp": "2025-03-17T06:49:00.271Z",
-    "status": "error",
-    "table": "res_files",
-    "message": "Error updating is_new: Table 'stagnate.res_files' doesn't exist"
-  },
-  {
-    "timestamp": "2025-03-17T06:50:00.751Z",
-    "status": "error",
-    "table": "res_files",
-    "message": "Error updating is_new: Table 'stagnate.res_files' doesn't exist"
-  },
-  {
-    "timestamp": "2025-03-17T06:51:00.323Z",
-    "status": "error",
-    "table": "res_folders",
-    "message": "Error updating is_new: Table 'stagnate.res_folders' doesn't exist"
-  },
-  {
-    "timestamp": "2025-03-17T06:51:00.326Z",
-    "status": "error",
-    "table": "res_files",
-    "message": "Error updating is_new: Table 'stagnate.res_files' doesn't exist"
-  },
-  {
-    "timestamp": "2025-03-17T06:52:00.814Z",
-    "status": "error",
-    "table": "res_folders",
-    "message": "Error updating is_new: Table 'stagnate.res_folders' doesn't exist"
   }
 ]
