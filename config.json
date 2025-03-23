@@ -2,7 +2,7 @@
   "DB_HOST": "localhost",
   "DB_USER": "root",
   "DB_PASSWORD": "",
-  "DB_DATABASE": "mathekgc_paidfirmware",
+  "DB_DATABASE": "filewale",
   "SECRET_KEY": "your_secret_key",
   "RAZORPAY_KEY_ID": "rzp_test_fStvfIrWe60R7s",
   "RAZORPAY_KEY_SECRET": "9nC61yUhM8vr9MiPD2p5RR0S",
@@ -12,14 +12,14 @@
   "APP_BASE_URL": "http://localhost:3001",
   "APP_PORT": 3000,
   "MASTER_PASSWORD": "123",
-  "REDIS_HOST": "redis-17212.c325.us-east-1-4.ec2.redns.redis-cloud.com",
-  "REDIS_PORT": "17212",
+  "REDIS_HOST": "redis-18417.crce179.ap-south-1-1.ec2.redns.redis-cloud.com",
+  "REDIS_PORT": "18417",
   "REDIS_USERNAME": "default",
-  "REDIS_PASSWORD ": "MWhWQyGCn69Vz854ev5aDExRw28khnUM",
+  "REDIS_PASSWORD": "MWhWQyGCn69Vz854ev5aDExRw28khnUM",
   "AWS_ACCESS_KEY_ID": "AKIAZHMEVNVPOTPRADUD",
   "AWS_SECRET_ACCESS_KEY": "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",
   "AWS_REGION": "ap-south-1",
   "AWS_S3_BUCKET_NAME": "filewale",
-  "JWT_SECRET_KEY": "secret"
-
+  "JWT_SECRET_KEY": "secret",
+  "ENABLE_REDIS_CACHE": true
 }

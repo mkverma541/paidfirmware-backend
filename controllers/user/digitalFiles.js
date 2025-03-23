@@ -8,11 +8,11 @@ async function getAllFoldersFiles(req, res) {
     const [folders, files] = await Promise.all([
       pool.execute(
         "SELECT folder_id, parent_id, title, description, thumbnail, is_new, slug " +
-          "FROM res_folders WHERE parent_id = 0 ORDER BY date_create DESC"
+          "FROM res_folders WHERE parent_id = 0 ORDER BY created_at DESC"
       ),
       pool.execute(
         "SELECT title, folder_id, file_id, description, thumbnail, is_featured, is_new, price, rating_count, rating_points, size, slug " +
-          "FROM res_files WHERE folder_id = 0 ORDER BY date_create DESC"
+          "FROM res_files WHERE folder_id = 0 ORDER BY created_at DESC"
       ),
     ]);
 

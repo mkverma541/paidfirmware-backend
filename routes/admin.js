@@ -40,6 +40,7 @@ const uploadRouter = require("./admin/upload");
 const reportsRouter = require("./admin/reports");
 const excelReportsRouter = require("./admin/reportsExcel");
 const apiManagerRouter = require("./admin/apiManager");
+const cacheRouter = require("./admin/cache");
 
 // Routes
 
@@ -81,6 +82,7 @@ router.use("/leads", leadsRouter);
 router.use("/reports", reportsRouter);
 router.use("/reports/download/excel", excelReportsRouter);
 router.use("/api-manager", apiManagerRouter);
+router.use("/cache", cacheRouter);
 //router.use("/upload", uploadRouter);
 
 module.exports = router;

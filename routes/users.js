@@ -27,6 +27,7 @@ const courseRouter = require("./users/courses");
 const userAccountRouter = require("./users/account/index");
 const testRouter = require("./users/test");
 const paymentGatewayRouter = require("./users/paymentGateways");
+const cmsRouter = require("./users/cms");
 
 // shared
 const orderRouter = require("./shared/order");
@@ -61,5 +62,6 @@ router.use("/currencies", currencyRouter);
 router.use("/courses", courseRouter);
 router.use("/balance", testRouter);
 router.use("/payment/options", paymentGatewayRouter); 
+router.use("/cms", cmsRouter);
 
 module.exports = router;
