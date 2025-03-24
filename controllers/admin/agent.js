@@ -11,7 +11,7 @@ async function addAgent(req, res) {
       logo,
       description,
       address,
-      country,
+      country_code,
       status = true,
       social_links = [],
     } = req.body;
@@ -27,7 +27,7 @@ async function addAgent(req, res) {
 
     // Insert the agent details
     const [result] = await connection.query(
-      `INSERT INTO res_agents (name, phone, email, logo, description, address, country, status, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO res_agents (name, phone, email, logo, description, address, country_code, status, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
         phone,
@@ -35,7 +35,7 @@ async function addAgent(req, res) {
         logo,
         description,
         address,
-        country,
+        country_code,
         status,
         nextPosition,
       ]
@@ -161,7 +161,7 @@ async function updateAgent(req, res) {
       logo,
       description,
       address,
-      country,
+      country_code,
       social_links = [],
       status,
     } = req.body;
@@ -180,8 +180,8 @@ async function updateAgent(req, res) {
 
     // Update agent information
     await connection.query(
-      `UPDATE res_agents SET name = ?, phone = ?, email = ?, logo = ?, description = ?, address = ?, country = ?, status = ? WHERE agent_id = ?`,
-      [name, phone, email, logo, description, address, country, status, id]
+      `UPDATE res_agents SET name = ?, phone = ?, email = ?, logo = ?, description = ?, address = ?, country_code = ?, status = ? WHERE agent_id = ?`,
+      [name, phone, email, logo, description, address, country_code, status, id]
     );
 
     // Delete existing social links for the agent

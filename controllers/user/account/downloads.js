@@ -114,7 +114,7 @@ async function downloadFile(req, res) {
        FROM res_udownloads 
        WHERE user_id = ? 
        AND upackage_id = ? 
-       AND date_create > NOW() - INTERVAL 1 DAY`,
+       AND created_at > NOW() - INTERVAL 1 DAY`,
       [id, currentPackage[0].package_id]
     );
 

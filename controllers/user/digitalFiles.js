@@ -150,7 +150,7 @@ async function getFolderAndFiles(req, res) {
       "FROM res_folders WHERE parent_id = ? AND is_active = 1";
 
     const fileQuery =
-      "SELECT title, folder_id, file_id, slug, description, thumbnail, is_featured, is_new, price, rating_count, rating_points, size, date_create " +
+      "SELECT title, folder_id, file_id, slug, description, thumbnail, is_featured, is_new, price, rating_count, rating_points, size, created_at " +
       "FROM res_files WHERE folder_id = ? AND is_active = 1";
 
     // Add search conditions if search is provided
@@ -281,7 +281,7 @@ async function recentFiles(req, res) {
  
   try {
     const [rows] = await pool.execute(
-      "SELECT title, folder_id, file_id, slug, description, thumbnail, is_featured, is_new, price, rating_count, rating_points, size, date_create FROM res_files WHERE is_active = 1 ORDER BY date_create DESC LIMIT 20"
+      "SELECT title, folder_id, file_id, slug, description, thumbnail, is_featured, is_new, price, rating_count, rating_points, size, created_at FROM res_files WHERE is_active = 1 ORDER BY created_at  DESC LIMIT 20"
     );
 
     

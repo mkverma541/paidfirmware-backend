@@ -23,7 +23,7 @@ const cacheMiddleware = async (req, res, next) => {
     res.sendResponse = res.send;
     res.send = (body) => {
       const responseBody = typeof body === "string" ? body : JSON.stringify(body);
-      redis.setex(cacheKey, 600, responseBody); // Cache for 10 minutes (600 sec)
+      redis.set(cacheKey, responseBody); // Cache without expiration
       res.setHeader("Content-Type", "application/json");
       res.sendResponse(responseBody);
     };

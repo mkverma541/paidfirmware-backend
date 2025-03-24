@@ -1,7 +1,5 @@
-const express = require("express");
 const { pool } = require("../../config/database");
-const NodeCache = require("node-cache");
-const fileCache = new NodeCache({ stdTTL: 0 }); // Cache TTL of 1 hour
+const slugify = require("slugify");
 
 async function searchFilesFolders(req, res) {
   try {
@@ -28,10 +26,10 @@ async function searchFilesFolders(req, res) {
     } else {
       // If no query is present, get the top 4 files and folders
       [files] = await pool.execute(
-        `SELECT file_id, folder_id, title FROM res_files ORDER BY date_create DESC LIMIT 4`
+        `SELECT file_id, folder_id, title FROM res_files ORDER BY created_at DESC LIMIT 4`
       );
       [folders] = await pool.execute(
-        `SELECT folder_id, title FROM res_folders ORDER BY date_create DESC LIMIT 4`
+        `SELECT folder_id, title FROM res_folders ORDER BY created_at DESC LIMIT 4`
       );
     }
 
@@ -56,7 +54,7 @@ async function searchFilesFoldersWithSorting(req, res) {
       type = "both", // default to "both"
       is_active,
       is_new,
-      date_created,
+      created_at,
       is_featured,
     } = req.query;
 
@@ -80,10 +78,10 @@ async function searchFilesFoldersWithSorting(req, res) {
         folderConditions += " AND is_new = ?";
         params.push(is_new);
       }
-      if (date_created) {
-        fileConditions += " AND date_created = ?";
-        folderConditions += " AND date_created = ?";
-        params.push(date_created);
+      if (created_at) {
+        fileConditions += " AND created_at = ?";
+        folderConditions += " AND created_at = ?";
+        params.push(created_at);
       }
       if (is_featured !== undefined) {
         fileConditions += " AND is_featured = ?";
@@ -124,7 +122,6 @@ async function searchFilesFoldersWithSorting(req, res) {
   }
 }
 
-
 async function getFolderPath(folderId) {
   let path = [];
 
@@ -156,7 +153,7 @@ async function getAllFoldersFiles(req, res) {
 
     // Build SQL queries
     const folderQuery =
-      "SELECT folder_id, parent_id, title, description, thumbnail, is_active, is_new, date_create " +
+      "SELECT folder_id, parent_id, title, description, thumbnail, is_active, is_new, created_at " +
       "FROM res_folders WHERE parent_id = ?";
 
     const fileQuery = "SELECT * FROM res_files WHERE folder_id = ?";
@@ -888,34 +885,105 @@ async function getFileByFileId(req, res) {
   }
 }
 
+const BATCH_SIZE = 10000;  // Batch size to process in chunks
+
 async function updateSlugsForFolders(req, res) {
   let connection;
   try {
     connection = await pool.getConnection();
 
-    const query = `
-      UPDATE res_folders AS rf
-      SET rf.slug = (
-        SELECT
-          CASE 
-            WHEN COUNT(*) = 0 THEN LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-'))
-            ELSE CONCAT(LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-')), '-', COUNT(*))
-          END
-        FROM res_folders AS rf_inner
-        WHERE LOWER(REPLACE(REPLACE(REPLACE(rf_inner.title, '_', '-'), '[', '-'), ']', '-')) = LOWER(REPLACE(REPLACE(REPLACE(rf.title, '_', '-'), '[', '-'), ']', '-'))
-        AND rf_inner.folder_id <> rf.folder_id  -- Ensure you're comparing the correct identifiers
-      )
-      WHERE rf.slug IS NULL;
-    `;
+    console.log(`Starting slug update process...`);
 
-    await connection.execute(query);
+    const [[{ total }]] = await connection.query(`
+      SELECT COUNT(*) AS total 
+      FROM res_folders 
+      WHERE slug IS NULL OR slug = ''
+    `);
+
+    if (total === 0) {
+      return res.status(200).json({
+        status: "success",
+        message: "No folders with NULL or empty slugs found.",
+      });
+    }
+
+    console.log(`Total records to process: ${total}`);
+
+    let offset = 0;
+    let processed = 0;
+
+    while (offset < total) {
+      console.log(`Processing batch: ${offset + 1} to ${offset + BATCH_SIZE}`);
+
+      const [folders] = await connection.query(`
+        SELECT folder_id, title 
+        FROM res_folders 
+        WHERE slug IS NULL OR slug = ''
+        LIMIT ? OFFSET ?
+      `, [BATCH_SIZE, offset]);
+
+      if (folders.length === 0) break;
+
+      await connection.beginTransaction();  // Start transaction
+
+      try {
+        for (const folder of folders) {
+          const cleanSlug = slugify(folder.title, { 
+            lower: true, 
+            replacement: '-', 
+            remove: /[*+~.()'"!:@]/g 
+          });
+
+          // Check for existing duplicates
+          const [duplicateCount] = await connection.query(`
+            SELECT COUNT(*) AS count
+            FROM res_folders
+            WHERE slug LIKE ? AND folder_id <> ?
+          `, [`${cleanSlug}%`, folder.folder_id]);
+
+          const slug = duplicateCount[0].count === 0
+            ? cleanSlug
+            : `${cleanSlug}-${duplicateCount[0].count}`;
+
+          // Update slug in batch
+          await connection.execute(`
+            UPDATE res_folders
+            SET slug = ?
+            WHERE folder_id = ?
+          `, [slug, folder.folder_id]);
+        }
+
+        await connection.commit();  // Commit batch
+
+        offset += BATCH_SIZE;
+        processed += folders.length;
+
+        console.log(`Processed: ${processed}/${total}`);
+
+      } catch (batchError) {
+        console.error(`Error in batch at offset ${offset}:`, batchError);
+        await connection.rollback();  // Rollback on error
+      }
+    }
+
+    console.log(`Slug update completed. Total updated: ${processed}`);
 
     return res.status(200).json({
       status: "success",
-      message: "Successfully updated slugs for folders with NULL values",
+      message: `Successfully updated slugs for ${processed} folders.`,
     });
+
   } catch (error) {
-    return res.status;
+    console.error("Error updating slugs:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to update slugs",
+      error: error.message,
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 }
 
