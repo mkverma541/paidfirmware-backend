@@ -28,6 +28,7 @@ pool.getConnection()
   })
   .catch((err) => {
     console.error("❌ MariaDB Connection Error:", err);
+    process.exit(1); // Exit the app
   });
 
 const secretKey = process.env.JWT_SECRET; 
