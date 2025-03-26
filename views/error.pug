@@ -1,6 +1,12 @@
-extends layout
-
-block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+doctype html
+html
+  head
+    title= message
+    link(rel="stylesheet", href="/static/style.css")
+  body
+    .container.error
+      h1 Error #{status}
+      p= message
+      if error.stack
+        pre= error.stack
+      a.btn(href="/") Go back to Home

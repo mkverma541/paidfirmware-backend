@@ -16,7 +16,6 @@ async function getPaymentMethod(req, res) {
         console.error("Error fetching payment methods:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-
 }
 
 module.exports = {

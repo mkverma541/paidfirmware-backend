@@ -16,7 +16,7 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   waitForConnections: true,
-  connectionLimit: 10, // Use connection pooling
+  connectionLimit: 20, // Use connection pooling
   queueLimit: 0,
 });
 
@@ -30,4 +30,6 @@ pool.getConnection()
     console.error("❌ MariaDB Connection Error:", err);
   });
 
-module.exports = { pool };
+const secretKey = process.env.JWT_SECRET; 
+
+module.exports = { pool, secretKey };

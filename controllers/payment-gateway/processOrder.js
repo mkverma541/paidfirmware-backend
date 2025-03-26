@@ -1,9 +1,6 @@
 const { format, addSeconds } = require("date-fns");
 const { pool } = require("../../config/database");
-const {
-  getPackagePeriods,
-  sendOrderConfirmationEmail,
-} = require("./helper");
+const { getPackagePeriods, sendOrderConfirmationEmail } = require("./helper");
 
 const formatDateForDB = (date) => format(date, "yyyy-MM-dd HH:mm:ss");
 
@@ -32,55 +29,73 @@ const processOrder = async (order_id, user_id) => {
     const courses = userCart.filter((item) => item.item_type === 4);
 
     // Process packages if any
+    console.log("packages", packages);
+  
+
     if (packages.length > 0) {
       const packageIds = packages.map((item) => item.item_id);
       const packagePeriods = await getPackagePeriods(packageIds);
-
-      const packageInsertions = packages.map((item) => ({
-        user_id,
-        packageId: item.item_id,
-        order_id,
-        dateExpire: formatDateForDB(
-          addSeconds(new Date(), packagePeriods.get(item.item_id) || 0)
-        ),
-        isActive: 1,
-        isCurrent: 0,
-      }));
-
+    
+      // Prepare package insertions
+      const packageInsertions = packages.map((item) => {
+        const period = packagePeriods.get(item.item_id) || 0;
+    
+        return [
+          item.item_id,                         // package_id
+          item.title || "",                      // package_title
+          JSON.stringify(item),                  // package_object
+          user_id,                               // user_id
+          username || "",                        // username
+          item.bandwidth || 0,                   // bandwidth
+          item.bandwidth_files || 0,             // bandwidth_files
+          item.extra || 0,                       // extra
+          item.extra_files || 0,                 // extra_files
+          item.fair || 0,                        // fair
+          item.fair_files || 0,                  // fair_files
+          item.devices || 0,                     // devices
+          item.devices_fp || 0,                  // devices_fp
+          1,                                     // is_active
+          0,                                     // is_current
+          0,                                     // is_free
+          new Date(),                            // date_create
+          formatDateForDB(addSeconds(new Date(), period)) // date_expire
+        ];
+      });
+    
       // Deactivate current packages
       await connection.execute(
         "UPDATE res_upackages SET is_current = 0 WHERE user_id = ?",
         [user_id]
       );
-
-      // Batch insert packages
-      const packageInsertValues = packageInsertions.map((pkg) => [
-        pkg.user_id,
-        pkg.packageId,
-        pkg.orderId,
-        pkg.isActive,
-        pkg.isCurrent,
-        pkg.dateExpire,
-      ]);
-      await connection.query(
-        "INSERT INTO res_upackages (user_id, package_id, order_id, is_active, is_current, date_expire) VALUES ?",
-        [packageInsertValues]
-      );
+    
+      if (packageInsertions.length > 0) {
+        const query = `
+          INSERT INTO res_upackages (
+            package_id, package_title, package_object, user_id, username, 
+            bandwidth, bandwidth_files, extra, extra_files, fair, fair_files, 
+            devices, devices_fp, is_active, is_current, is_free, date_create, date_expire
+          ) VALUES ?
+        `;
+    
+        await connection.query(query, [packageInsertions]);
+      }
     }
-
+    
     // Insert files if any
     if (files.length > 0) {
       const fileInsertValues = files.map((file) => [
         user_id,
         file.item_id,
         file.sale_price,
-        order_id,
+        order_id
       ]);
+    
       await connection.query(
         "INSERT INTO res_ufiles (user_id, file_id, price, order_id) VALUES ?",
         [fileInsertValues]
       );
     }
+    
 
     console.log("files", files);
 
@@ -118,7 +133,7 @@ const processOrder = async (order_id, user_id) => {
         const { duration_type, duration, duration_unit, expiry_date } =
           courseDetail;
 
-          console.log("courseDetail", courseDetail);
+        console.log("courseDetail", courseDetail);
 
         // Initialize expiryDate as the current date
         let expiryDate = new Date();
@@ -151,9 +166,8 @@ const processOrder = async (order_id, user_id) => {
             throw new Error(`Invalid expiry_date: ${expiry_date}`);
           }
         } else {
-            expiryDate = expiry_date;
+          expiryDate = expiry_date;
         }
-
 
         return [
           user_id,

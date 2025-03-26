@@ -5,12 +5,9 @@ const { sendEmail } = require("../service/emailer");
 // Insert order into the database
 
 const insertOrder = async (d) => {
-  console.log(d, "data");
 
-  // Ensure all required fields have default values
   const {
     user_id,
-    transaction_order_id = null,
     subtotal = 0,
     total_amount = 0,
     amount_due = 0,
@@ -20,7 +17,7 @@ const insertOrder = async (d) => {
     payment_method,
     currency,
     notes = null,
-    item_types = "[]", // Default as empty JSON string if not provided
+    item_types = "[]",
   } = d;
 
   if (!user_id || !payment_method || !currency || !item_types) {
@@ -30,11 +27,10 @@ const insertOrder = async (d) => {
   try {
     const [order] = await pool.execute(
       `INSERT INTO res_orders 
-      (user_id, transaction_order_id, subtotal, total_amount, amount_due, tax, discount, exchange_rate, payment_method, currency, notes, item_types) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (user_id, subtotal, total_amount, amount_due, tax, discount, exchange_rate, payment_method, currency, notes, item_types) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         user_id,
-        transaction_order_id,
         subtotal,
         total_amount,
         amount_due,
@@ -47,7 +43,6 @@ const insertOrder = async (d) => {
         item_types,
       ]
     );
-    console.log(order);
     return order.insertId;
   } catch (error) {
     console.error("Error inserting order:", error.message);
@@ -149,7 +144,6 @@ const getPackagePeriods = async (packageIds) => {
     `SELECT package_id, period FROM res_download_packages WHERE package_id IN (${placeholders})`,
     packageIds
   );
-  console.log(periods);
   return new Map(periods.map((p) => [p.package_id, p.period])); // Map for quick lookup
 };
 

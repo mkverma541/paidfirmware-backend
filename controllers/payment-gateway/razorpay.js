@@ -35,22 +35,26 @@ async function createOrder(req, res) {
       });
     }
 
-    console.log("Cart items:", cartItems);
-
     const orderDetails = await calculateOrderDetails({
       cartItems,
       discountCode: options.discount_code,
       currency: options.currency,
     });
 
-
     // Get the unique item_type values
     const itemTypes = [...new Set(cartItems.map((item) => item.item_type))];
 
-    console.log("Order details:", orderDetails);
-
     // Create Razorpay order
-    const order = await razorpay.orders.create(options);
+
+    let option = {
+      amount: orderDetails.total_amount * 100, // Convert to smallest currency unit
+      currency: options.currency,
+      receipt: `order_${id}_${Date.now()}`,
+      payment_capture: 1, // Auto-capture payment
+      notes: options.notes || null,
+    };
+
+    const order = await razorpay.orders.create(option);
 
     if (!order) {
       res.status(500).json({
@@ -63,8 +67,7 @@ async function createOrder(req, res) {
     const payload = {
       user_id: id,
       ...orderDetails,
-      transaction_order_id: order.id,
-      amount_paid: order.amount_paid,
+      amount_due: order.amount_due,
       payment_method: 1, // Example: hardcoded; update as needed
       notes: options.notes || null,
       item_types: JSON.stringify(itemTypes),
@@ -149,6 +152,23 @@ async function fetchPayment(req, res) {
 
     const payment = await razorpay.payments.fetch(razorpay_payment_id);
 
+    // insert transaction details into the database
+
+    const transaction = await connection.execute(
+      "INSERT INTO res_transactions (order_id, user_id, amount, gateway_id, gateway_txn_id, gateway_response, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [
+        order_id,
+        id,
+        payment.amount / 100,
+        1,
+        payment.id,
+        JSON.stringify(payment),
+        payment.status,
+      ]
+    );
+
+    const transactionId = transaction[0].insertId;
+
     if (!payment || payment.status !== "captured") {
       await connection.rollback();
 
@@ -158,17 +178,18 @@ async function fetchPayment(req, res) {
       });
     }
 
+
     // Update the payment status in the database
 
     const paidAmount = payment.amount / 100; // Convert amount to base currency
 
     await connection.execute(
-      "UPDATE res_orders SET payment_id = ?, payment_status = ?, amount_paid = ?, order_status = ?, payment_date = ? WHERE order_id = ?"
-      [payment.id, 2, paidAmount, 7, new Date(), order_id]
+      "UPDATE res_orders SET payment_status = ?, amount_paid = ?, order_status = ?, transaction_id = ? WHERE order_id = ?",
+      [2, paidAmount, 7, transactionId, order_id]
     );
-
+    
     // Process the order
-    await processOrder(order_id, id);  
+    await processOrder(order_id, id);
 
     await connection.commit();
 
@@ -177,7 +198,7 @@ async function fetchPayment(req, res) {
       order_id: order_id,
     });
   } catch (error) {
-    await connection.rollback();
+    await connection.rollback();  
     console.error("Payment processing error:", error.message);
 
     return res.status(500).json({

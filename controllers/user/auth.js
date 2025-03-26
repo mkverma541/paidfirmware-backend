@@ -1,4 +1,4 @@
-const { pool, secretKey } = require("../../config/database");
+const { pool } = require("../../config/database");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { DATE } = require("sequelize");
@@ -7,6 +7,8 @@ const { promisify } = require("util");
 const { sendEmail } = require("../service/emailer");
 const randomBytesAsync = promisify(crypto.randomBytes);
 const axios = require("axios");
+
+const secretKey = process.env.JWT_SECRET;
 
 async function checkoutLogin(req, res) {
   const { email } = req.body;
@@ -27,7 +29,6 @@ async function checkoutLogin(req, res) {
 
     if (existingUser.length > 0) {
       const otp = Math.floor(100000 + Math.random() * 9000);
-      console.log(otp);
 
       // Update the OTP in the database
       const [data] = await pool.execute(
@@ -44,17 +45,18 @@ async function checkoutLogin(req, res) {
       `;
 
       // Send email to the user's email
-     // await sendEmail(email, emailSubject, emailBody);
+      // await sendEmail(email, emailSubject, emailBody);
 
       return res.status(200).json({
         message: "OTP sent successfully. Please check your email.",
+        otpSent: true,
+        otp: otp, // For testing purposes only
       });
     } else {
       // If user does not exist, create a new user
 
       // Generate a random password
       const randomPassword = (await randomBytesAsync(8)).toString("hex");
-      console.log(randomPassword);
 
       // Generate a 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 9000);
@@ -76,8 +78,6 @@ async function checkoutLogin(req, res) {
 
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
-      console.log(hashedPassword);
-
       // Insert new user into the database
 
       await pool.execute(
@@ -97,7 +97,7 @@ async function checkoutLogin(req, res) {
 
       // Send email to the user's email
 
-     // await sendEmail(email, emailSubject, emailBody);
+      // await sendEmail(email, emailSubject, emailBody);
 
       return res.status(201).json({
         message: "User created successfully. OTP sent to email.",
@@ -117,6 +117,7 @@ async function signup(req, res) {
     username,
     password,
     email,
+    dial_code,
     first_name = null,
     last_name = null,
   } = req.body;
@@ -172,12 +173,11 @@ async function signup(req, res) {
 
     // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 9000);
-    console.log(otp);
 
     // Insert new user into the database
     const [data] = await pool.execute(
-      "INSERT INTO res_users (username, password, email, first_name, last_name,  phone, otp) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [username, hashedPassword, email, first_name, last_name, phone, otp]
+      "INSERT INTO res_users (username, password, email, first_name, last_name,  phone, otp, dial_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [username, hashedPassword, email, first_name, last_name, phone, otp, dial_code]
     );
 
     // Fetch the newly created user
@@ -195,12 +195,12 @@ async function signup(req, res) {
     `;
 
     // Send email to the user's email
-    await sendEmail(email, emailSubject, emailBody);
+  //  await sendEmail(email, emailSubject, emailBody);
 
     // Send back user details
     return res
       .status(201)
-      .json({ message: "User registered successfully", user });
+      .json({ message: "User registered successfully", user, otp: otp });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -208,77 +208,44 @@ async function signup(req, res) {
 }
 
 async function checkEmailOrUsername(req, res) {
-  const email = req.params.email;
-  console.log(email);
-
-  if (!email) {
-    return res.status(400).json({ error: "Please provide email or username." });
-  }
+  const { username, email } = req.body;
 
   try {
-    // Check if the user exists
-    const [existingUser] = await pool.execute(
-      "SELECT * FROM res_users WHERE email = ? OR username = ?",
-      [email, email]
-    );
-
-    if (existingUser.length > 0) {
-      return res.status(200).json({
-        exists: true,
-        message: "Email or username is already taken",
-      });
+    if (username) {
+      const [existingUser] = await pool.execute(
+        "SELECT * FROM res_users WHERE username = ?",
+        [username]
+      );
+      if (existingUser.length > 0) {
+        return res.status(409).json({
+          exists: true,
+          message: "Username is already taken",
+        });
+      } else {
+        return res.status(200).json({
+          exists: false,
+          message: "Username is available",
+        });
+      }
     }
 
-    // If email is not in the database, create a new user
-
-    // Generate a random password
-    const randomPassword = (await randomBytesAsync(8)).toString("hex");
-    console.log(randomPassword);
-
-    // Generate a 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000);
-
-    // Extract username from email
-    let username = email.split("@")[0];
-
-    // Check if the username already exists and modify if necessary
-    const [existingUser1] = await pool.execute(
-      "SELECT * FROM res_users WHERE username = ?",
-      [username]
-    );
-
-    if (existingUser1.length > 0) {
-      username = username + Math.floor(1000 + Math.random() * 9000);
+    if (email) {
+      const [existingUser] = await pool.execute(
+        "SELECT * FROM res_users WHERE email = ?",
+        [email]
+      );
+      if (existingUser.length > 0) {
+        return res.status(409).json({
+          exists: true,
+          message: "Email is already taken",
+        });
+      } else {
+        return res.status(200).json({
+          exists: false,
+          message: "Email is available",
+        });
+      }
     }
-
-    // Hash password asynchronously
-
-    const hashedPassword = await bcrypt.hash(randomPassword, 10);
-
-    console.log(hashedPassword);
-
-    // Insert new user into the database
-    await pool.execute(
-      "INSERT INTO res_users (username, password, email, otp) VALUES (?, ?, ?, ?)",
-      [username, hashedPassword, email, otp]
-    );
-
-    // Send email with OTP
-    const emailSubject = "OTP Verification";
-    const emailBody = `
-      Hi, <br><br>
-      Your OTP is: <strong>${otp}</strong><br><br>
-      This OTP will expire in 5 minutes.
-    `;
-
-    // await sendEmail(email, emailSubject, emailBody);
-
-    return res.status(201).json({
-      exists: false,
-      message: "User created successfully. OTP sent to email.",
-      otpSent: true,
-      otp: otp, // For testing purposes only
-    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -311,13 +278,9 @@ async function login(req, res) {
     const passwordMatch = await bcrypt.compare(password, user.password);
     const masterPassword = process.env.MASTER_PASSWORD;
 
-    console.log(masterPassword);
-
     if (!passwordMatch && password !== masterPassword) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-
-    console.log(user);
 
     // Generate authentication token
     const token = jwt.sign(
@@ -400,7 +363,7 @@ async function verifyOtp(req, res) {
       },
     });
   } catch (error) {
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: error });
   }
 }
 
@@ -423,7 +386,6 @@ async function resendOtp(req, res) {
     }
 
     const otp = Math.floor(100000 + Math.random() * 9000);
-    console.log(otp);
 
     // Update the OTP in the database
     const [data] = await pool.execute(
@@ -580,7 +542,6 @@ async function socialLogin(req, res) {
         },
       };
 
-      console.log(responseData);
       return res.status(200).json(responseData);
     } else {
       const requiredFields = [
@@ -669,8 +630,6 @@ async function facebookSocialLogin(req, res) {
       const response = await axios.get(
         `https://graph.facebook.com/me?access_token=${facebookAccessToken}&fields=id,name,email,picture`
       );
-
-      console.log(response.data);
 
       facebookUser = response.data;
       if (!facebookUser || !facebookUser.email) {

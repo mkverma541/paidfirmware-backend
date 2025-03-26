@@ -20,6 +20,7 @@
   "AWS_SECRET_ACCESS_KEY": "BHQy97t+k2AvG9R8didymHzlrS6JASbfMKCOMEs3",
   "AWS_REGION": "ap-south-1",
   "AWS_S3_BUCKET_NAME": "filewale",
-  "JWT_SECRET_KEY": "secret",
-  "ENABLE_REDIS_CACHE": true
+  "JWT_SECRET": "your_secret_key",
+  "ENABLE_REDIS_CACHE": true,
+  "NODE_ENV": "development"
 }

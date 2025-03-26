@@ -8,7 +8,6 @@ const cors = require("cors");
 const createError = require("http-errors");
 require("./logger");
 
-
 // Cron Jobs
 require("./jobs/updateIsNewCron");
 
@@ -51,6 +50,10 @@ app.use(
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
+app.get("/", (req, res) => {
+  res.render("index", { title: "Express" });
+});
+
 // Import grouped routes
 const userRoutes = require("./routes/users");
 const adminRoutes = require("./routes/admin");
@@ -62,16 +65,17 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/user", userRoutes);
 
 // Catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
+app.use((req, res, next) => {
+  next(createError(404, "Page Not Found"));
 });
 
-// Error handler
-app.use(function (err, req, res, next) {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
+app.use((err, req, res, next) => {
   res.status(err.status || 500);
-  res.render("error");
+  res.render("error", {
+    message: err.message || "Something went wrong",
+    status: err.status || 500,
+    error: req.app.get("env") === "development" ? err : {}, // Show stack trace in development
+  });
 });
 
 // Export the app for use in other modules

@@ -11,7 +11,7 @@ router.post('/social-login', AuthController.socialLogin);
 router.post('/facebook-login', AuthController.facebookSocialLogin);
 router.post('/forgot-password', AuthController.forgotPassword);
 router.post('/reset-password', AuthController.resetPassword);
-router.get('/check-username-email/:email', AuthController.checkEmailOrUsername);
+router.post('/check-username-email', AuthController.checkEmailOrUsername);
 router.post('/checkout-login', AuthController.checkoutLogin);
 
 module.exports = router;
