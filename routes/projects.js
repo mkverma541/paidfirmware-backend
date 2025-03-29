@@ -2,9 +2,10 @@ var express = require("express");
 var router = express.Router();
 
 const ProjectController = require("../controllers/projects");
+const ProjectListController = require("../controllers/listProject");
 
 router.post("/add", ProjectController.createProject);
-router.get("/list", ProjectController.getAllProjects);
+router.get("/list", ProjectListController.getAllProjects);
 router.get("/counts", ProjectController.getProjectStatusCounts);
 router.put("/update/child/project", ProjectController.updateChildProject);
 router.put("/child/update/status", ProjectController.updateChildProjectStatus);

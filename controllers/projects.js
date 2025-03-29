@@ -119,7 +119,6 @@ async function createProject(req, res) {
       ]);
 
       groupProjectId = insertGroupProjectId.insertId;
-      console.log(groupProjectId);
     } else {
       project_code = await generateProjectCode();
       group_project_code = null;
@@ -185,13 +184,11 @@ async function createProject(req, res) {
       throw new Error("Default supplier not found.");
     }
 
-    const hashId = uuidv4().replace(/-/g, "").substring(0, 8);
-    const appBaseUrl = process.env.APP_BASE_URL;
-    const supplierUrl = `${appBaseUrl}/Survey?stid=${hashId}&uid=[identifier]`;
+    const stid = uuidv4().replace(/-/g, "").substring(0, 8);
 
     await connection.query(
-      `INSERT INTO project_suppliers (project_id, supplier_id, quota, click_quota, cpi, redirection_type, supplier_url, stid) VALUES (?, ?, 0, 0, 0, 1, ?, ?)`,
-      [project_id, defaultSupplier.supplier_id, supplierUrl, hashId]
+      `INSERT INTO project_suppliers (project_id, supplier_id, quota, click_quota, cpi, redirection_type, stid) VALUES (?, ?, 0, 0, 0, 1, ?)`,
+      [project_id, defaultSupplier.supplier_id, stid]
     );
 
     await connection.commit();
@@ -237,128 +234,6 @@ async function getGroupProjectDetails(req, res) {
     res.status(500).json({ message: "Internal server error", status: "error" });
   }
 }
-
-async function getAllProjects(req, res) {
-  try {
-    let { search, status, page = 1, limit = 10 } = req.query;
-    console.log(status);
-    page = parseInt(page, 10);
-    limit = parseInt(limit, 10);
-    const offset = (page - 1) * limit;
-    
-    const queryParams = [];
-    let whereClause = "WHERE 1=1";
-
-    if (search?.trim()) {
-      whereClause += " AND (p.project_name LIKE ? OR p.project_code LIKE ?)";
-      queryParams.push(`%${search}%`, `%${search}%`);
-    }
-    
-    if (status?.trim()) {
-      console.log(status, "status");
-      whereClause += " AND gp.status = ?";
-      queryParams.push(status);
-    }
-
-    const projectQuery = `
-      SELECT p.*, gp.project_name AS group_project_name, gp.project_code AS group_project_code, 
-             gp.project_id AS group_project_id, gp.status AS group_status, 
-             c.client_name, c.client_code, co.name AS country_name
-      FROM projects p
-      LEFT JOIN group_projects gp ON p.group_project_id = gp.project_id
-      INNER JOIN clients c ON p.client_id = c.client_id
-      INNER JOIN countries co ON p.country_code = co.code
-      ${whereClause} 
-      ORDER BY COALESCE(gp.status, 0) DESC, p.created_at DESC
-      LIMIT ? OFFSET ?`;
-    queryParams.push(limit, offset);
-    
-    const countQuery = `
-      SELECT COUNT(*) AS total_count 
-      FROM projects p
-      LEFT JOIN group_projects gp ON p.group_project_id = gp.project_id
-      INNER JOIN clients c ON p.client_id = c.client_id
-      INNER JOIN countries co ON p.country_code = co.code
-      ${whereClause}`;
-    
-    const [projects] = await pool.query(projectQuery, queryParams);
-    const [[{ total_count }]] = await pool.query(countQuery, queryParams.slice(0, -2));
-    
-    const groupedProjects = new Map();
-
-    projects.forEach((project) => {
-      const projectData = {
-        project_id: project.project_id,
-        project_code: project.project_code,
-        project_name: project.project_name,
-        client_name: project.client_name,
-        client_code: project.client_code,
-        country_name: project.country_name,
-        status: project.status,
-        created_at: project.created_at,
-        updated_at: project.updated_at,
-        field_ir: project.ir || 0,
-        conversion_rate: project.cr || 0,
-        drop_out_rate: project.dr || 0,
-        median_loi: project.loi || 0,
-        cpi_percent: parseFloat(project.project_cpi) || 0,
-        pre_screen: project.pre_screen || 0,
-        child_projects: [],
-      };
-      
-      if (project.group_project_id) {
-        if (!groupedProjects.has(project.group_project_id)) {
-          groupedProjects.set(project.group_project_id, {
-            ...projectData,
-            project_id: project.group_project_id,
-            project_code: project.group_project_code,
-            project_name: project.group_project_name,
-            status: project.group_status,
-            child_projects: [],
-          });
-        }
-        groupedProjects.get(project.group_project_id).child_projects.push(projectData);
-      } else {
-        groupedProjects.set(project.project_id, projectData);
-      }
-    });
-    
-    const calculateMedian = (arr) => {
-      if (!arr.length) return 0;
-      arr.sort((a, b) => a - b);
-      const mid = Math.floor(arr.length / 2);
-      return arr.length % 2 !== 0 ? arr[mid] : (arr[mid - 1] + arr[mid]) / 2;
-    };
-    
-    const resultProjects = Array.from(groupedProjects.values()).map(project => {
-      const loiArray = project.child_projects.map(c => c.median_loi).filter(loi => loi > 0);
-      project.child_projects.forEach(child => {
-        project.field_ir += child.field_ir;
-        project.conversion_rate += child.conversion_rate;
-        project.drop_out_rate += child.drop_out_rate;
-        project.cpi_percent += child.cpi_percent;
-        project.pre_screen += child.pre_screen;
-      });
-      project.median_loi = calculateMedian(loiArray);
-      return project;
-    });
-    
-    res.status(200).json({
-      data: resultProjects,
-      status: "success",
-      pagination: {
-        currentPage: page,
-        perPage: limit,
-        totalPages: Math.ceil(total_count / limit),
-        totalItems: total_count,
-      },
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error", status: "error" });
-  }
-}
-
 
 async function getProjectSurveyLinks(req, res) {
   try {
@@ -591,7 +466,6 @@ async function addChildProject(req, res) {
       throw new Error("Invalid project code format.");
     }
 
-    console.log(project_code); // e.g., AC10003, AC10004, etc.
     const query = `
       INSERT INTO projects (
       project_code, project_type, start_date, end_date, is_dynamic_thanks, group_project_id,
@@ -652,9 +526,11 @@ async function addChildProject(req, res) {
       throw new Error("Default supplier not found.");
     }
 
+    const stid = uuidv4().replace(/-/g, "").substring(0, 8);
+
     await connection.query(
-      `INSERT INTO project_suppliers (project_id, supplier_id, quota, click_quota, cpi, redirection_type) VALUES (?, ?, 0, 0, 1, ?)`,
-      [project_id, defaultSupplier.supplier_id, "default_redirection_type"]
+      `INSERT INTO project_suppliers (project_id, supplier_id, quota, click_quota, cpi, redirection_type, stid) VALUES (?, ?, 0, 0, 1, ?, ?)`,
+      [project_id, defaultSupplier.supplier_id, 1, stid]
     );
 
     await connection.commit();
@@ -715,20 +591,12 @@ async function addSupplierToProject(req, res) {
 
     // generate unique hash Id
 
-    const hashId = uuidv4().replace(/-/g, "").substring(0, 8);
-    const appBaseUrl = process.env.APP_BASE_URL;
-    const supplierUrl = `${appBaseUrl}/Survey?stid=${hashId}&uid=[identifier]`;
-
-    console.log(supplierUrl);
+    const stid = uuidv4().replace(/-/g, "").substring(0, 8);
 
     const query = `
-      INSERT INTO project_suppliers (project_id, supplier_id, quota, click_quota, cpi, redirection_type, supplier_url, stid)
-      VALUES (?, ?, 0, ?, ?, ?, ?, ? )
+      INSERT INTO project_suppliers (project_id, supplier_id, quota, click_quota, cpi, redirection_type, stid)
+      VALUES (?, ?, 0, ?, ?, ?, ? )
     `;
-
-    console.log(supplierUrl);
-
-    console.log(hashId);
 
     await connection.query(query, [
       project_id,
@@ -736,8 +604,7 @@ async function addSupplierToProject(req, res) {
       Number(click_quota),
       Number(cpi),
       Number(redirection_type) || null,
-      supplierUrl,
-      hashId,
+      stid,
     ]);
 
     await connection.commit();
@@ -893,7 +760,6 @@ async function updateProjectSurveyLink(req, res) {
 async function updateChildProjectStatus(req, res) {
   try {
     const { project_id, status } = req.body;
-    
 
     if (!project_id || !status) {
       return res.status(400).json({
@@ -1024,7 +890,6 @@ async function updateChildProject(req, res) {
 
 module.exports = {
   createProject,
-  getAllProjects,
   getGroupProjectDetails,
   updateChildProject,
   updateProjectSurveyLink,

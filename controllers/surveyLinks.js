@@ -1,8 +1,8 @@
 const { pool } = require("../config/database");
 const axios = require("axios");
 const requestIp = require("request-ip");
-const parser = require("ua-parser-js");
 const { v4: uuidv4 } = require("uuid");
+const UAParser = require("ua-parser-js");
 
 async function getRedirectLinks(req, res) {
   try {
@@ -15,9 +15,12 @@ async function getRedirectLinks(req, res) {
     }
 
     if (end) {
-      // Fetch the record based on the identifier
-      const query = `SELECT * FROM project_report WHERE hash_identifier = ?`;
-      const [result] = await pool.query(query, [end]);
+      const query = `
+        SELECT * 
+        FROM project_report 
+        WHERE hash_identifier = ?`;
+
+      const [result] = await pool.query(query, [uid]);
 
       if (result.length === 0) {
         return res
@@ -27,138 +30,42 @@ async function getRedirectLinks(req, res) {
 
       const data = result[0];
 
-      // Handle statuses
       const statusMap = {
         10: {
-          status: "completed",
-          response:
-            "You have completed this survey successfully. Your participation status will be updated soon!",
+          status: "complete",
+          page: "c",
         },
         20: {
-          status: "terminated",
-          response: "However, you are not eligible for this survey.",
+          status: "terminate",
+          page: "f",
         },
         30: {
-          status: "quality_terminate",
-          response: "However, you are not eligible for this survey.",
+          status: "qualiy_terminate",
+          page: "t",
         },
         40: {
           status: "over_quota",
-          response:
-            "We have got the required number of responses. We look forward to your participation in other surveys.",
+          page: "q",
         },
         70: {
-          status: "survey_close",
-          response:
-            "However, the survey has been closed. We look forward to your participation in other surveys.",
+          status: "survey_closed",
+          page: "sc",
         },
       };
 
-      if (statusMap[end]) {
-        if (data.end_date_time === null) {
-          const query2 = `
-            UPDATE project_report
-            SET end_date_time = NOW(), status = ?
-            WHERE hash_identifier = ?`;
+      const query2 = `
+          UPDATE project_report
+          SET end_date_time = NOW(), status = ?
+          WHERE hash_identifier = ?`;
 
-          await pool.query(query2, [statusMap[end].status, end]);
+      await pool.query(query2, [statusMap[end].status, uid]);
 
-          return res
-            .status(200)
-            .json({ message: statusMap[end].response, status: "success" });
-        } else {
-          return res
-            .status(409)
-            .json({ message: "Project already ended.", status: "error" });
-        }
-      } else {
-        return res
-          .status(400)
-          .json({ message: "Invalid end status.", status: "error" });
-      }
+      return res.status(200).json({
+        message: statusMap[end].response,
+        status: "success",
+        redirectLink: `${process.env.APP_BASE_URL}/Thanks/Verify?end=${statusMap[end].page}&uid=${uid}`,
+      });
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error", status: "error" });
-  }
-}
-
-async function testSurveyLinks(req, res) {
-  const { project_id } = req.body;
-
-  try {
-    if (!project_id) {
-      return res
-        .status(400)
-        .json({ message: "project_id is required", status: "error" });
-    }
-
-    // Fetch the project details based on the project_id
-    const query = `SELECT * FROM projects WHERE project_id = ?`;
-    const [project] = await pool.query(query, [project_id]);
-
-    if (project.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "Project not found", status: "error" });
-    }
-
-    const ipAddress = getClientIp(req); // Get the client's IP address
-    const { deviceType, browser } = getDeviceAndBrowserDetails(req); // Get device and browser details
-    const country = await getCountryDetails(ipAddress); // Get country details
-    const isDuplicateIp = await checkDuplicateIP(ipAddress); // Check duplicate IP
-
-    // Fix SQL query syntax for fetching supplier details
-    const supplierQuery = `SELECT * FROM project_suppliers WHERE project_id = ?`;
-    const [supplierDetails] = await pool.query(supplierQuery, [project_id]);
-
-    if (supplierDetails.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "Supplier not found", status: "error" });
-    }
-
-    // Generate random uid format
-    const uid = uuidv4();
-    let status = "";
-    let redirectLinks;
-
-    const params = {
-      supplierDetails: supplierDetails[0],
-      projectDetails: project[0],
-      uid: uid,
-      hashIdentifier: "",
-      projectCPI: 0,
-      supplierCPI: 0,
-      ipAddress: ipAddress,
-      country: country,
-      deviceType: deviceType,
-      browser: browser,
-      isTestLink: 1,
-    };
-
-    if (isDuplicateIp) {
-      status = "Duplicate IP";
-      redirectLinks = `${process.env.APP_BASE_URL}/Thanks/Verify?end=f&uid=${uid}`; // Fail
-    }
-
-    const isDuplicateSupplierUser = await checkDuplicateSupplierUser(uid);
-
-    if (isDuplicateSupplierUser) {
-      status = "Duplicate Supplier User";
-      redirectLinks = `${process.env.APP_BASE_URL}/Thanks/Verify?end=f&uid=${uid}`; // Fail
-    }
-
-    await logProjectReport({
-      ...params,
-      status: status,
-    });
-
-    console.log(redirectLinks);
-    res.status(200).json({
-      status: "success",
-      link: redirectLinks,
-    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error", status: "error" });
@@ -166,96 +73,147 @@ async function testSurveyLinks(req, res) {
 }
 
 async function getSurveyLinks(req, res) {
-  try {
-    const { stid, uid } = req.body;
+  // 1. Get original identifiers from the request
+  const { stid, uid: originalUid } = req.body; // Rename to avoid confusion
 
-    const supplierDetails = await getSupplierDetails(stid);
-    if (!supplierDetails) {
+  try {
+    // 2. Basic validation
+    if (!stid || !originalUid) {
       return res
-        .status(404)
-        .json({ message: "No survey links found", status: "error" });
+        .status(400)
+        .json({ message: "stid or uid is required", status: "error" });
     }
 
-    const projectDetails = await getProjectDetails(supplierDetails.project_id);
-    if (!projectDetails) {
+    // 3. Fetch supplier details
+    const [suppliers] = await pool.query(
+      `SELECT * FROM project_suppliers WHERE stid = ?`,
+      [stid]
+    );
+    if (suppliers.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Supplier not found", status: "error" });
+    }
+    const supplierDetails = suppliers[0];
+    const isTestLink = supplierDetails.is_test_link; // 1 for test link, 0 for actual link
+
+    // 4. Fetch project details
+    const [project] = await pool.query(
+      `SELECT * FROM projects WHERE project_id = ?`,
+      [supplierDetails.project_id]
+    );
+    if (project.length === 0) {
       return res
         .status(404)
         .json({ message: "Project not found", status: "error" });
     }
+    const projectDetails = project[0];
 
+    // 5. Gather request context
     const ipAddress = getClientIp(req);
     const { deviceType, browser } = getDeviceAndBrowserDetails(req);
-    const country = await getCountryDetails(ipAddress);
+    const country = await getCountryDetails(ipAddress); // Assuming this returns country code/name
 
-    const { status, redirectLink } = await performChecks(
-      uid,
-      ipAddress,
-      country,
-      projectDetails
-    );
-
-    let hashIdentifier = "";
-    let supplierCPI = 0;
-    let projectCPI = 0;
-
-    // If all checks pass, update supplier_cpi and project_cpi
-    if (!status) {
-      supplierCPI = supplierDetails.supplier_cpi;
-      projectCPI = projectDetails.project_cpi;
-      hashIdentifier = `AC-${uuidv4()}`;
-    }
-
-    // Log data in project_report regardless of checks
-    await logProjectReport({
+    // 6. Prepare parameters for logging (using originalUid)
+    const baseParams = {
       supplierDetails,
       projectDetails,
-      uid,
-      hashIdentifier,
-      projectCPI,
-      supplierCPI,
-      status,
+      uid: originalUid, // Use the original UID from the request
+      hashIdentifier: "", // Will be set later
+      projectCPI: 0, // Assuming these might be fetched/calculated later
+      supplierCPI: 0,
       ipAddress,
       country,
       deviceType,
       browser,
-      isTestLink: supplierDetails.is_test_link,
-    });
+      isTestLink,
+    };
 
-    console.log(status);
+    // 7. Determine status and redirect link
+    let status = ""; // Default status before checks
+    let redirectLinks = `${process.env.APP_BASE_URL}/Survey/Success?uid=${originalUid}`; // Default success link
+    let hashIdentifier = ""; // Initialize hashIdentifier
 
-    // If checks fail, return the redirect link with the appropriate status
-    if (status) {
-      return res.status(200).json({
-        message: "Survey links fetched successfully",
-        status: "success",
-        link: redirectLink,
-      });
+    if (isTestLink === 0) {
+      // Live Link Logic
+      // Check conditions sequentially
+      if (await checkDuplicateSupplierUser(originalUid, stid)) {
+        status = "duplicate_supplier_user";
+        redirectLinks = `${process.env.APP_BASE_URL}/Thanks/Verify?end=f&uid=${originalUid}`;
+      } else if (projectDetails.country_code !== country) {
+        // Ensure comparison is correct (e.g., both are country codes)
+        status = "geo_ip_mismatch";
+        redirectLinks = `${process.env.APP_BASE_URL}/Thanks/Verify?end=f&uid=${originalUid}`;
+      } else if (await checkDuplicateIP(ipAddress)) {
+        status = "duplicate_ip";
+        redirectLinks = `${process.env.APP_BASE_URL}/Thanks/Verify?end=f&uid=${originalUid}`;
+      } else {
+        // Passed all checks, generate link
+        const liveLink = projectDetails.survey_live_link;
+        const hash = uuidv4();
+        hashIdentifier = `AR-${hash}`;
+        redirectLinks = liveLink.replace("[identifier]", hashIdentifier);
+        // Status remains 'Success' until survey interaction changes it,
+        // but we often log the initial entry as something like 'Sent to Survey' or keep 'Success' for entry.
+        // The original code set it to 'Drop Out' here, which might be premature. Let's use 'Sent to Survey'.
+        status = "Drop Out"; // Need to verify client
+      }
+    } else {
+      // Test Link Logic
+      const testLink = projectDetails.survey_test_link;
+      const hash = uuidv4();
+      hashIdentifier = `AR-${hash}`;
+      // No need to generate or overwrite uid here. Use the hashIdentifier for the link.
+      redirectLinks = testLink.replace("[identifier]", hashIdentifier);
+      // The original code set status to 'Drop Out', let's use 'Sent to Test Survey'.
+      status = "drop_out";
     }
 
-    // If all checks pass, return the final survey link
-    const finalRedirectLink = `${projectDetails.survey_live_link}?uid=${hashIdentifier}`;
+    // 8. Log the outcome
+    const logParams = {
+      ...baseParams,
+      status,
+      hashIdentifier, // Ensure hashIdentifier is included
+    };
+    await logProjectReport(logParams); // Pass the final parameters
+
+    // 9. Return the result
+    return res.status(200).json({
+      status: "success", // API call status
+      link: redirectLinks,
+    });
+  } catch (err) {
+    console.error("Error in getSurveyLinks:", err); // Log the specific error
+    res.status(500).json({ message: "Internal server error", status: "error" });
+  }
+}
+
+async function testSurveyLinks(req, res) {
+  try {
+    const { project_id } = req.body;
+
+    const query = `SELECT * FROM project_suppliers WHERE project_id = ?`;
+
+    const [suppliers] = await pool.query(query, [project_id]);
+
+    const stid = suppliers[0].stid;
+
+    if (suppliers.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Suppliers not found", status: "error" });
+    }
+
+    const uid = uuidv4();
 
     res.status(200).json({
-      message: "Survey links fetched successfully",
       status: "success",
-      link: finalRedirectLink,
+      link: `${process.env.APP_BASE_URL}/Survey?stid=${stid}&uid=${uid}`,
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error", status: "error" });
   }
-}
-
-async function getSupplierDetails(stid) {
-  const query = `SELECT * FROM project_suppliers WHERE stid = ?;`;
-  const [result] = await pool.query(query, [stid]);
-  return result[0];
-}
-
-async function getProjectDetails(projectId) {
-  const query = `SELECT * FROM projects WHERE project_id = ?;`;
-  const [result] = await pool.query(query, [projectId]);
-  return result[0];
 }
 
 function getClientIp(req) {
@@ -268,10 +226,12 @@ function getClientIp(req) {
 
 function getDeviceAndBrowserDetails(req) {
   const userAgent = req.headers["user-agent"] || "";
-  const parsedUA = parser(userAgent);
+  const parser = new UAParser(userAgent);
+  const result = parser.getResult();
+
   return {
-    deviceType: parsedUA.device.type || "",
-    browser: parsedUA.browser.name || "",
+    deviceType: result.device.type || "Desktop",
+    browser: `${result.browser.name}_${result.browser.version}`,
   };
 }
 
@@ -284,50 +244,14 @@ async function getCountryDetails(ipAddress) {
     return "";
   }
 }
-
-/**
- * Performs various checks to determine the status and redirect link based on the provided parameters.
- *
- * @param {string} uid - The unique identifier for the user.
- * @param {string} ipAddress - The IP address of the user.
- * @param {string} country - The country code of the user.
- * @param {Object} projectDetails - The details of the project.
- * @param {number} projectDetails.is_geo_location - Indicates if geo-location check is required (1 for true, 0 for false).
- * @param {string} projectDetails.country_code - The country code specified in the project details.
- * @returns {Promise<Object>} An object containing the status and redirect link.
- * @returns {string} return.status - The status of the checks performed.
- * @returns {string} return.redirectLink - The URL to redirect the user based on the checks.
- */
-
-async function performChecks(uid, ipAddress, country, projectDetails) {
-  console.log(uid);
-  let status = "";
-  let redirectLink = `${process.env.APP_BASE_URL}/Thanks/Verify?end=f&uid=${uid}`;
-
-  // Check for duplicate IP address
-  const isDuplicateIP = await checkDuplicateIP(ipAddress);
-  if (isDuplicateIP) {
-    status = "Duplicate IP";
+async function getCountryDetails(ipAddress) {
+  try {
+    const response = await axios.get(`https://ipapi.co/${ipAddress}/json/`);
+    return response.data.country_code || "";
+  } catch (error) {
+    console.error("Error fetching country details:", error);
+    return "";
   }
-
-  // Check for duplicate supplier user
-  const isDuplicateSupplierUser = await checkDuplicateSupplierUser(uid);
-
-  if (isDuplicateSupplierUser) {
-    status = "Duplicate Supplier User";
-  }
-
-  // Check for geo-location mismatch
-  if (
-    projectDetails.is_geo_location === 1 &&
-    projectDetails.country_code !== country
-  ) {
-    status = "Geo IP Mismatch";
-  }
-
-  console.log(redirectLink);
-
-  return { status, redirectLink };
 }
 
 async function checkDuplicateIP(ipAddress) {
@@ -336,9 +260,9 @@ async function checkDuplicateIP(ipAddress) {
   return result.length > 0;
 }
 
-async function checkDuplicateSupplierUser(uid) {
-  const query = `SELECT * FROM project_report WHERE supplier_identifier = ?`;
-  const [result] = await pool.query(query, [uid]);
+async function checkDuplicateSupplierUser(uid, stid) {
+  const query = `SELECT * FROM project_report WHERE supplier_identifier = ? AND stid = ?`;
+  const [result] = await pool.query(query, [uid, stid]);
   return result.length > 0;
 }
 
@@ -356,7 +280,9 @@ async function logProjectReport({
   browser,
   isTestLink,
 }) {
-  const logQuery = `INSERT INTO project_report (supplier_id, project_id, stid, supplier_identifier, supplier_user_id, hash_identifier, project_cpi, supplier_cpi, status_description, failure_reason,  end_date_time, loi, ip_address, country_code, device_type, browser_agent, test_link) VALUES ?`;
+  const logQuery = `INSERT INTO project_report (supplier_id, project_id, stid, supplier_identifier, supplier_user_id, hash_identifier, project_cpi, supplier_cpi, status, failure_reason,  end_date_time, loi, ip_address, country_code, device_type, browser_agent, test_link) VALUES ?`;
+
+  const hashString = normalizeHash(hashIdentifier);
 
   const logData = [
     [
@@ -365,7 +291,7 @@ async function logProjectReport({
       supplierDetails.stid,
       uid,
       "",
-      hashIdentifier,
+      hashString,
       projectCPI,
       supplierCPI,
       status,
@@ -381,6 +307,16 @@ async function logProjectReport({
   ];
 
   await pool.query(logQuery, [logData]);
+}
+
+function normalizeHash(hash) {
+  if (!hash) return "";
+  return hash
+    .toString() // Ensure it's a string
+    .trim() // Remove whitespace
+    .normalize("NFKC") // Normalize Unicode
+    .replace(/[\u200B-\u200D\uFEFF]/g, "") // Remove zero-width characters
+    .replace(/[^\x20-\x7E]/g, ""); // Remove non-ASCII characters (optional)
 }
 
 module.exports = { getSurveyLinks, getRedirectLinks, testSurveyLinks };
