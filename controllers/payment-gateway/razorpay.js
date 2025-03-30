@@ -67,8 +67,8 @@ async function createOrder(req, res) {
     const payload = {
       user_id: id,
       ...orderDetails,
-      amount_due: order.amount_due,
-      payment_method: 1, // Example: hardcoded; update as needed
+      amount_due: order.amount_due / 100, // Convert to Rupees 
+      payment_method: 1, 
       notes: options.notes || null,
       item_types: JSON.stringify(itemTypes),
     };

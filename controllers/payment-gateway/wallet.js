@@ -3,17 +3,16 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const { insertOrder, calculateOrderDetails } = require("./helper");
-
 const { processOrder } = require("./processOrder");
 
-
 async function createOrder(req, res) {
-  const connection = await pool.getConnection(); // Get a transactional connection
+  const connection = await pool.getConnection();
   try {
-    await connection.beginTransaction(); // Start a transaction
+    await connection.beginTransaction();
 
-    const options = req.body;
     const { id } = req.user;
+    const options = req.body;
+    const { currency, amount, discount_code } = options;
 
     // Validate user existence and balance
     const [userRows] = await connection.execute(
@@ -23,13 +22,13 @@ async function createOrder(req, res) {
 
     if (!userRows.length) {
       await connection.rollback();
-      return res.status(400).json({
-        status: "fail",
-        message: "User not found.",
-      });
+      return res
+        .status(400)
+        .json({ status: "fail", message: "User not found." });
     }
 
-    const userBalance = +userRows[0].balance; // Ensure it's a number
+    let userBalance = parseFloat(userRows[0].balance); // User balance in userCurrency
+    const userCurrency = userRows[0].currency; // Dynamic user wallet currency (could be KWD, USD, etc.)
 
     // Get cart items
     const [cartItems] = await connection.execute(
@@ -39,16 +38,13 @@ async function createOrder(req, res) {
 
     if (!cartItems.length) {
       await connection.rollback();
-      return res.status(400).json({
-        status: "fail",
-        message: "No items in cart.",
-      });
+      return res
+        .status(400)
+        .json({ status: "fail", message: "No items in cart." });
     }
 
-    // Check for restricted item_type (e.g., wallet recharge)
-    const walletItem = cartItems.find((item) => item.item_type === 5);
-
-    if (walletItem) {
+    // Prevent wallet recharge payment method
+    if (cartItems.some((item) => item.item_type === 5)) {
       await connection.rollback();
       return res.status(400).json({
         status: "fail",
@@ -57,111 +53,147 @@ async function createOrder(req, res) {
       });
     }
 
-    // Get default currency of store
+    // Get default store currency
     const [settings] = await connection.execute(
-      "SELECT * FROM res_options WHERE option_name = 'currency'"
+      "SELECT option_value FROM res_options WHERE option_name = 'currency'"
     );
 
     if (!settings.length) {
       await connection.rollback();
-      return res.status(400).json({
-        status: "fail",
-        message: "Currency setting not found.",
-      });
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Currency setting not found." });
     }
 
-    const storeCurrency = settings[0].option_value; // Store's currency (INR)
+    const storeCurrency = settings[0].option_value;
+    console.log("storeCurrency", storeCurrency);
 
-    // Check if order currency matches wallet currency
-    if (options.currency !== storeCurrency) {
+    // Get exchange rate for order currency (INR to storeCurrency)
+    const [orderExchangeRateRows] = await connection.execute(
+      "SELECT rate FROM res_currencies WHERE currency_code = ?",
+      [currency]
+    );
+
+    const orderExchangeRate = orderExchangeRateRows.length
+      ? parseFloat(orderExchangeRateRows[0].rate)
+      : 1;
+
+    console.log("orderExchangeRate", orderExchangeRate);
+
+    // Get exchange rate for wallet currency (userCurrency)
+    const [walletExchangeRateRows] = await connection.execute(
+      "SELECT rate FROM res_currencies WHERE currency_code = ?",
+      [userCurrency]
+    );
+
+    const walletExchangeRate = walletExchangeRateRows.length
+      ? parseFloat(walletExchangeRateRows[0].rate)
+      : 1;
+
+    console.log("walletExchangeRate", walletExchangeRate);
+
+    // Convert the order amount to the base currency (storeCurrency)
+    const totalInBaseCurrency = parseFloat(amount) / orderExchangeRate;
+
+    console.log("Converted order amount in base currency", totalInBaseCurrency);
+
+    // Convert user's wallet balance to base currency (storeCurrency)
+    const walletBalanceInBaseCurrency = userBalance / walletExchangeRate;
+
+    console.log(
+      "User's wallet balance in base currency",
+      walletBalanceInBaseCurrency
+    );
+
+    // Check if the user has enough balance in their wallet
+    if (walletBalanceInBaseCurrency < totalInBaseCurrency) {
       await connection.rollback();
-      return res.status(400).json({
-        status: "fail",
-        message: `Please change the currency to ${storeCurrency} (your wallet currency) to proceed with the payment.`,
-      });
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Insufficient wallet balance." });
     }
 
-    // Calculate total amount in the order's currency
-    const itemTypes = [...new Set(cartItems.map((item) => item.item_type))];
-
+    // Calculate order details
     const orderDetails = await calculateOrderDetails({
       cartItems,
-      discountCode: options.discount_code,
-      currency: options.currency,
+      discountCode: discount_code,
+      currency,
     });
 
-    if (!orderDetails || !orderDetails.amount_due || isNaN(orderDetails.amount_due)) {
+    if (!orderDetails || isNaN(orderDetails.amount_due)) {
       await connection.rollback();
-      return res.status(400).json({
-        status: "fail",
-        message: "Invalid order details.",
-      });
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Invalid order details." });
     }
 
-    // Total amount in the order's currency
-    const totalAmountDueInOrderCurrency = +orderDetails.amount_due;
+    const totalAmountDueInBaseCurrency =
+      parseFloat(orderDetails.amount_due) /
+      orderExchangeRate /
+      walletExchangeRate;
 
-    // Check if the wallet has enough balance
-    if (totalAmountDueInOrderCurrency > userBalance) {
+    if (totalAmountDueInBaseCurrency > walletBalanceInBaseCurrency) {
       await connection.rollback();
-      return res.status(400).json({
-        status: "fail",
-        message: "Insufficient wallet balance.",
-      });
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Insufficient wallet balance." });
     }
 
     // Prepare order payload
+    const itemTypes = [...new Set(cartItems.map((item) => item.item_type))];
     let payload = {
       user_id: id,
       ...orderDetails,
-      transaction_order_id: null,
-      ...options,
+      amount_due: parseFloat(orderDetails.amount_due), // Amount in order currency
       payment_method: 3, // Wallet payment method
       item_types: JSON.stringify(itemTypes),
     };
 
     // Insert order into the database
     const order = await insertOrder(payload);
+    if (!order) throw new Error("Failed to create order.");
 
-    if (!order) {
-      throw new Error("Failed to create order.");
-    }
-
-    // Debit user wallet
-    const amountToDebit = totalAmountDueInOrderCurrency;
-
-    // Ensure proper numeric values for debiting
-    if (isNaN(amountToDebit)) {
-      await connection.rollback();
-      return res.status(400).json({
-        status: "fail",
-        message: "Invalid payment amount.",
-      });
-    }
-
-    await connection.execute( 
+    // Debit user wallet with the converted amount in the user's wallet currency
+    await connection.execute(
       "UPDATE res_users SET balance = balance - ? WHERE user_id = ?",
-      [amountToDebit, id]
+      [totalAmountDueInBaseCurrency, id]
     );
 
     // Log wallet transaction
-    const description = "Debiting user wallet for order #" + order;
     await connection.execute(
-      "INSERT INTO res_transfers (user_id, amount,  order_id, type, notes, description) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO res_transfers (user_id, amount, order_id, type, notes, description) VALUES (?, ?, ?, ?, ?, ?)",
       [
         id,
-        amountToDebit,
+        totalInBaseCurrency, // Amount in base currency (storeCurrency)
         order,
         "debit",
         "Order Paid",
-        description,
+        `Debiting user wallet for order #${order}`,
       ]
     );
 
+    // insert transaction details into the database
+
+    const transaction = await connection.execute(
+      "INSERT INTO res_transactions (order_id, user_id, amount, gateway_id, gateway_txn_id, gateway_response, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [
+        order,
+        id,
+        parseFloat(orderDetails.amount_due), // Amount in order currency
+        4, // Wallet payment method
+        null, // Gateway transaction ID (not applicable for wallet payments)
+        null, // Gateway response (not applicable for wallet payments)
+        4, // Transaction status (4 for successful payment)
+      ]
+    );
+
+    const transactionId = transaction[0].insertId;
+    console.log("Transaction ID:", transactionId);
+
     // Update order status
     await connection.execute(
-      "UPDATE res_orders SET payment_status = ?, amount_paid = ?, order_status = ?, payment_date = ? WHERE order_id = ?",
-      [2, amountToDebit, 7, new Date(), order]
+      "UPDATE res_orders SET payment_status = ?, amount_paid = ?, order_status = ?, transaction_id = ? WHERE order_id = ?",
+      [2, parseFloat(orderDetails.amount_due), 7, transactionId, order]
     );
 
     // Process the order
@@ -170,23 +202,14 @@ async function createOrder(req, res) {
     // Commit transaction
     await connection.commit();
 
-    return res.json({
-      order_id: order,
-    });
+    return res.json({ order_id: order });
   } catch (err) {
     console.error("Error creating order:", err.message);
-
-    if (connection) await connection.rollback(); // Rollback transaction on error
-
-    res.status(500).send({
-      status: "error",
-      message: "Internal Server Error",
-    });
+    if (connection) await connection.rollback();
+    res.status(500).send({ status: "error", message: "Internal Server Error" });
   } finally {
-    if (connection) await connection.release(); // Release the connection
+    if (connection) await connection.release();
   }
 }
-
-
 
 module.exports = { createOrder };

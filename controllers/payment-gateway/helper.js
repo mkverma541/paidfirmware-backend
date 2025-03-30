@@ -204,7 +204,6 @@ const sendOrderConfirmationEmail = async (userId, paymentId, orderId) => {
     `;
 
     await sendEmail(userEmail, emailSubject, emailBody);
-    console.log(`Order confirmation email sent to ${userEmail}`);
   } catch (error) {
     console.error("Error in sendOrderConfirmationEmail:", error.message);
     // Optionally, you could log the error or notify your team through a monitoring service

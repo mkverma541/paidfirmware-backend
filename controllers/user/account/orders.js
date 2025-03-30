@@ -116,7 +116,6 @@ async function getAllOrderList(req, res) {
         // Fetch courses if applicable
 
         if (item_types.includes(4)) {
-          console.log("Order ID:", order_id);
           const [courses] = await pool.execute(
             `
               SELECT 
@@ -142,20 +141,9 @@ async function getAllOrderList(req, res) {
 
         if (item_types.includes(2)) {
           const [packages] = await pool.execute(
-            `
-              SELECT 
-    up.package_id, 
-    rp.title, 
-    rp.sale_price
-FROM res_upackages AS up
-INNER JOIN res_download_packages AS rp ON up.package_id = rp.package_id
-WHERE up.order_id = ? AND up.user_id = ?
-
-            `,
-            [order_id, id]
+            `SELECT * FROM res_upackages WHERE user_id = ? AND order_id = ?`,
+            [id, order_id]
           );
-
-          console.log("Packages:", packages);
 
           if (packages.length) {
             order.packages.push(...packages);
@@ -264,7 +252,6 @@ async function getOrderDetails(req, res) {
       }
     }
 
-
     // Fetch courses if applicable
 
     if (order.item_types.includes(4)) {
@@ -337,6 +324,19 @@ async function getOrderDetails(req, res) {
 
           orderDetails.files.push(file);
         }
+      }
+    }
+
+    // fetch download package
+
+    if (order.item_types.includes(2)) {
+      const [packages] = await pool.execute(
+        `SELECT * FROM res_upackages WHERE user_id = ? AND order_id = ?`,
+        [id, order_id]
+      );
+
+      if (packages.length) {
+        orderDetails.packages.push(...packages);
       }
     }
 

@@ -7,8 +7,7 @@ async function syncCart(req, res) {
   const { id } = req.user;
 
   try {
-    const cartItems = req.body.cartItems || [];
-    console.log("cartItems", cartItems);
+    const { cartItems = [], isUpdate = false } = req.body; // Extract cartItems from request body
 
     if (!Array.isArray(cartItems)) {
       return res.status(400).json({ message: "Invalid cartItems format." });
@@ -21,13 +20,17 @@ async function syncCart(req, res) {
       });
     }
 
+    // if isUpdate is true, remove items from the cart
+
+    if (!isUpdate) {
+      await pool.execute("DELETE FROM res_cart WHERE user_id = ?", [id]);
+    }
+
     // Fetch user's existing cart items
     const [userCartItems] = await pool.execute(
       "SELECT * FROM res_cart WHERE user_id = ?",
       [id]
     );
-
-    console.log("userCartItems", userCartItems);
 
     // Prepare update and insert lists
     const itemsToUpdate = [];
@@ -50,7 +53,6 @@ async function syncCart(req, res) {
     // Update existing cart items
     if (itemsToUpdate.length > 0) {
       for (const item of itemsToUpdate) {
-        console.log("Updating item:", item);
         await pool.execute(
           `UPDATE res_cart 
           SET quantity = ?, 
@@ -64,7 +66,9 @@ async function syncCart(req, res) {
           [
             item.quantity ?? 1,
             +item.sale_price ?? 0,
-            item.original_price !== undefined ? +item.original_price : item.sale_price,
+            item.original_price !== undefined
+              ? +item.original_price
+              : item.sale_price,
             item.item_name,
             item.stock !== undefined ? +item.stock : null,
             item.meta || null,
@@ -86,10 +90,12 @@ async function syncCart(req, res) {
       const cartValues = itemsToInsert.map((item) => [
         item.user_id,
         item.item_id,
-        item.item_type || "default", // Ensure item_type has a default value
+        item.item_type,
         item.item_name,
         +item.sale_price || 0,
-        item.original_price !== undefined ? +item.original_price : item.sale_price,
+        item.original_price !== undefined
+          ? +item.original_price
+          : item.sale_price,
         item.quantity ?? 1,
         item.stock !== undefined ? +item.stock : null,
         item.media || "",
@@ -98,7 +104,6 @@ async function syncCart(req, res) {
         item.max_cart_qty ?? 1,
       ]);
 
-      console.log("Inserting items:", cartValues);
       await pool.query(insertCartQuery, [cartValues]);
     }
 
@@ -114,7 +119,6 @@ async function syncCart(req, res) {
     });
   }
 }
-
 
 async function getCart(req, res) {
   try {

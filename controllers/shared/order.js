@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 async function checkDiscount(req, res) {
   try {
     const { id } = req.user;
-    console.log(id)
     const { currency } = req.body;
 
     // Fetch cart items for the logged-in user
@@ -48,7 +47,6 @@ async function checkDiscount(req, res) {
     }
 
     const exchangeRateResult = parseFloat(conversionRate[0].rate);
-    console.log("Exchange Rate:", exchangeRateResult);
 
     const subTotalAmount = subTotal * exchangeRateResult;
     let total = subTotalAmount;

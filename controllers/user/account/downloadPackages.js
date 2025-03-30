@@ -17,13 +17,10 @@ async function getPackages(req, res) {
       LEFT JOIN res_download_packages 
       ON res_upackages.package_id = res_download_packages.package_id
       WHERE res_upackages.user_id = ?
-      ORDER BY res_upackages.date_create ASC
+      ORDER BY res_upackages.date_create DESC
       `,
       [id]
     );
-
-    // Log packages for debugging
-    console.log("Packages fetched:", packages);
 
     // Send the response with the package list
     res.status(200).json({

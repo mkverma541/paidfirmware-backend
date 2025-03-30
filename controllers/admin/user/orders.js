@@ -116,7 +116,6 @@ async function getAllOrderList(req, res) {
         // Fetch courses if applicable
 
         if (item_types.includes(4)) {
-          console.log("Order ID:", order_id);
           const [courses] = await pool.execute(
             `
               SELECT 
@@ -154,8 +153,6 @@ WHERE up.order_id = ? AND up.user_id = ?
             `,
             [order_id, id]
           );
-
-          console.log("Packages:", packages);
 
           if (packages.length) {
             order.packages.push(...packages);
