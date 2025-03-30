@@ -3,36 +3,36 @@ const { v4: uuidv4 } = require("uuid");
 
 async function generateGroupProjectCode() {
   const [result] = await pool.query(
-    "SELECT MAX(project_code) AS max_code FROM group_projects WHERE project_code REGEXP '^AC[0-9]{4}$'"
+    "SELECT MAX(project_code) AS max_code FROM group_projects WHERE project_code REGEXP '^AR[0-9]{4}$'"
   );
 
   let newCode = 1001; // Start from 1001 if table is empty
 
   if (result[0].max_code) {
     // Extract the numeric part from the last project_code and increment it by 1
-    newCode = parseInt(result[0].max_code.replace("AC", "")) + 1;
+    newCode = parseInt(result[0].max_code.replace("AR", "")) + 1;
   }
 
   // Ensure the project code has 4 digits by padding with leading zeros if needed
   const formattedCode = newCode.toString().padStart(4, "0");
-  return `AC${formattedCode}`;
+  return `AR${formattedCode}`;
 }
 
 async function generateProjectCode() {
   const [result] = await pool.query(
-    "SELECT MAX(project_code) AS max_code FROM projects WHERE project_code REGEXP '^AC[0-9]{6}$'"
+    "SELECT MAX(project_code) AS max_code FROM projects WHERE project_code REGEXP '^AR[0-9]{6}$'"
   );
 
   let newCode = 1001; // Start from 1001 if table is empty
 
   if (result[0].max_code) {
     // Extract the numeric part from the last project_code and increment it by 1
-    newCode = parseInt(result[0].max_code.replace("AC", "")) + 1;
+    newCode = parseInt(result[0].max_code.replace("AR", "")) + 1;
   }
 
   // Ensure the project code has 6 digits by padding with leading zeros if needed
   const formattedCode = newCode.toString().padStart(6, "0");
-  return `AC${formattedCode}`;
+  return `AR${formattedCode}`;
 }
 
 async function createProject(req, res) {
@@ -64,6 +64,14 @@ async function createProject(req, res) {
         message: "Mandatory fields are missing",
         status: "error",
       });
+    }
+
+    const [[defaultSupplier]] = await connection.query(
+      `SELECT supplier_id FROM suppliers WHERE is_default = 1 LIMIT 1`
+    );
+
+    if (!defaultSupplier) {
+      throw new Error("Default supplier not found.");
     }
 
     // Clean and convert values
@@ -130,9 +138,9 @@ async function createProject(req, res) {
         project_name, project_manager, description, loi, ir, sample_size, respondent_click_quota, 
         project_cpi, supplier_cpi, is_pre_screen, is_geo_location, is_unique_ip, unique_ip_count, 
         is_speeder, speeder_count, is_exclude, is_dynamic_thanks_url, is_tsign, is_mobile, 
-        is_tablet, is_desktop, notes, client_id, country_code, language_code, project_category, 
+        is_tablet, is_desktop, notes, client_id, supplier_id, country_code, language_code, project_category, 
         currency, status, survey_live_link, survey_test_link, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `;
 
     const [insertResult] = await connection.query(query, [
@@ -165,6 +173,7 @@ async function createProject(req, res) {
       is_desktop,
       notes,
       client_id,
+      defaultSupplier.supplier_id,
       country_code,
       language_code,
       project_category,
@@ -175,15 +184,7 @@ async function createProject(req, res) {
     ]);
 
     const project_id = insertResult.insertId;
-
-    const [[defaultSupplier]] = await connection.query(
-      `SELECT supplier_id FROM suppliers WHERE is_default = 1 LIMIT 1`
-    );
-
-    if (!defaultSupplier) {
-      throw new Error("Default supplier not found.");
-    }
-
+  
     const stid = uuidv4().replace(/-/g, "").substring(0, 8);
 
     await connection.query(
@@ -472,9 +473,9 @@ async function addChildProject(req, res) {
       project_name, project_manager, description, loi, ir, sample_size, respondent_click_quota, 
       project_cpi, supplier_cpi, is_pre_screen, is_geo_location, is_unique_ip, unique_ip_count, 
       is_speeder, speeder_count, is_exclude, is_dynamic_thanks_url, is_tsign, is_mobile, 
-      is_tablet, is_desktop, notes, client_id, country_code, language_code, project_category, 
+      is_tablet, is_desktop, notes, client_id, supplier_id, country_code, language_code, project_category, 
       currency, status, survey_live_link, survey_test_link, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `;
 
     const [insertResult] = await connection.query(query, [
@@ -507,6 +508,7 @@ async function addChildProject(req, res) {
       is_desktop,
       notes,
       client_id,
+      supplier_id,
       country_code,
       language_code,
       project_category,

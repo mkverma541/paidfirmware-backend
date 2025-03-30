@@ -1,6 +1,12 @@
 [
   {
-    "timestamp": "2025-03-29T08:02:00.606Z",
+    "timestamp": "2025-03-30T07:32:00.066Z",
+    "status": "error",
+    "table": "res_files",
+    "message": "Error updating is_new: Table 'accord-data-research.res_files' doesn't exist"
+  },
+  {
+    "timestamp": "2025-03-30T07:33:00.194Z",
     "status": "error",
     "table": "res_files",
     "message": "Error updating is_new: Table 'accord-data-research.res_files' doesn't exist"

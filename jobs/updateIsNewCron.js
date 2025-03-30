@@ -50,7 +50,7 @@ async function updateIsNewForFolders() {
     const query = `
       UPDATE res_folders
       SET is_new = 0
-      WHERE date_create < (NOW() - INTERVAL 1 DAY) AND is_new = 1;
+      WHERE created_at < (NOW() - INTERVAL 1 DAY) AND is_new = 1;
     `;
 
     await connection.execute(query);
@@ -75,7 +75,7 @@ async function updateIsNewForFiles() {
     const query = `
       UPDATE res_files
       SET is_new = 0
-      WHERE date_create < (NOW() - INTERVAL 1 DAY) AND is_new = 1;
+      WHERE created_at < (NOW() - INTERVAL 1 DAY) AND is_new = 1;
     `;
 
     await connection.execute(query);
