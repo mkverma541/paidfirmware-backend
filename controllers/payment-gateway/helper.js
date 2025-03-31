@@ -1,11 +1,9 @@
 const { pool } = require("../../config/database");
 const { sendEmail } = require("../service/emailer");
 
-
 // Insert order into the database
 
 const insertOrder = async (d) => {
-
   const {
     user_id,
     subtotal = 0,
@@ -25,6 +23,7 @@ const insertOrder = async (d) => {
   }
 
   try {
+     
     const [order] = await pool.execute(
       `INSERT INTO res_orders 
       (user_id, subtotal, total_amount, amount_due, tax, discount, exchange_rate, payment_method, currency, notes, item_types) 
@@ -43,6 +42,7 @@ const insertOrder = async (d) => {
         item_types,
       ]
     );
+
     return order.insertId;
   } catch (error) {
     console.error("Error inserting order:", error.message);

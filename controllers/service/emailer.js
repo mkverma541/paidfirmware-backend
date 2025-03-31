@@ -3,10 +3,6 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 
-// Load the email template
-// const emailTemplatePath = path.join(__dirname, '../', 'email-templates', 'test.html');
-// const emailTemplate = fs.readFileSync(emailTemplatePath, 'utf-8');
-
 // Create a transporter object with your email service provider's SMTP settings
 const transporter = nodemailer.createTransport({
   host: 'premium119.web-hosting.com',

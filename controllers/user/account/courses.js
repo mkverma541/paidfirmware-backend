@@ -49,18 +49,18 @@ async function getCourses(req, res) {
     );
 
     // Construct the paginated response
-    const result = {
-      data: courses,
-      perPage: limit,
-      totalCount: total,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-    };
+    const result = {};
 
     // Return the response
     return res.status(200).json({
       status: "success",
-      response: result,
+      data: courses,
+      pagination: {
+        perPage: limit,
+        totalCount: total,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+      },
     });
   } catch (err) {
     console.error("Database error:", err);

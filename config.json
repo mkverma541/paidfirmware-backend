@@ -10,6 +10,8 @@
   "BINANCE_API_KEY": "cv2ymxqghxqoabyjcuory9ew1c30d0jzdsrfhn6gvujwhssyhp9xf8eomazmes3a",
   "BINANCE_API_SECRET": "juyiifbgsq5tfcuskb3d5edwwhfsvwhkckqxynqsdgubimjvmwvkbjgrwurwnoml",
   "APP_BASE_URL": "http://localhost:3001",
+  "API_BASE_URL": "http://localhost:3001",
+  "MEDIA_URL": "http://localhost:3000/media",
   "APP_PORT": 3000,
   "MASTER_PASSWORD": "123",
   "REDIS_HOST": "redis-18417.crce179.ap-south-1-1.ec2.redns.redis-cloud.com",

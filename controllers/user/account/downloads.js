@@ -2,6 +2,9 @@ const { pool } = require("../../../config/database");
 
 async function getDownloadsHistory(req, res) {
   const { id } = req.user;
+  const { page = 1, limit = 10 } = req.query; // Default to page 1 and limit 10
+
+  const offset = (page - 1) * limit;
 
   try {
     // Join the table with res_files to get the file name and calculate canDownload
@@ -13,8 +16,9 @@ async function getDownloadsHistory(req, res) {
       LEFT JOIN res_files 
       ON res_udownloads.file_id = res_files.file_id
       WHERE res_udownloads.user_id = ?
+      LIMIT ? OFFSET ?
       `,
-      [id]
+      [id, parseInt(limit), parseInt(offset)]
     );
 
     // Ensure canDownload is returned as true/false in JavaScript
@@ -23,8 +27,27 @@ async function getDownloadsHistory(req, res) {
       canDownload: !!row.canDownload, // Convert 1/0 to true/false
     }));
 
+    // Get the total count of downloads for pagination
+    const [countResult] = await pool.execute(
+      `
+      SELECT COUNT(*) AS total
+      FROM res_udownloads
+      WHERE user_id = ?
+      `,
+      [id]
+    );
+
+    const total = countResult[0].total;
+    const totalPages = Math.ceil(total / limit);
+
     res.status(200).json({
       data: result,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages,
+      },
       status: "success",
     });
   } catch (error) {

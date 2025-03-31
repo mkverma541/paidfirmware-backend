@@ -4,9 +4,9 @@ const bcrypt = require("bcrypt");
 const { DATE } = require("sequelize");
 const crypto = require("crypto");
 const { promisify } = require("util");
-const { sendEmail } = require("../service/emailer");
 const randomBytesAsync = promisify(crypto.randomBytes);
 const axios = require("axios");
+const { sendEmail } = require("../../email-service/email-service");
 
 const secretKey = process.env.JWT_SECRET;
 
@@ -37,20 +37,15 @@ async function checkoutLogin(req, res) {
       );
 
       // Send email with OTP
-      const emailSubject = "OTP Verification";
-      const emailBody = `
-        Hi, <br><br>
-        Your OTP is: ${otp}<br><br>
-        This OTP will expire in 5 minutes.
-      `;
-
-      // Send email to the user's email
-      // await sendEmail(email, emailSubject, emailBody);
+      sendEmail(email, "OTP Verification", "otp-verification", {
+        otp: otp,
+        username: existingUser[0].username,
+      });
 
       return res.status(200).json({
         message: "OTP sent successfully. Please check your email.",
         otpSent: true,
-        otp: otp, // For testing purposes only
+        otp: otp, 
       });
     } else {
       // If user does not exist, create a new user
@@ -86,18 +81,10 @@ async function checkoutLogin(req, res) {
       );
 
       // Send email with OTP
-
-      const emailSubject = "OTP Verification";
-
-      const emailBody = `
-        Hi, <br><br>
-        Your OTP is: <strong>${otp}</strong><br><br>
-        This OTP will expire in 5 minutes.
-      `;
-
-      // Send email to the user's email
-
-      // await sendEmail(email, emailSubject, emailBody);
+      sendEmail(email, "OTP Verification", "otp-verification", {
+        otp: otp,
+        username: username,
+      });
 
       return res.status(201).json({
         message: "User created successfully. OTP sent to email.",
@@ -177,7 +164,16 @@ async function signup(req, res) {
     // Insert new user into the database
     const [data] = await pool.execute(
       "INSERT INTO res_users (username, password, email, first_name, last_name,  phone, otp, dial_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [username, hashedPassword, email, first_name, last_name, phone, otp, dial_code]
+      [
+        username,
+        hashedPassword,
+        email,
+        first_name,
+        last_name,
+        phone,
+        otp,
+        dial_code,
+      ]
     );
 
     // Fetch the newly created user
@@ -186,16 +182,10 @@ async function signup(req, res) {
       [data.insertId]
     );
 
-    // Send email with OTP
-    const emailSubject = "OTP Verification";
-    const emailBody = `
-      Hi, <br><br>
-      Your OTP is: ${otp}<br><br>
-      This OTP will expire in 5 minutes.
-    `;
-
-    // Send email to the user's email
-  //  await sendEmail(email, emailSubject, emailBody);
+   sendEmail(email, "OTP Verification", "otp-verification", {
+      otp: otp,
+      username: username,
+    });
 
     // Send back user details
     return res
@@ -394,14 +384,11 @@ async function resendOtp(req, res) {
     );
 
     // Send email with OTP
-    const emailSubject = "OTP Verification";
-    const emailBody = `
-      Hi, <br><br>
-      Your OTP is: ${otp}<br><br>
-      This OTP will expire in 5 minutes.
-    `;
-    // Send email to the user's email
-    await sendEmail(email, emailSubject, emailBody);
+
+    sendEmail(email, "OTP Verification", "otp-verification", {
+      otp: otp,
+      username: existingUser[0].username,
+    });
 
     return res.status(200).json({
       message: "OTP sent successfully. Please check your email.",
@@ -436,18 +423,12 @@ async function forgotPassword(req, res) {
       { expiresIn: "1h" }
     );
 
-    // Send email with reset token link
-    const resetLink = `http://localhost:3001/auth/reset-password?token=${token}`;
-    const emailSubject = "Password Reset Request";
-    const emailBody = `
-      Hi, <br><br>
-      You requested to reset your password. Please click the link below to reset your password: <br>
-      <a href="${resetLink}" style="texr-decoration:underline">Reset Password</a><br><br>
-      This link will expire in 1 hour.
-    `;
+    const pageUrl = `${process.env.APP_BASE_URL}/auth/reset-password?token=${token}`;
 
-    // Send email to the user's email
-    await sendEmail(email, emailSubject, emailBody);
+    sendEmail(email, "Password Reset", "password-reset", {
+      pageUrl: pageUrl,
+      username: existingUser[0].username,
+    });
 
     return res.status(200).json({
       message: "Password reset email sent. Please check your inbox.",

@@ -23,7 +23,6 @@ const processOrder = async (order_id, user_id) => {
     const files = userCart.filter((item) => item.item_type === 1);
     const packages = userCart.filter((item) => item.item_type === 2);
     const products = userCart.filter((item) => item.item_type === 3);
-    const walletRecharge = userCart.filter((item) => item.item_type === 5);
     const courses = userCart.filter((item) => item.item_type === 4);
 
     if (packages.length > 0) {
@@ -164,40 +163,11 @@ const processOrder = async (order_id, user_id) => {
       }
     }
 
-    if (walletRecharge.length > 0) {
-      const recharge = walletRecharge[0];
-      await connection.execute(
-        "INSERT INTO res_uwallet_recharge (user_id, order_id, amount, meta) VALUES (?, ?, ?, ?)",
-        [user_id, order_id, recharge.sale_price, recharge.meta]
-      );
-
-      const [[userWallet]] = await connection.execute(
-        "SELECT balance FROM res_users WHERE user_id = ?",
-        [user_id]
-      );
-      const newBalance =
-        parseFloat(userWallet.balance) + parseFloat(recharge.sale_price);
-
-      await connection.execute(
-        "UPDATE res_users SET balance = ? WHERE user_id = ?",
-        [newBalance, user_id]
-      );
-      await connection.execute(
-        "INSERT INTO res_transfers (user_id, order_id, amount, type, notes, description) VALUES (?, ?, ?, ?, ?, ?)",
-        [
-          user_id,
-          order_id,
-          recharge.sale_price,
-          "credit",
-          "Wallet recharge",
-          `Wallet recharge #${order_id}`,
-        ]
-      );
-    }
-
     await connection.execute("DELETE FROM res_cart WHERE user_id = ?", [
       user_id,
     ]);
+
+
     await connection.commit();
     sendOrderConfirmationEmail(user_id, order_id);
   } catch (error) {
@@ -209,4 +179,65 @@ const processOrder = async (order_id, user_id) => {
   }
 };
 
-module.exports = { processOrder };
+const addCreditsBalance = async (order_id) => {
+  let connection;
+  try {
+    // Start transaction
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const [[order]] = await connection.execute(
+      "SELECT * FROM res_orders WHERE order_id = ?",
+      [order_id]
+    );
+
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    const user_id = order.user_id;
+    const amount = order.amount_paid;
+    const exchangeRate = order.exchange_rate || 1; // Default to 1 if not provided
+    const amountToAdd = parseFloat(amount) / parseFloat(exchangeRate);
+
+    await connection.execute(
+      "INSERT INTO res_uwallet_recharge (user_id, order_id, amount) VALUES (?, ?, ?)",
+      [user_id, order_id, amountToAdd]
+    );
+
+    const [[userWallet]] = await connection.execute(
+      "SELECT balance FROM res_users WHERE user_id = ?",
+      [user_id]
+    );
+
+    const newBalance = parseFloat(userWallet.balance) + amountToAdd;
+
+    await connection.execute(
+      "UPDATE res_users SET balance = ? WHERE user_id = ?",
+      [newBalance, user_id]
+    );
+
+    await connection.execute(
+      "INSERT INTO res_transfers (user_id, order_id, amount, type, notes, description) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        user_id,
+        order_id,
+        amountToAdd,
+        "credit",
+        "Wallet recharge",
+        `Wallet recharge #${order_id}`,
+      ]
+    );
+
+    await connection.commit();
+    sendOrderConfirmationEmail(user_id, order_id);
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error("Error processing order:", error.message);
+    throw error;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+module.exports = { processOrder, addCreditsBalance };

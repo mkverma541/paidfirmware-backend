@@ -66,7 +66,6 @@ async function createOrder(req, res) {
     }
 
     const storeCurrency = settings[0].option_value;
-    console.log("storeCurrency", storeCurrency);
 
     // Get exchange rate for order currency (INR to storeCurrency)
     const [orderExchangeRateRows] = await connection.execute(
@@ -78,8 +77,6 @@ async function createOrder(req, res) {
       ? parseFloat(orderExchangeRateRows[0].rate)
       : 1;
 
-    console.log("orderExchangeRate", orderExchangeRate);
-
     // Get exchange rate for wallet currency (userCurrency)
     const [walletExchangeRateRows] = await connection.execute(
       "SELECT rate FROM res_currencies WHERE currency_code = ?",
@@ -90,20 +87,11 @@ async function createOrder(req, res) {
       ? parseFloat(walletExchangeRateRows[0].rate)
       : 1;
 
-    console.log("walletExchangeRate", walletExchangeRate);
-
     // Convert the order amount to the base currency (storeCurrency)
     const totalInBaseCurrency = parseFloat(amount) / orderExchangeRate;
 
-    console.log("Converted order amount in base currency", totalInBaseCurrency);
-
     // Convert user's wallet balance to base currency (storeCurrency)
     const walletBalanceInBaseCurrency = userBalance / walletExchangeRate;
-
-    console.log(
-      "User's wallet balance in base currency",
-      walletBalanceInBaseCurrency
-    );
 
     // Check if the user has enough balance in their wallet
     if (walletBalanceInBaseCurrency < totalInBaseCurrency) {
@@ -188,7 +176,6 @@ async function createOrder(req, res) {
     );
 
     const transactionId = transaction[0].insertId;
-    console.log("Transaction ID:", transactionId);
 
     // Update order status
     await connection.execute(

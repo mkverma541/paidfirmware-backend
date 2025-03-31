@@ -1,10 +1,8 @@
 const express = require("express");
 const { pool } = require("../../config/database");
 
-
 async function getAllFoldersFiles(req, res) {
   try {
-   
     const [folders, files] = await Promise.all([
       pool.execute(
         "SELECT folder_id, parent_id, title, description, thumbnail, is_new, slug " +
@@ -40,19 +38,19 @@ async function getFolderDescription(req, res) {
   try {
     let folder;
 
-      const [rows] = await pool.execute(
-        "SELECT title, description, slug FROM res_folders WHERE slug = ?",
-        [slug]
-      );
+    const [rows] = await pool.execute(
+      "SELECT title, description, slug FROM res_folders WHERE slug = ?",
+      [slug]
+    );
 
-      folder = rows[0];
+    folder = rows[0];
 
-      if (!folder) {
-        return res.status(404).json({
-          status: "error",
-          message: `Folder not found for slug: ${slug}`,
-        });
-      }
+    if (!folder) {
+      return res.status(404).json({
+        status: "error",
+        message: `Folder not found for slug: ${slug}`,
+      });
+    }
 
     res.status(200).json({
       status: "success",
@@ -67,10 +65,9 @@ async function getFolderDescription(req, res) {
   }
 }
 
-
 async function getFolderPath(req, res) {
   const { slug } = req.params; // Get the single slug from the URL
-  
+
   try {
     // Fetch the folder using the slug
     const [rows] = await pool.execute(
@@ -92,7 +89,10 @@ async function getFolderPath(req, res) {
 
     // Traverse up the hierarchy for the folder
     while (currentFolder) {
-      breadcrumbs.unshift({ title: currentFolder.title, slug: currentFolder.slug }); // Add current folder to breadcrumbs
+      breadcrumbs.unshift({
+        title: currentFolder.title,
+        slug: currentFolder.slug,
+      }); // Add current folder to breadcrumbs
 
       // Fetch the parent folder
       const [parentRows] = await pool.execute(
@@ -122,7 +122,6 @@ async function getFolderPath(req, res) {
     });
   }
 }
-
 
 async function getFolderAndFiles(req, res) {
   try {
@@ -174,7 +173,6 @@ async function getFolderAndFiles(req, res) {
       files: files, // Files with all keys from res_files
     };
 
-
     res.status(200).json({
       response,
       status: "success",
@@ -191,7 +189,8 @@ async function getFolderAndFiles(req, res) {
 async function getFileByFileSlug(req, res) {
   try {
     const slug = req.params.slug;
-   
+    console.log("Fetching file with slug:", slug);
+
     // Fetch the file from the database
     const [rows] = await pool.execute(
       "SELECT * FROM res_files WHERE slug = ?",
@@ -208,9 +207,10 @@ async function getFileByFileSlug(req, res) {
 
     // Parse tags field to ensure it's an array
     const file = rows[0];
-    file.tags = file.tags ? JSON.parse(file.tags) : []; // Ensure tags is an array
+    // file.tags = file.tags ? JSON.parse(file.tags) : []; // Ensure tags is an array => will implement later
 
-   
+    file.tags = file.tags ? file.tags.split("+") : []; // Ensure tags is an array
+
     res.status(200).json({
       status: "success",
       data: file, // Send the file with parsed tags
@@ -254,7 +254,11 @@ async function getFilePath(req, res) {
       // If a folder is found, add it to the path and move to its parent
       if (rows.length > 0) {
         const folder = rows[0];
-        path.unshift({ folder_id: folder.folder_id, title: folder.title, slug: folder.slug });
+        path.unshift({
+          folder_id: folder.folder_id,
+          title: folder.title,
+          slug: folder.slug,
+        });
         folderId = folder.parent_id; // Update to the parent ID to move up the hierarchy
       } else {
         // If no folder is found for the given folderId, exit the loop
@@ -262,7 +266,6 @@ async function getFilePath(req, res) {
       }
     }
 
-    
     // Return the complete folder path as a breadcrumb-like structure
     res.status(200).json({
       status: "success",
@@ -278,13 +281,11 @@ async function getFilePath(req, res) {
 }
 
 async function recentFiles(req, res) {
- 
   try {
     const [rows] = await pool.execute(
       "SELECT title, folder_id, file_id, slug, description, thumbnail, is_featured, is_new, price, rating_count, rating_points, size, created_at FROM res_files WHERE is_active = 1 ORDER BY created_at  DESC LIMIT 20"
     );
 
-    
     res.status(200).json({
       status: "success",
       data: rows,

@@ -1,4 +1,3 @@
-
 const { pool } = require("../../config/database");
 
 async function transferBalance(req, res) {
@@ -59,6 +58,8 @@ async function transferBalance(req, res) {
       [receiver_email]
     );
 
+
+
     if (!receiver) {
       connection.release();
       return res.status(400).json({
@@ -69,20 +70,21 @@ async function transferBalance(req, res) {
 
     // Convert receiver's balance to a number
     const receiverBalance = parseFloat(receiver.balance);
+    const receiverUserId = receiver.user_id;
 
     // Update sender's balance
     const senderNewBalance = senderBalance - parseFloat(amount);
-    await connection.query(`UPDATE res_users SET balance = ? WHERE user_id = ?`, [
-      senderNewBalance.toFixed(2),
-      id,
-    ]);
+    await connection.query(
+      `UPDATE res_users SET balance = ? WHERE user_id = ?`,
+      [senderNewBalance.toFixed(2), id]
+    );
 
     // Update receiver's balance
     const receiverNewBalance = receiverBalance + parseFloat(amount);
-    await connection.query(`UPDATE res_users SET balance = ? WHERE user_id = ?`, [
-      receiverNewBalance.toFixed(2),
-      receiver.user_id,
-    ]);
+    await connection.query(
+      `UPDATE res_users SET balance = ? WHERE user_id = ?`,
+      [receiverNewBalance.toFixed(2), receiver.user_id]
+    );
 
     // Generate descriptions
     const debitDescription = `Credit sent to ${receiver.email}.`;
@@ -90,14 +92,21 @@ async function transferBalance(req, res) {
 
     // Log transaction for the sender
     await connection.query(
-      `INSERT INTO res_transfers (user_id, amount, username, notes, type, description) VALUES (?, ?, ?, ?, ?, ?)`,
-      [id, amount, receiver_email, notes, "debit", debitDescription]
+      `INSERT INTO res_transfers (user_id, amount, receiver_user_id, notes, type, description) VALUES (?, ?, ?, ?, ?, ?)`,
+      [id, amount, receiverUserId, notes, "debit", debitDescription]
     );
 
     // Log transaction for the receiver
     await connection.query(
-      `INSERT INTO res_transfers (user_id, amount, username, notes, type, description) VALUES (?, ?, ?, ?, ?, ?)`,
-      [receiver.user_id, amount, sender.username, notes, "credit", creditDescription]
+      `INSERT INTO res_transfers (user_id, amount, receiver_user_id, notes, type, description) VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        receiver.user_id,
+        amount,
+        receiverUserId,
+        notes,
+        "credit",
+        creditDescription,
+      ]
     );
 
     await connection.commit();
@@ -112,7 +121,8 @@ async function transferBalance(req, res) {
     connection.release();
     console.error("Error during transfer:", err);
     return res.status(500).json({
-      message: "An error occurred while processing the transfer. Please try again.",
+      message:
+        "An error occurred while processing the transfer. Please try again.",
       status: "error",
     });
   }
@@ -141,7 +151,8 @@ async function getTotalBalance(req, res) {
   } catch (err) {
     console.error("Error fetching balance:", err);
     return res.status(500).json({
-      message: "An error occurred while fetching your balance. Please try again.",
+      message:
+        "An error occurred while fetching your balance. Please try again.",
       status: "error",
     });
   }
@@ -155,7 +166,12 @@ async function getTransactions(req, res) {
   const pageNumber = parseInt(page, 10);
   const pageSize = parseInt(limit, 10);
 
-  if (isNaN(pageNumber) || pageNumber <= 0 || isNaN(pageSize) || pageSize <= 0) {
+  if (
+    isNaN(pageNumber) ||
+    pageNumber <= 0 ||
+    isNaN(pageSize) ||
+    pageSize <= 0
+  ) {
     return res.status(400).json({
       message: "Pagination parameters must be positive numbers.",
       status: "error",
@@ -177,32 +193,28 @@ async function getTransactions(req, res) {
       [id, pageSize, offset]
     );
 
-    const result = {
-      data: transactions,
-      total,
-      page: pageNumber,
-      limit: pageSize,
-      totalPages: Math.ceil(total / pageSize),
-    };
-
     return res.status(200).json({
       status: "success",
-      response: result,
+      data: transactions,
+      pagination: {
+        page: pageNumber,
+        limit: pageSize,
+        totalPages: Math.ceil(total / pageSize),
+        totalCount: total,
+      },
     });
   } catch (err) {
     console.error("Error fetching transactions:", err);
     return res.status(500).json({
-      message: "An error occurred while fetching your transactions. Please try again.",
+      message:
+        "An error occurred while fetching your transactions. Please try again.",
       status: "error",
     });
   }
 }
-
-
 
 module.exports = {
   transferBalance,
   getTotalBalance,
   getTransactions,
 };
-
