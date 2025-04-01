@@ -16,7 +16,7 @@ async function insertProjects() {
 
   for (let i = 1001; i <= 2000; i++) {
     projects.push([
-      `AR${i}`, // Project Code
+      `ADR${i}`, // Project Code
       "group", // Project Type
       faker.date.past(), // Start Date
       faker.date.future(), // End Date

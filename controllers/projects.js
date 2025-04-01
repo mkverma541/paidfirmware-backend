@@ -3,36 +3,36 @@ const { v4: uuidv4 } = require("uuid");
 
 async function generateGroupProjectCode() {
   const [result] = await pool.query(
-    "SELECT MAX(project_code) AS max_code FROM group_projects WHERE project_code REGEXP '^AR[0-9]{4}$'"
+    "SELECT MAX(project_code) AS max_code FROM group_projects WHERE project_code REGEXP '^ADR[0-9]{4}$'"
   );
 
-  let newCode = 1001; // Start from 1001 if table is empty
+  let newCode = 1; // Start from 1 if table is empty
 
   if (result[0].max_code) {
     // Extract the numeric part from the last project_code and increment it by 1
-    newCode = parseInt(result[0].max_code.replace("AR", "")) + 1;
+    newCode = parseInt(result[0].max_code.replace("ADR", "")) + 1;
   }
 
-  // Ensure the project code has 4 digits by padding with leading zeros if needed
-  const formattedCode = newCode.toString().padStart(4, "0");
-  return `AR${formattedCode}`;
+  // Ensure the project code has 3 digits by padding with leading zeros if needed
+  const formattedCode = newCode.toString().padStart(3, "0");
+  return `ADR${formattedCode}`;
 }
 
 async function generateProjectCode() {
   const [result] = await pool.query(
-    "SELECT MAX(project_code) AS max_code FROM projects WHERE project_code REGEXP '^AR[0-9]{6}$'"
+    "SELECT MAX(project_code) AS max_code FROM projects WHERE project_code REGEXP '^ADR[0-9]{6}$'"
   );
 
-  let newCode = 1001; // Start from 1001 if table is empty
+  let newCode = 1; // Start from 1 if table is empty
 
   if (result[0].max_code) {
     // Extract the numeric part from the last project_code and increment it by 1
-    newCode = parseInt(result[0].max_code.replace("AR", "")) + 1;
+    newCode = parseInt(result[0].max_code.replace("ADR", "")) + 1;
   }
 
-  // Ensure the project code has 6 digits by padding with leading zeros if needed
-  const formattedCode = newCode.toString().padStart(6, "0");
-  return `AR${formattedCode}`;
+  // Ensure the project code has 3 digits by padding with leading zeros if needed
+  const formattedCode = newCode.toString().padStart(3, "0");
+  return `ADR${formattedCode}`;
 }
 
 async function createProject(req, res) {
@@ -467,6 +467,16 @@ async function addChildProject(req, res) {
       throw new Error("Invalid project code format.");
     }
 
+    const [[defaultSupplier]] = await connection.query(
+      `SELECT supplier_id FROM suppliers WHERE is_default = 1 LIMIT 1`
+    );
+
+    if (!defaultSupplier) {
+      throw new Error("Default supplier not found.");
+    }
+
+    const supplier_id = defaultSupplier.supplier_id;
+
     const query = `
       INSERT INTO projects (
       project_code, project_type, start_date, end_date, is_dynamic_thanks, group_project_id,
@@ -520,13 +530,7 @@ async function addChildProject(req, res) {
 
     const project_id = insertResult.insertId;
 
-    const [[defaultSupplier]] = await connection.query(
-      `SELECT supplier_id FROM suppliers WHERE is_default = 1 LIMIT 1`
-    );
-
-    if (!defaultSupplier) {
-      throw new Error("Default supplier not found.");
-    }
+  
 
     const stid = uuidv4().replace(/-/g, "").substring(0, 8);
 

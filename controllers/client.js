@@ -2,18 +2,18 @@ const { pool } = require("../config/database");
 
 async function generateClientCode() {
   const [result] = await pool.query(
-    "SELECT MAX(client_code) AS max_code FROM clients WHERE client_code REGEXP '^C[0-9]+$'"
+    "SELECT MAX(client_code) AS max_code FROM clients WHERE client_code REGEXP '^ADR[0-9]+$'"
   );
 
-  let newCode = 1000; // Start from 1000 if table is empty
+  let newCode = 1; // Start from 1 if table is empty
 
   if (result[0].max_code) {
-    // Extract numeric part from the last client_code (e.g., "C1001" → 1001)
-    const lastNumber = parseInt(result[0].max_code.substring(1), 10);
+    // Extract numeric part from the last client_code (e.g., "ADR001" → 1)
+    const lastNumber = parseInt(result[0].max_code.substring(3), 10);
     newCode = lastNumber + 1;
   }
 
-  return `C${newCode}`;
+  return `ADR${newCode.toString().padStart(3, '0')}`;
 }
 
 async function createClient(req, res) {
@@ -50,7 +50,7 @@ async function createClient(req, res) {
       email,
       contact_number,
       website_url,
-      status || "active",
+      1,
     ]);
 
     res.status(201).json({

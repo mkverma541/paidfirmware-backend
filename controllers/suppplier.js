@@ -4,10 +4,9 @@ async function generateSupplierCode() {
   const [result] = await pool.query(
     "SELECT COUNT(supplier_id) AS count FROM suppliers"
   );
-  const count = result[0].count + 1000;
-  return `S${count}`;
+  const count = result[0].count + 1;
+  return `ADR${count.toString().padStart(3, '0')}`;
 }
-
 
 async function addSupplier(req, res) {
   try {

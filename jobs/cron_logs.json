@@ -1,15 +1,26 @@
 [
   {
-    "timestamp": "2025-03-30T07:32:00.066Z",
+    "timestamp": "2025-04-01T19:54:00.346Z",
     "status": "error",
     "table": "res_files",
     "message": "Error updating is_new: Table 'accord-data-research.res_files' doesn't exist"
   },
   {
-    "timestamp": "2025-03-30T07:33:00.194Z",
+    "timestamp": "2025-04-01T19:55:00.205Z",
+    "status": "error",
+    "table": "res_files",
+    "message": "Error updating is_new: Table 'accord-data-research.res_files' doesn't exist"
+  },
+  {
+    "timestamp": "2025-04-01T19:56:00.443Z",
+    "status": "error",
+    "table": "res_files",
+    "message": "Error updating is_new: Table 'accord-data-research.res_files' doesn't exist"
+  },
+  {
+    "timestamp": "2025-04-01T19:57:00.872Z",
     "status": "error",
     "table": "res_files",
     "message": "Error updating is_new: Table 'accord-data-research.res_files' doesn't exist"
   }
-] }
 ]

@@ -151,7 +151,7 @@ async function getSurveyLinks(req, res) {
         // Passed all checks, generate link
         const liveLink = projectDetails.survey_live_link;
         const hash = uuidv4();
-        hashIdentifier = `AR-${hash}`;
+        hashIdentifier = `ADR-${hash}`;
         redirectLinks = liveLink.replace("[identifier]", hashIdentifier);
         // Status remains 'Success' until survey interaction changes it,
         // but we often log the initial entry as something like 'Sent to Survey' or keep 'Success' for entry.
@@ -162,7 +162,7 @@ async function getSurveyLinks(req, res) {
       // Test Link Logic
       const testLink = projectDetails.survey_test_link;
       const hash = uuidv4();
-      hashIdentifier = `AR-${hash}`;
+      hashIdentifier = `ADR-${hash}`;
       // No need to generate or overwrite uid here. Use the hashIdentifier for the link.
       redirectLinks = testLink.replace("[identifier]", hashIdentifier);
       // The original code set status to 'Drop Out', let's use 'Sent to Test Survey'.
