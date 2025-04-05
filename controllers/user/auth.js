@@ -10,6 +10,39 @@ const { sendEmail } = require("../../email-service/email-service");
 
 const secretKey = process.env.JWT_SECRET;
 
+async function getUserProfile(req, res) {
+  const userId = req.user.id; // Assuming you have middleware to set req.user
+
+  try {
+    // Fetch user profile from the database
+    const [row] = await pool.execute(
+      "SELECT * FROM res_users WHERE user_id = ?",
+      [userId]
+    );
+
+    if (row.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = row[0];
+
+    const hasActivePackage = await checkUserPackage(user.user_id);
+
+    // Send back user details without sensitive information
+    return res.status(200).json({
+      message: "User profile fetched successfully",
+      user: {
+        ...user,
+        hasActivePackage, // Include active package status
+        token: req.headers.authorization.split(" ")[1], // Assuming Bearer token
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 async function checkoutLogin(req, res) {
   const { email } = req.body;
 
@@ -45,7 +78,7 @@ async function checkoutLogin(req, res) {
       return res.status(200).json({
         message: "OTP sent successfully. Please check your email.",
         otpSent: true,
-        otp: otp, 
+        otp: otp,
       });
     } else {
       // If user does not exist, create a new user
@@ -182,7 +215,7 @@ async function signup(req, res) {
       [data.insertId]
     );
 
-   sendEmail(email, "OTP Verification", "otp-verification", {
+    sendEmail(email, "OTP Verification", "otp-verification", {
       otp: otp,
       username: username,
     });
@@ -279,13 +312,10 @@ async function login(req, res) {
       { expiresIn: "30d" }
     );
 
-    // Check if user has an active package
-    const [validPackage] = await pool.execute(
-      "SELECT * FROM res_upackages WHERE user_id = ? AND date_expire > NOW() LIMIT 1",
-      [user.user_id]
-    );
+    console.log(user.user_id, "user id");
 
-    const hasActivePackage = validPackage.length > 0;
+    // Check if user has an active package
+    const hasActivePackage = await checkUserPackage(user.user_id);
 
     // Send safe user details
     return res.status(200).json({
@@ -301,6 +331,52 @@ async function login(req, res) {
   } catch (error) {
     console.error("Login error:", error);
     return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+// check if user have valid active package
+
+async function checkUserPackage(user_id) {
+  try {
+    const [packages] = await pool.execute(
+      "SELECT * FROM res_upackages WHERE user_id = ?",
+      [user_id]
+    );
+
+    console.log(packages, "All packages");
+
+    if (packages.length === 0) {
+      console.log(`User ${user_id} has no packages.`);
+      return false;
+    }
+
+    const now = new Date();
+
+    // Filter only active (non-expired) packages
+    const activePackages = packages.filter(
+      (pkg) => new Date(pkg.date_expire) > now
+    );
+
+    console.log(activePackages, "Active packages");
+
+    if (activePackages.length === 0) {
+      console.log(`User ${user_id} has no active packages.`);
+      return false;
+    }
+
+    // Optional: Log expired ones
+    const expiredPackages = packages.filter(
+      (pkg) => new Date(pkg.date_expire) <= now
+    );
+
+    if (expiredPackages.length > 0) {
+      console.log(`User ${user_id} has expired packages:`, expiredPackages);
+    }
+
+    return true; // ✅ Only return true if at least one active package exists
+  } catch (error) {
+    console.error("Error checking user package:", error);
+    return false;
   }
 }
 
@@ -321,39 +397,39 @@ async function verifyOtp(req, res) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (existingUser[0].otp != otp) {
+    const user = existingUser[0];
+
+    if (user.otp != otp) {
       return res.status(401).json({ message: "Invalid OTP" });
     }
 
     const token = jwt.sign(
-      { id: existingUser[0].user_id, username: existingUser[0].username },
+      { id: user.user_id, username: user.username },
       secretKey,
       { expiresIn: "30d" }
     );
 
     await pool.execute(
       "UPDATE res_users SET is_verified = 1 WHERE user_id = ?",
-      [existingUser[0].user_id]
+      [user.user_id]
     );
 
-    // Send welcome email
-    const emailSubject = "Welcome to our platform";
-    const emailBody = `
-        Hi, <br><br>
-        Welcome to our platform. You have successfully verified your email.<br><br>
-        You can now login to your account.<br><br>
-      `;
-    // await sendEmail(email, emailSubject, emailBody);
+    const hasActivePackage = await checkUserPackage(user.user_id);
 
     return res.status(200).json({
       message: "You have successfully logged in",
       user: {
-        ...existingUser[0],
+        ...user,
         token: token, // Include the token in the user object
+        hasActivePackage,
       },
     });
   } catch (error) {
-    return res.status(500).json({ error: error });
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 }
 
@@ -724,6 +800,7 @@ async function facebookSocialLogin(req, res) {
 }
 
 module.exports = {
+  getUserProfile,
   signup,
   login,
   verifyOtp,

@@ -1,10 +1,11 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 
-const DownloadsPackageController = require('../../../controllers/user/account/downloadPackages');
-const authenticate = require('../../../middlewars/authenticateToken');
+const PackageController = require("../../../controllers/user/account/downloadPackages");
+const authenticate = require("../../../middlewars/authenticateToken");
 
-router.get('/', authenticate,  DownloadsPackageController.getPackages);
-router.get('/update', authenticate, DownloadsPackageController.updateCurrentPackage);
+router.get("/", authenticate, PackageController.getPackages);
+router.get("/update/current-package", authenticate, PackageController.updateCurrentPackage);
+router.get("/usage", authenticate, PackageController.getUserPackageUsage);
 
 module.exports = router;

@@ -45,6 +45,7 @@ const processOrder = async (order_id, user_id) => {
           const expireDate = new Date(
             currentDate.getTime() + item.period * 1000
           );
+
           return [
             item.package_id,
             order_id,
@@ -58,11 +59,7 @@ const processOrder = async (order_id, user_id) => {
             item.fair,
             item.fair_files,
             item.devices,
-            "",
             1,
-            0,
-            0,
-            currentDate,
             expireDate,
           ];
         });
@@ -70,8 +67,8 @@ const processOrder = async (order_id, user_id) => {
         await connection.query(
           `INSERT INTO res_upackages (
             package_id, order_id, package_title, package_object, user_id, 
-            bandwidth, bandwidth_files, extra, extra_files, fair, fair_files, 
-            devices, devices_fp, is_active, is_current, is_free, date_create, date_expire
+            bandwidth, bandwidth_files, extra, extra_files, fair, fair_files, devices,
+             is_current, date_expire
           ) VALUES ?`,
           [packageInsertions]
         );
@@ -166,7 +163,6 @@ const processOrder = async (order_id, user_id) => {
     await connection.execute("DELETE FROM res_cart WHERE user_id = ?", [
       user_id,
     ]);
-
 
     await connection.commit();
     sendOrderConfirmationEmail(user_id, order_id);

@@ -22,11 +22,13 @@ router.get("/files/recent", cacheMiddleware, digitalFilesController.recentFiles)
 router.get("/files/paid", cacheMiddleware, digitalFilesController.paidFiles);
 
 
-router.post(
-  "/file/generate-download-link",
-  authenticateUser,
-  downloadFileController.generateDownloadLink
-);
-router.get("/file/download/link", downloadFileController.downloadFile);
+// downloads files from the file manager
+router.get("/file/download/featured", authenticateUser, downloadFileController.downloadFeaturedFile);
+router.get("/file/download/free", authenticateUser, downloadFileController.downloadFreeFile);
+router.get("/file/download/paid", authenticateUser, downloadFileController.downloadPaidFile);
+router.post("/devices/trust", authenticateUser, downloadFileController.trustDevice);
+
+router.get("/file/download/link", authenticateUser, downloadFileController.downloadFile);
+
 
 module.exports = router;

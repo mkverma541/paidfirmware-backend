@@ -7,22 +7,19 @@ async function getDownloadsHistory(req, res) {
   const offset = (page - 1) * limit;
 
   try {
-    // Join the table with res_files to get the file name and calculate canDownload
     const [rows] = await pool.execute(
       `
-      SELECT res_udownloads.*, res_files.title, res_files.size, res_files.folder_id,
-      (res_udownloads.expired_at > NOW()) AS canDownload
-      FROM res_udownloads
-      LEFT JOIN res_files 
-      ON res_udownloads.file_id = res_files.file_id
-      WHERE res_udownloads.user_id = ?
+      SELECT user_id, file_id, file_title, file_size, created_at, expired_at,
+      (expired_at > NOW()) AS canDownload
+      FROM res_udownloads WHERE user_id = ?
+      ORDER BY created_at DESC
       LIMIT ? OFFSET ?
       `,
       [id, parseInt(limit), parseInt(offset)]
     );
 
     // Ensure canDownload is returned as true/false in JavaScript
-    const result = rows.map(row => ({
+    const result = rows.map((row) => ({
       ...row,
       canDownload: !!row.canDownload, // Convert 1/0 to true/false
     }));
@@ -40,15 +37,17 @@ async function getDownloadsHistory(req, res) {
     const total = countResult[0].total;
     const totalPages = Math.ceil(total / limit);
 
-    res.status(200).json({
+    const response = {
       data: result,
-      pagination: {
-        total,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        totalPages,
-      },
+      perPage: limit,
+      totalCount: total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page, // Pass the correct current page
+    };
+
+    res.status(200).json({
       status: "success",
+      response: response,
     });
   } catch (error) {
     console.error("Database error:", error);
@@ -231,4 +230,4 @@ async function generateDownloadLink(req, res) {
 module.exports = {
   getDownloadsHistory,
   downloadFile,
- };
+};

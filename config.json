@@ -24,5 +24,6 @@
   "AWS_S3_BUCKET_NAME": "filewale",
   "JWT_SECRET": "your_secret_key",
   "ENABLE_REDIS_CACHE": true,
-  "NODE_ENV": "development"
+  "NODE_ENV": "development",
+  "DOWNLOAD_LINK_EXPIRY_HOURS": 24
 }
