@@ -7,12 +7,12 @@ const nodemailer = require("nodemailer");
 
 // Create a transporter object with your email service provider's SMTP settings
 const transporter = nodemailer.createTransport({
-  host: "premium119.web-hosting.com",
+  host: "smtp-relay.brevo.com",
   port: 587,
   secure: false, // Use true when port is 465
   auth: {
-    user: "info@mathematicalpathshala.in",
-    pass: "Y0(2o@9n=U$B",
+    user: '89af8a001@smtp-brevo.com',
+    pass: 'LD9fZ3dr8vOjUcEX'
   },
   tls: {
     rejectUnauthorized: false, // Allow self-signed certificates
@@ -130,7 +130,7 @@ async function sendEmail(email, subject, templateName, data) {
     const emailHtml = await renderEmail(templateName, data);
 
     const mailOptions = {
-      from: "info@mathematicalpathshala.in",
+      from: "shadowgrow541@gmail.com",
       to: email,
       subject: subject,
       html: emailHtml,

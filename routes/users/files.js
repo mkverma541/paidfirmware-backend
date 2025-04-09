@@ -20,6 +20,9 @@ router.get("/file/:slug", cacheMiddleware, digitalFilesController.getFileByFileS
 
 router.get("/files/recent", cacheMiddleware, digitalFilesController.recentFiles);
 router.get("/files/paid", cacheMiddleware, digitalFilesController.paidFiles);
+router.get("/files/free", cacheMiddleware, digitalFilesController.freeFiles);
+
+router.get("/file/stats/:slug", digitalFilesController.getStats);
 
 
 // downloads files from the file manager
@@ -29,6 +32,7 @@ router.get("/file/download/paid", authenticateUser, downloadFileController.downl
 router.post("/devices/trust", authenticateUser, downloadFileController.trustDevice);
 
 router.get("/file/download/link", authenticateUser, downloadFileController.downloadFile);
+
 
 
 module.exports = router;

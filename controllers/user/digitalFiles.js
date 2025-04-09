@@ -312,6 +312,49 @@ async function paidFiles(req, res) {
   }
 }
 
+
+async function freeFiles(req, res) {
+  try {
+    const [rows] = await pool.execute(
+      "SELECT * FROM res_files WHERE price = 0 and is_featured = 0  ORDER BY file_id DESC LIMIT 100"
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: rows,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+async function getStats(req, res) {
+  const slug = req.params.slug;
+
+  try {
+    const [rows] = await pool.execute(
+      "SELECT visits, downloads FROM res_files WHERE slug = ?",
+      [slug]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "No data found",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: rows[0],
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
 module.exports = {
   getAllFoldersFiles,
   getFolderDescription,
@@ -321,4 +364,6 @@ module.exports = {
   getFileByFileSlug,
   recentFiles,
   paidFiles,
+  getStats,
+  freeFiles,
 };
