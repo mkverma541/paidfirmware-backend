@@ -21700,5 +21700,12 @@
     "status": "success",
     "table": "res_folders",
     "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-04-12T19:11:00.622Z",
+    "status": "error",
+    "table": "res_files",
+    "message": "Error updating is_new: No database selected"
   }
+]
 ]

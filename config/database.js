@@ -1,14 +1,6 @@
 const fs = require("fs");
 const mysql = require("mysql2/promise");
 
-// Load config.json
-const config = JSON.parse(fs.readFileSync("config.json", "utf8"));
-
-// Set environment variables
-Object.keys(config).forEach((key) => {
-  process.env[key] = config[key];
-});
-
 // Create a MariaDB connection pool
 const pool = mysql.createPool({
   host: process.env.DB_HOST,

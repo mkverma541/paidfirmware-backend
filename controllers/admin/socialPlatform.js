@@ -1,5 +1,4 @@
 const { pool } = require("../../config/database");
-const config = require("../../config");
 
 // Create a new social platform
 async function createSocialPlatform(req, res) {
