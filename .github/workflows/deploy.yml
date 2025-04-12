@@ -1,34 +1,27 @@
-name: Deploy Node.js App to cPanel
+name: Auto Deploy to VPS
 
 on:
   push:
     branches:
-      - main  # Triggers deployment when changes are pushed to the main branch
+      - main
 
 jobs:
   deploy:
-    name: FTP Deploy
+    name: Deploy App to VPS
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install lftp
-      run: sudo apt-get install -y lftp
-
-    - name: Deploy files via FTP
-      env:
-        FTP_SERVER: ftp.mathematicalpathshala.in
-        FTP_USERNAME: mukesh@api.paidfirmware.com
-        FTP_PASSWORD: kPwr~~!(Yi1-
-        FTP_PATH: /
-      run: |
-        lftp -f "
-        set ssl:verify-certificate no
-        open ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_SERVER
-        lcd .
-        cd $FTP_PATH
-        mirror --reverse --delete --verbose --only-newer ./ .
-        bye
-        "
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        script: |
+          cd /root/myapp
+          git pull origin main
+          npm install
+          pm2 restart myapp
