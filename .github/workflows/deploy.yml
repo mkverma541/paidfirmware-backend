@@ -24,4 +24,4 @@ jobs:
           cd /root/myapp
           git pull origin main
           npm install
-          pm2 restart myapp
+          pm2 restart app
