@@ -1,5 +1,7 @@
+
 const fs = require("fs");
 const mysql = require("mysql2/promise");
+require('dotenv').config();
 
 // Create a MariaDB connection pool
 const pool = mysql.createPool({
@@ -19,6 +21,7 @@ pool.getConnection()
     connection.release(); // Release back to pool
   })
   .catch((err) => {
+
     console.error("❌ MariaDB Connection Error:", err);
     process.exit(1); // Exit the app
   });
