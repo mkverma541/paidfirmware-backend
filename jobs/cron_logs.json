@@ -1,9 +1,8 @@
 [
   {
-    "timestamp": "2025-04-12T19:34:00.036Z",
+    "timestamp": "2025-04-12T20:38:00.438Z",
     "status": "error",
     "table": "res_files",
     "message": "Error updating is_new: No database selected"
   }
-]
 ]
