@@ -57,9 +57,7 @@ async function searchAllTables(req, res) {
       results.blogs = blogRows;
     } else {
       let queryStr = "";
-      let table = "";
-      let column = "";
-      let idField = "";
+
       let key = "";
 
       switch (Number(type)) {
@@ -116,7 +114,7 @@ async function searchAllTables(req, res) {
 }
 
 async function getSearchResults(req, res) {
-  const { type, query, page = 1, limit = 10 } = req.query;
+  const { type, query, page = 1, limit = 20 } = req.query;
   const offset = (page - 1) * limit;
   const searchTerm = `%${query}%`;
 
@@ -124,13 +122,13 @@ async function getSearchResults(req, res) {
     let queryStr = "";
     let key = "";
 
-    switch (Number(type)) {
+    switch (type) {
       case SEARCH_TYPE.FILES:
-        queryStr = "SELECT slug, title, file_id FROM res_files WHERE title LIKE ? LIMIT ? OFFSET ?";
+        queryStr = "SELECT slug, title, description, created_at, rating_count, rating_points, size, is_featured, price,thumbnail, file_id FROM res_files WHERE title LIKE ? LIMIT ? OFFSET ?";
         key = "files";
         break;
       case SEARCH_TYPE.FOLDERS:
-        queryStr = "SELECT slug, title, folder_id FROM res_folders WHERE title LIKE ? LIMIT ? OFFSET ?";
+        queryStr = "SELECT slug, title, thumbnail, description, folder_id FROM res_folders WHERE title LIKE ? LIMIT ? OFFSET ?";
         key = "folders";
         break;
       case SEARCH_TYPE.PRODUCTS:
@@ -153,7 +151,7 @@ async function getSearchResults(req, res) {
     }
 
     if (queryStr) {
-      const [rows] = await pool.execute(queryStr, [searchTerm, Number(limit), offset]);
+      let [rows] = await pool.execute(queryStr, [searchTerm, Number(limit), offset]);
 
       // If searching folders, fetch folder paths
       if (key === "folders" && rows.length > 0) {
