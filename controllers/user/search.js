@@ -102,8 +102,9 @@ async function searchAllTables(req, res) {
     }
 
     res.status(200).json({
-      status: "success",
+      status: "success Test ",
       data: results,
+      isUpdated: true
     });
   } catch (error) {
     console.error(error);

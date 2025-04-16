@@ -2266,5 +2266,47 @@
     "status": "success",
     "table": "res_files",
     "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-04-16T12:13:00.191Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-04-16T12:14:01.079Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-04-16T12:14:01.136Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-04-16T12:15:00.738Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-04-16T12:15:00.792Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-04-16T12:16:00.715Z",
+    "status": "success",
+    "table": "res_folders",
+    "message": "Successfully updated is_new field"
+  },
+  {
+    "timestamp": "2025-04-16T12:16:00.774Z",
+    "status": "success",
+    "table": "res_files",
+    "message": "Successfully updated is_new field"
   }
 ]
