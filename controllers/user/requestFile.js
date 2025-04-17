@@ -3,22 +3,48 @@ const { pool } = require("../../config/database");
 // Create a new file request
 async function createRequestFile(req, res) {
   try {
-    const { name, email, phone, subject, message, user_id = null } = req.body;
+    const {
+      fullName,
+      email,
+      fileType,
+      priority,
+      purpose,
+      additionalInfo = null,
+      user_id = null, // Optional, if user is logged in
+    } = req.body;
+
+    // Validate required fields
+    if (!fullName || !email || !fileType || !priority || !purpose) {
+      return res.status(400).json({
+        message: "Missing required fields.",
+        status: "error",
+      });
+    }
 
     const query = `
-            INSERT INTO res_file_requests (name, email, phone, subject, message, user_id)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `;
-    await pool.query(query, [name, email, phone, subject, message, user_id]);
+      INSERT INTO res_file_requests 
+        (name, email, file_type, priority, purpose, additional_info, user_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
 
-    res.status(201).json({
-      message: "File request created successfully",
+    await pool.query(query, [
+      fullName.trim(),
+      email,
+      fileType,
+      priority,
+      purpose,
+      additionalInfo,
+      user_id,
+    ]);
+
+    return res.status(201).json({
+      message: "File request submitted successfully.",
       status: "success",
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      message: "Internal server error",
+    console.error("Error while creating file request:", err);
+    return res.status(500).json({
+      message: "Internal server error.",
       status: "error",
     });
   }

@@ -7,23 +7,25 @@ async function getTeamMembers(req, res) {
 
         // Map through the rows and format social_links as an array
         const teamMembers = rows.map(member => {
-            // Convert social_links JSON string to an object
-            const socialLinksObj = JSON.parse(member.social_links);
+            let socialLinksArray = [];
+            if (member.social_links) {
+                try {
+                    // Convert social_links JSON string to an object
+                    const socialLinksObj = JSON.parse(member.social_links);
 
-            // Convert the social links object into an array
-            const socialLinksArray = Object.keys(socialLinksObj).map(key => ({
-                platform: key,
-                url: socialLinksObj[key]
-            }));
+                    // Convert the social links object into an array
+                    socialLinksArray = Object.keys(socialLinksObj).map(key => ({
+                        platform: key,
+                        url: socialLinksObj[key]
+                    }));
+                } catch (parseError) {
+                    console.error("Error parsing social_links JSON:", parseError);
+                }
+            }
 
             return {
-                name: member.name,
-                role: member.role,
-                photo: member.photo,
-                video: member.video,
+                ...member,
                 social_links: socialLinksArray,
-                position: member.position,
-            
             };
         });
 

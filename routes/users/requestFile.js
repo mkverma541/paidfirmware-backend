@@ -3,6 +3,6 @@ var router = express.Router();
 
 const RequestFileController = require('../../controllers/user/requestFile');
 
-router.post('/create', RequestFileController.createRequestFile);
+router.post('/', RequestFileController.createRequestFile);
 
 module.exports = router;

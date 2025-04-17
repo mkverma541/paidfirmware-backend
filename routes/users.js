@@ -51,7 +51,7 @@ router.use("/menu", menuRouter);
 router.use("/coupons", couponRouter);
 router.use("/reviews", reviewRouter);
 router.use("/request-file", requestFileRouter);
-router.use("/leads", contactUsEnquiryRouter);
+router.use("/contact-us", contactUsEnquiryRouter);
 router.use("/products",  productsRouter);
 router.use("/product", productRouter);
 router.use("/wallet", walletRouter);

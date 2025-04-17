@@ -18,7 +18,7 @@ async function searchAllTables(req, res) {
 
     const queries = [];
 
-    if (type == 0) {
+    if (type == 0) {  
       queries.push(
         pool.execute(
           `SELECT slug, title, file_id FROM res_files WHERE title LIKE ? LIMIT ?`,
@@ -60,7 +60,7 @@ async function searchAllTables(req, res) {
 
       let key = "";
 
-      switch (Number(type)) {
+      switch (type) {
         case SEARCH_TYPE.FILES:
           queryStr = "SELECT slug, title, file_id FROM res_files WHERE title LIKE ? LIMIT ?";
           key = "files";
