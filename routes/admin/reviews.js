@@ -3,7 +3,9 @@ const router = express.Router();
 
 const ReviewController = require("../../controllers/admin/reviews");
 
-router.get("/", ReviewController.getAllReviews);
-router.put("/update", ReviewController.updateReview);
+router.get("/", ReviewController.getFileReviews);
+router.put("/update", ReviewController.updateReviewStatus);
+router.post("/add", ReviewController.createReview)
+
 
 module.exports = router;

@@ -1,51 +1,133 @@
 const { pool } = require("../../config/database");
 
-async function getAllReviews(req, res) {
+async function createReview(req, res) {
+  const { id } = req.user;
+  const user_id = id;
+
+  const {
+    item_type,
+    item_id,
+    rating,
+    review_text,
+    title,
+    media
+  } = req.body;
+
+  if (!item_type || !item_id || !review_text || !rating) {
+    return res.status(400).json({
+      message: "Item type, item ID, rating, and review text are required",
+      status: "error",
+    });
+  }
+
   try {
-    // Get page and limit from query parameters, with default values
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const offset = (page - 1) * limit;
+    // Set review as 'pending' by default
+    const [result] = await pool.query(
+      `INSERT INTO res_reviews (user_id, item_type, item_id, rating, review_text, title, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [user_id, item_type, item_id, rating, review_text, title || null, 'pending']
+    );
 
-    // Query to get paginated reviews with user details
-    const reviewsQuery = `
-        SELECT 
-          res_reviews.review_id,
-          res_reviews.user_id,
-          res_reviews.file_id,
-          res_reviews.product_id,
-          res_reviews.course_id,
-          res_reviews.rating,
-          res_reviews.review_text,
-          res_reviews.status,
-          res_reviews.created_at,
-          res_users.fullname,
-          res_users.photo
-        FROM res_reviews
-        LEFT JOIN res_users ON res_reviews.user_id = res_users.user_id
-        ORDER BY res_reviews.created_at DESC
-        LIMIT ? OFFSET ?`;
+    const review_id = result.insertId;
 
-    // Run the query with pagination
-    const [reviews] = await pool.query(reviewsQuery, [limit, offset]);
-
-    // Query to get the total count of reviews for pagination metadata
-    const [[{ total }]] = await pool.query(`SELECT COUNT(*) AS total FROM res_reviews`);
-
-    const result = {
-      currentPage: page,
-      totalPages: Math.ceil(total / limit),
-      totalResults: total,
-      data: reviews,
+    // Insert media if available
+    if (media && Array.isArray(media)) {
+      const mediaInsertPromises = media.map((url) =>
+        pool.query(
+          `INSERT INTO res_review_media (review_id, media_url) VALUES (?, ?)`,
+          [review_id, url]
+        )
+      );
+      await Promise.all(mediaInsertPromises);
     }
 
-    return res.status(200).json({
-      message: "Fetched all reviews successfully",
+    res.status(201).json({
+      message: "Review submitted for approval",
       status: "success",
-      response: result,
     });
   } catch (err) {
-    console.error("Error fetching all reviews:", err);
+    console.error("Error creating review:", err);
+    res.status(500).json({
+      message: "Internal server error",
+      status: "error",
+    });
+  }
+}
+
+async function updateReviewStatus(req, res) {
+  const { review_id } = req.params;
+  const { status } = req.body; // 'approved' or 'rejected'
+
+  if (!['approved', 'rejected'].includes(status)) {
+    return res.status(400).json({ message: "Invalid status" });
+  }
+
+  try {
+    await pool.query(
+      `UPDATE res_reviews SET status = ? WHERE id = ?`,
+      [status, review_id]
+    );
+
+    res.json({
+      message: `Review ${status} successfully`,
+      status: "success",
+    });
+  } catch (err) {
+    console.error("Error updating review status:", err);
+    res.status(500).json({
+      message: "Internal server error",
+      status: "error",
+    });
+  }
+}
+
+
+async function getFileReviews(req, res) {
+  const { item_type, item_id } = req.query;
+
+  if (!item_type || !item_id) {
+    return res.status(400).json({
+      message: "Valid item_type and item_id are required",
+      status: "error",
+    });
+  }
+
+  try {
+    // Query to get all approved reviews for this item
+    const reviewsQuery = `
+      SELECT r.*, u.fullname, u.photo
+      FROM res_reviews r
+      LEFT JOIN res_users u ON r.user_id = u.user_id
+      WHERE r.item_type = ? AND r.item_id = ? AND r.status = 'approved'
+      ORDER BY r.created_at DESC
+    `;
+
+    // Aggregates: Total number of approved reviews, total sum of star ratings, and average rating
+    const aggregatesQuery = `
+      SELECT 
+        COUNT(*) AS total_reviews,
+        IFNULL(SUM(rating), 0) AS total_star_sum,
+        IFNULL(AVG(rating), 0) AS average_rating
+      FROM res_reviews
+      WHERE item_type = ? AND item_id = ? AND status = 'approved'
+    `;
+
+    // Run queries in parallel
+    const [reviews] = await pool.query(reviewsQuery, [item_type, item_id]);
+    const [[aggregates]] = await pool.query(aggregatesQuery, [item_type, item_id]);
+
+    return res.status(200).json({
+      reviews,
+      summary: {
+        total_reviews: aggregates.total_reviews,
+        total_star_sum: aggregates.total_star_sum,
+        average_rating: aggregates.average_rating.toFixed(1),
+        text: `${aggregates.total_star_sum} Stars across ${aggregates.total_reviews} Reviews`,
+      },
+      status: "success",
+    });
+  } catch (err) {
+    console.error("Error fetching item reviews:", err);
     return res.status(500).json({
       message: "An error occurred while fetching reviews",
       status: "error",
@@ -53,30 +135,9 @@ async function getAllReviews(req, res) {
   }
 }
 
-async function updateReview(req, res) {
-  try {
-    const { review_id, status } = req.body;
 
-    // Query to update the review's approval status
-    const updateReviewQuery = `
-            UPDATE res_reviews
-            SET status = ?
-            WHERE review_id = ?`;
-
-    // Run the query
-    await pool.query(updateReviewQuery, [status, review_id]);
-
-    return res.status(200).json({
-      message: "Review updated successfully",
-      status: "success",
-    });
-  } catch (err) {
-    console.error("Error updating review:", err);
-    return res.status(500).json({
-      message: "An error occurred while updating review",
-      status: "error",
-    });
-  }
-}
-
-module.exports = { getAllReviews, updateReview };
+module.exports = {
+  createReview,
+  getFileReviews,
+  updateReviewStatus
+};

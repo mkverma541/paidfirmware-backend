@@ -193,7 +193,7 @@ async function getFileByFileSlug(req, res) {
 
     // Fetch the file from the database
     const [rows] = await pool.execute(
-      "SELECT * FROM res_files WHERE slug = ?",
+      "SELECT file_id, folder_id, title, slug, description, thumbnail, tags, visits, downloads, is_featured, is_new, price, rating_count, rating_points, size, created_at FROM res_files WHERE slug = ?",
       [slug]
     );
 

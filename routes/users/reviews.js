@@ -6,7 +6,7 @@ const authenticateUser = require('../../middlewars/authenticateToken');
 
 
 router.post('/add', authenticateUser, ReviewsController.createReview);
-router.post('/', ReviewsController.getFileReviews);
+router.get('/', ReviewsController.getFileReviews);
 
 module.exports = router;
  

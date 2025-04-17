@@ -1,33 +1,53 @@
 const { pool } = require("../../config/database");
 
-// Controller to create a new review
+
 async function createReview(req, res) {
   const { id } = req.user;
   const user_id = id;
 
-  const { file_id, rating, review_text } = req.body;
+  const {
+    item_type,
+    item_id,
+    rating,
+    review_text,
+    title,
+    media
+  } = req.body;
 
-  if (!file_id || !rating || !review_text) {
+  if (!item_type || !item_id || !review_text || !rating) {
     return res.status(400).json({
-      message: "File ID, rating, and review text are required",
+      message: "Item type, item ID, rating, and review text are required",
       status: "error",
     });
   }
 
   try {
-    // Insert a new review into the database
-    await pool.query(
-      `INSERT INTO res_reviews (user_id, file_id, rating, review_text)
-       VALUES (?, ?, ?, ?)`,
-      [user_id, file_id, rating, review_text]
+    // Set review as 'pending' by default
+    const [result] = await pool.query(
+      `INSERT INTO res_reviews (user_id, item_type, item_id, rating, review_text, title, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [user_id, item_type, item_id, rating, review_text, title || null, 'pending']
     );
 
+    const review_id = result.insertId;
+
+    // Insert media if available
+    if (media && Array.isArray(media)) {
+      const mediaInsertPromises = media.map((url) =>
+        pool.query(
+          `INSERT INTO res_review_media (review_id, media_url) VALUES (?, ?)`,
+          [review_id, url]
+        )
+      );
+      await Promise.all(mediaInsertPromises);
+    }
+
     res.status(201).json({
-      message: "Review created successfully",
+      message: "Review submitted for approval",
       status: "success",
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error creating review:", err);
     res.status(500).json({
       message: "Internal server error",
       status: "error",
@@ -35,54 +55,89 @@ async function createReview(req, res) {
   }
 }
 
-async function getFileReviews(req, res) {
-  const { file_id } = req.body;
 
-  if (!file_id) {
+async function getFileReviews(req, res) {
+  const { item_type, item_id, page = 1, limit = 10 } = req.query;
+
+  if (!item_type || !item_id) {
     return res.status(400).json({
-      message: "Valid File ID is required",
+      message: "Valid item_type and item_id are required",
       status: "error",
     });
   }
 
-  try {
-    // Query to get all approved reviews for the given file
-    const reviewsQuery = `
-      SELECT res_reviews.*, res_users.fullname, res_users.photo
-      FROM res_reviews
-      LEFT JOIN res_users ON res_reviews.user_id = res_users.user_id
-      WHERE res_reviews.file_id = ? AND res_reviews.is_approved = 1`;
+  const offset = (page - 1) * limit;
 
-    // Query to get the total number of approved reviews
+  try {
+    const reviewsQuery = `
+      SELECT r.*, u.first_name, u.last_name, u.photo
+      FROM res_reviews r
+      LEFT JOIN res_users u ON r.user_id = u.user_id
+      WHERE r.item_type = ? AND r.item_id = ? AND r.status = 'approved'
+      ORDER BY r.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
     const countQuery = `
       SELECT COUNT(*) AS total_reviews
       FROM res_reviews
-      WHERE res_reviews.file_id = ? AND res_reviews.is_approved = 1`;
+      WHERE item_type = ? AND item_id = ? AND status = 'approved'
+    `;
 
-    // Query to get the sum of all star ratings for approved reviews
-    const totalStarSumQuery = `
-      SELECT IFNULL(SUM(res_reviews.rating), 0) AS total_star_sum
+    const starSumQuery = `
+      SELECT IFNULL(SUM(rating), 0) AS total_star_sum
       FROM res_reviews
-      WHERE res_reviews.file_id = ? AND res_reviews.is_approved = 1`;
+      WHERE item_type = ? AND item_id = ? AND status = 'approved'
+    `;
 
-    // Run the queries
-    const [reviews] = await pool.query(reviewsQuery, [file_id]);
-    const [[{ total_reviews }]] = await pool.query(countQuery, [file_id]);
-    const [[{ total_star_sum }]] = await pool.query(totalStarSumQuery, [file_id]);
+    // NEW: get count of each star rating
+    const distributionQuery = `
+      SELECT rating, COUNT(*) AS count
+      FROM res_reviews
+      WHERE item_type = ? AND item_id = ? AND status = 'approved'
+      GROUP BY rating
+    `;
+
+    const [reviews] = await pool.query(reviewsQuery, [item_type, item_id, parseInt(limit), parseInt(offset)]);
+    const [[{ total_reviews }]] = await pool.query(countQuery, [item_type, item_id]);
+    const [[{ total_star_sum }]] = await pool.query(starSumQuery, [item_type, item_id]);
+    const [distribution] = await pool.query(distributionQuery, [item_type, item_id]);
+
+    const average_rating = total_reviews ? (total_star_sum / total_reviews).toFixed(1) : "0.0";
+
+    // Convert distribution to percentage per star
+    const ratingPercentages = {};
+    for (let i = 1; i <= 5; i++) {
+      const found = distribution.find(row => row.rating === i);
+      const percent = found ? Math.round((found.count / total_reviews) * 100) : 0;
+      ratingPercentages[i] = percent;
+    }
 
     return res.status(200).json({
-      reviews,
-      summary: `${total_star_sum} Stars & ${total_reviews} Reviews`,
+      data: reviews,
+      summary: {
+        totalReviews: total_reviews,
+        averageRating: average_rating,
+        ratingPercentages,
+        text: `${total_star_sum} Stars across ${total_reviews} Reviews`,
+      },
+      pagination: {
+        current_page: parseInt(page),
+        total_pages: Math.ceil(total_reviews / limit),
+        per_page: parseInt(limit),
+      },
       status: "success",
     });
   } catch (err) {
-    console.error("Error fetching file reviews:", err);
+    console.error("Error fetching item reviews:", err);
     return res.status(500).json({
-      message: "An error occurred while fetching file reviews",
+      message: "An error occurred while fetching reviews",
       status: "error",
     });
   }
 }
+
+
 
 
 module.exports = {
